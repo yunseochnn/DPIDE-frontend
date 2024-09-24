@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'Apple SD Gothic Neo';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: url('https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/AppleSDGothicNeo-Light.woff2') format('woff2'),
+    url('https://cdn.jsdelivr.net/gh/fonts-archive/AppleSDGothicNeo/AppleSDGothicNeo-Light.ttf') format('truetype');
+}
+
+body {
+  margin: 0;
+  min-width: 1440px;
+  font-family: 'Apple SD Gothic Neo';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
