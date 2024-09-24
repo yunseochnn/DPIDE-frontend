@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 export const StartContainer = styled.div`
   width: 100%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 `;
@@ -28,33 +29,28 @@ export const StartWrapper_Bottom_context = styled.div`
   text-align: center;
 
   @media screen and (max-height: 900px) {
-    margin-top: 50px;
+    margin-top: 80px;
   }
 `;
 export const StartWrapper_Bottom_context_text1 = styled.div`
   font-size: 50px;
   font-weight: 800;
+  line-height: 120%;
 
   white-space: pre-line;
-
-  @media screen and (max-height: 900px) {
-    font-size: 40px;
-  }
 `;
 export const StartWrapper_Bottom_context_text2 = styled.div`
   font-size: 28px;
   margin-top: 30px;
-
-  @media screen and (max-height: 900px) {
-    font-size: 20px;
-    margin-top: 15px;
-  }
 `;
 
 export const StartWraper_Bottom_Image = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  img {
+    width: 600px;
+  }
 `;
 
 export const StartWrapper_Bottom_Buttons = styled.div`
