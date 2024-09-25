@@ -1,4 +1,4 @@
-import Input from '../../components/Auth/Input';
+import Input from './InputBox/Input';
 import {
   LoginBox,
   LoginButton,
