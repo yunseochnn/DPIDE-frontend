@@ -35,12 +35,14 @@ const Input = ({ placeholder, name, register, errors }: Props) => {
           message: '비밀번호는 최소 8자 이상이며, 문자와 숫자를 포함해야 합니다.',
         };
 
+  const required = name === 'email' ? '이메일을 입력해주세요.' : '비밀번호를 입력해주세요.';
+
   const renderErrorMessage = () => {
     if (!errors) return null;
 
     switch (errors.type) {
       case 'required':
-        return `${placeholder}을(를) 입력해주세요.`;
+        return errors.message;
       case 'pattern':
         return errors.message;
     }
@@ -52,7 +54,7 @@ const Input = ({ placeholder, name, register, errors }: Props) => {
         <InputContent
           placeholder={placeholder}
           type={placeholder === '이메일' ? 'text' : passwordState ? 'text' : 'password'}
-          {...register(name, { required: true, pattern: pattern })}
+          {...register(name, { required: required, pattern: pattern })}
         />
         {placeholder === '비밀번호' && (
           <img
