@@ -22,8 +22,15 @@ export const StartWrapper_Top = styled.div`
 
 export const StartWrapper_Top_Logo = styled.div``;
 
-export const StartWrapper_Bottom = styled.div``;
+// 바꾼 부분!!원래 아무것도 안쓰여 있었음
+export const StartWrapper_Bottom = styled.div`
+  /* display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 150px; */
+`;
 
+//수정하는 부분!!!!(가로형으로 바꾸면 text-align: center 없애야함!)
 export const StartWrapper_Bottom_context = styled.div`
   margin-top: 105px;
   text-align: center;
@@ -32,11 +39,11 @@ export const StartWrapper_Bottom_context = styled.div`
     margin-top: 80px;
   }
 `;
+
 export const StartWrapper_Bottom_context_text1 = styled.div`
   font-size: 50px;
   font-weight: 800;
   line-height: 120%;
-
   white-space: pre-line;
 `;
 export const StartWrapper_Bottom_context_text2 = styled.div`
@@ -90,3 +97,9 @@ export const StartWrapper_SignUp_Button = styled.button`
     cursor: pointer;
   }
 `;
+
+// export const Start = styled.div`
+//   display: flex;
+//   flex-direction: column;
+//   gap: 73px;
+// `;
