@@ -65,7 +65,7 @@ export const StartWrapper_Login_Button = styled.button`
   background-color: #edf9fb;
   width: 226px;
   height: 61px;
-  color: #00bdc7;
+  color: ${({ theme }) => theme.colors.green1};
   border-radius: 8px;
   font-size: 26px;
   cursor: pointer;
