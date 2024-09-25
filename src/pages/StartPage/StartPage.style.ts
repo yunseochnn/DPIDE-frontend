@@ -11,7 +11,7 @@ export const StartWrapper_Top = styled.div`
   height: 93px;
   display: flex;
   align-items: center;
-  width: 100%;
+  width: 100wh;
   border-bottom: 3px solid #f4f4f4;
   padding-left: 105px;
 
