@@ -60,7 +60,7 @@ export const LoginButton = styled.button`
   color: #ffffff;
   font-size: 24px;
   font-weight: 600;
-  background-color: #2cc8d1;
+  background-color: ${({ theme }) => theme.colors.green1};
   border: none;
   cursor: pointer;
 `;
