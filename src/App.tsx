@@ -10,12 +10,12 @@ import StartPage from './pages/StartPage/StartPage';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Main />} />
+      <Route path="/main" element={<Main />} />
       <Route path="/ide/:projectId" element={<Ide />} />
       <Route path="/login" element={<Login />} />
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/mypage" element={<MyPage />} />
-      <Route path="/start" element={<StartPage />} />
+      <Route path="/" element={<StartPage />} />
     </Routes>
   );
 }
