@@ -8,7 +8,7 @@ import MyPage from './pages/MyPagePage/MyPage';
 import StartPage from './pages/StartPage/StartPage';
 import GlobalStyle from './styles/GlobalStyle';
 import { ThemeProvider } from 'styled-components';
-import theme from './styles/Theme';
+import theme from './styles/theme';
 
 function App() {
   return (
