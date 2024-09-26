@@ -1,6 +1,7 @@
 import { Tree, TreeApi } from 'react-arborist';
-import { data } from '../../mock/data';
+
 import Node, { TreeNode } from './Node';
+import { data } from '../../mock/data';
 
 interface Props {
   treeRef: React.MutableRefObject<TreeApi<TreeNode> | null>;

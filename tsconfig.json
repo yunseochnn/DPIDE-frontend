@@ -1,7 +1,8 @@
 {
   "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ]
+  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }],
+
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./node_modules/monaco-editor"] // 이 줄 추가
+  }
 }
