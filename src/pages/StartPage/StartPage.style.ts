@@ -22,21 +22,25 @@ export const StartWrapper_Top = styled.div`
 
 export const StartWrapper_Top_Logo = styled.div``;
 
-export const StartWrapper_Bottom = styled.div``;
+export const StartWrapper_Bottom = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 150px;
+`;
 
 export const StartWrapper_Bottom_context = styled.div`
   margin-top: 105px;
-  text-align: center;
 
   @media screen and (max-height: 900px) {
     margin-top: 80px;
   }
 `;
+
 export const StartWrapper_Bottom_context_text1 = styled.div`
   font-size: 50px;
   font-weight: 800;
   line-height: 120%;
-
   white-space: pre-line;
 `;
 export const StartWrapper_Bottom_context_text2 = styled.div`
@@ -49,13 +53,13 @@ export const StartWraper_Bottom_Image = styled.div`
   align-items: center;
   justify-content: center;
   img {
-    width: 600px;
+    width: 700px;
   }
 `;
 
 export const StartWrapper_Bottom_Buttons = styled.div`
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   gap: 30px;
 `;
@@ -89,4 +93,11 @@ export const StartWrapper_SignUp_Button = styled.button`
     height: 55px;
     cursor: pointer;
   }
+`;
+
+export const Start = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 73px;
+  justify-content: flex-start;
 `;

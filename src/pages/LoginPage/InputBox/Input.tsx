@@ -16,7 +16,6 @@ interface Props {
 
 const Input = ({ placeholder, name, register, errors }: Props) => {
   const [passwordState, setPasswordState] = useState(false);
-  console.log(errors);
 
   //비밀번호 상태 변경
   const onEyeClickHandler = () => {
