@@ -159,7 +159,34 @@ export const IdeCode_Buttons = styled.div`
   gap: 5px;
   margin-right: 8px;
 `;
-export const IdeCode_Button = styled.div``;
+export const IdeCode_Button = styled.div`
+  cursor: pointer;
+`;
+
+export const IdeCode_Center = styled.div`
+  width: 100%;
+  height: 500px;
+  background-color: #2f3336;
+  border-bottom: 1px solid black;
+`;
+export const IdeCode_Bottom = styled.div`
+  div {
+    width: 100%;
+    height: 30px;
+    background-color: #2f3336;
+    border-bottom: 1px solid black;
+
+    display: flex;
+    align-items: center;
+    padding-left: 15px;
+
+    span {
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+    }
+  }
+`;
 
 export const IdeChat = styled.div`
   width: 355px;

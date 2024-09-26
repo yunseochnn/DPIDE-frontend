@@ -4,8 +4,10 @@ import {
   IdeChat,
   IdeChat_Top,
   IdeCode,
+  IdeCode_Bottom,
   IdeCode_Button,
   IdeCode_Buttons,
+  IdeCode_Center,
   IdeCode_Files,
   IdeCode_Top,
   IdeContainer,
@@ -29,9 +31,11 @@ import { BsTerminal } from 'react-icons/bs';
 import { PiFloppyDisk, PiUserPlus } from 'react-icons/pi';
 import { FaPlay, FaPlus } from 'react-icons/fa6';
 import { useRef, useState } from 'react';
-import TreeView from './components/TreeView';
+import TreeView from './components/TreeView/TreeView';
 import { TreeApi } from 'react-arborist';
-import { TreeNode } from './components/Node';
+import { TreeNode } from './components/TreeView/Node';
+
+import CodeEditor from './components/Editor/CodeEditor';
 
 const Ide = () => {
   const [plusModal, setPlusModal] = useState(false);
@@ -100,6 +104,16 @@ const Ide = () => {
               </IdeCode_Button>
             </IdeCode_Buttons>
           </IdeCode_Top>
+
+          <IdeCode_Center>
+            <CodeEditor />
+          </IdeCode_Center>
+
+          <IdeCode_Bottom>
+            <div>
+              <span>터미널</span>
+            </div>
+          </IdeCode_Bottom>
         </IdeCode>
 
         <IdeChat>

@@ -1,5 +1,5 @@
 import { Tree, TreeApi } from 'react-arborist';
-import { data } from '../mock/data';
+import { data } from '../../mock/data';
 import Node, { TreeNode } from './Node';
 
 interface Props {
