@@ -12,6 +12,7 @@ import {
   SignUpWrapper,
 } from './SignUp.style';
 import { useForm } from 'react-hook-form';
+import { useState } from 'react';
 
 interface FormIF {
   email: string;
@@ -21,6 +22,8 @@ interface FormIF {
 }
 
 const SignUp = () => {
+  const [pwState, setPwState] = useState(false);
+  const [pwConfirmState, setPwConfirmState] = useState(false);
   const {
     register,
     handleSubmit,
@@ -32,6 +35,13 @@ const SignUp = () => {
     console.log(data);
   };
 
+  const onPasswordHandler = () => {
+    setPwState(!pwState);
+  };
+
+  const onPasswordConfirmHandler = () => {
+    setPwConfirmState(!pwConfirmState);
+  };
   return (
     <SignUpContainer>
       <SignUpWrapper>
@@ -57,8 +67,12 @@ const SignUp = () => {
             <SignUp_InputBox>
               <input
                 placeholder="비밀번호"
-                type="password"
+                type={pwState ? 'text' : 'password'}
                 {...register('password', { required: true, pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/ })}
+              />
+              <img
+                src={pwState ? '/src/assets/images/eye-light-on.png' : '/src/assets/images/eye-light-off.png'}
+                onClick={onPasswordHandler}
               />
             </SignUp_InputBox>
             {errors.password && errors.password?.type === 'required' && (
@@ -67,13 +81,18 @@ const SignUp = () => {
             {errors.password && errors.password?.type === 'pattern' && (
               <ErrorMessage>비밀번호는 최소 8자 이상이며, 문자와 숫자를 포함해야 합니다.</ErrorMessage>
             )}
+
             <SignUp_InputBox>
               <input
                 placeholder="비밀번호 확인"
-                type="password"
+                type={pwConfirmState ? 'text' : 'password'}
                 {...register('passwordConfirm', {
                   required: true,
                 })}
+              />
+              <img
+                src={pwConfirmState ? '/src/assets/images/eye-light-on.png' : '/src/assets/images/eye-light-off.png'}
+                onClick={onPasswordConfirmHandler}
               />
             </SignUp_InputBox>
             {errors.passwordConfirm && errors.passwordConfirm?.type === 'required' && (

@@ -62,6 +62,10 @@ export const SignUp_InputBox = styled.div`
       color: #bdbdbd;
     }
   }
+
+  img {
+    width: 35px;
+  }
 `;
 
 export const ErrorMessage = styled.div`
