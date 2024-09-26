@@ -28,10 +28,16 @@ import { BsTerminal } from 'react-icons/bs';
 
 import { PiFloppyDisk, PiUserPlus } from 'react-icons/pi';
 import { FaPlay, FaPlus } from 'react-icons/fa6';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import TreeView from './components/TreeView';
+import { TreeApi } from 'react-arborist';
+import { TreeNode } from './components/Node';
 
 const Ide = () => {
   const [plusModal, setPlusModal] = useState(false);
+  const treeRef = useRef<TreeApi<TreeNode> | null>(null);
+  console.log(treeRef);
+
   return (
     <IdeContainer>
       <IdeTop>
@@ -76,7 +82,9 @@ const Ide = () => {
             </IdeExplorer_Plus>
           </IdeExplorer_Top>
 
-          <IdeExplorer_Folders></IdeExplorer_Folders>
+          <IdeExplorer_Folders>
+            <TreeView treeRef={treeRef} />
+          </IdeExplorer_Folders>
         </IdeExplorer>
 
         <IdeCode>

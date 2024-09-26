@@ -128,7 +128,9 @@ export const IdeExplorer_PlusModal_content = styled.div`
   }
 `;
 
-export const IdeExplorer_Folders = styled.div``;
+export const IdeExplorer_Folders = styled.div`
+  padding: 10px 0 0 5px;
+`;
 
 export const IdeCode = styled.div`
   height: 100%;
