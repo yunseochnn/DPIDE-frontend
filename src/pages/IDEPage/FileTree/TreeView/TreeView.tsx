@@ -1,21 +1,24 @@
-import { Tree, TreeApi } from 'react-arborist';
-
-import Node, { TreeNode } from './Node';
-
+import { NodeApi, Tree, TreeApi } from 'react-arborist';
+import Node from './Node';
 import { useRecoilValue } from 'recoil';
 
-import FolderState from '../../../../recoil/Folder/atoms';
+import { SetStateAction } from 'react';
+import { IFolder } from '../../../../recoil/Folder/types';
+import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Props {
-  treeRef: React.MutableRefObject<TreeApi<TreeNode> | null>;
+  treeRef: React.MutableRefObject<TreeApi<IFolder> | null>;
+  selectedNode: NodeApi<IFolder> | null;
+  setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-const TreeView = ({ treeRef }: Props) => {
-  const Folder = useRecoilValue(FolderState);
+const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode }) => {
+  const initalFolder = useRecoilValue(FolderState);
+
   return (
     <div>
-      <Tree data={Folder} ref={treeRef}>
-        {props => <Node {...props} />}
+      <Tree<IFolder> data={initalFolder} ref={treeRef} openByDefault={false}>
+        {props => <Node {...props} isSelected={props.node.id === selectedNode?.id} setSelectedNode={setSelectedNode} />}
       </Tree>
     </div>
   );
