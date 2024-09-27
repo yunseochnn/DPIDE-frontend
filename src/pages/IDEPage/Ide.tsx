@@ -1,4 +1,4 @@
-import { File, IdeCenter, IdeChat, IdeChat_Top, IdeContainer, Section, Side } from './Ide.style';
+import { File, IdeCenter, IdeChat, IdeContainer, Section, Side } from './Ide.style';
 import { useState } from 'react';
 
 import Header from './Header/Header';
@@ -8,6 +8,7 @@ import FileTree from './FileTree/FileTree';
 import Code from './Editor/Code';
 import Terminal from './Terminal/Terminal';
 import Modal from './Modal/Modal';
+import Chat from '../../components/Chat';
 
 const Ide = () => {
   const [files, setFiles] = useState(true);
@@ -43,9 +44,7 @@ const Ide = () => {
         </Section>
         {chat && (
           <IdeChat>
-            <IdeChat_Top>
-              <div>채팅</div>
-            </IdeChat_Top>
+            <Chat />
           </IdeChat>
         )}
       </IdeCenter>

@@ -16,39 +16,100 @@ const GlobalStyle = createGlobalStyle`
     font-size: 100%;
     font: inherit;
     vertical-align: baseline;
+    background: none;
+    color: inherit;
   }
+  
   /* HTML5 display-role reset for older browsers */
   article, aside, details, figcaption, figure, footer, header, hgroup, menu,
   nav, section {
     display: block;
   }
+
   body {
     line-height: 1;
   }
+
   ol, ul {
     list-style: none;
   }
+
   blockquote, q {
     quotes: none;
   }
+
   blockquote:before, blockquote:after, q:before, q:after {
     content: '';
     content: none;
   }
+
   table {
     border-collapse: collapse;
     border-spacing: 0;
   }
-  input:focus {
+
+  input, button, textarea {
+    background: none;
+    border: none;
     outline: none;
+    font-family: inherit;
   }
+
+  button {
+    cursor: pointer;
+  }
+
   a {
     color: inherit;
     text-decoration: none;
   }
+
   * {
     box-sizing: border-box;
   } 
+
+  /* Remove focus outline */
+  *:focus {
+    outline: none;
+  }
+
+  /* Remove default margin from h1-h6 */
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+  }
+
+  /* Reset for buttons */
+  button {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    appearance: none;
+  }
+
+  /* Reset for images */
+  img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Reset for form elements */
+  input, textarea {
+    appearance: none;
+    border-radius: 0;
+  }
+
+  /* Remove default underline on links */
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  /* Ensure consistent display of hidden elements */
+  [hidden] {
+    display: none !important;
+  }
 `;
 
 export default GlobalStyle;
