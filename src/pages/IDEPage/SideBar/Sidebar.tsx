@@ -11,8 +11,10 @@ interface SidebarProps {
   setTerminal: React.Dispatch<React.SetStateAction<boolean>>;
   chat: boolean;
   setChat: React.Dispatch<React.SetStateAction<boolean>>;
+  friend: boolean;
+  setFriend: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const Sidebar = ({ files, setFiles, terminal, setTerminal, chat, setChat }: SidebarProps) => {
+const Sidebar = ({ files, setFiles, terminal, setTerminal, chat, setChat, friend, setFriend }: SidebarProps) => {
   return (
     <div>
       <IdeSideBarIcons>
@@ -26,7 +28,7 @@ const Sidebar = ({ files, setFiles, terminal, setTerminal, chat, setChat }: Side
           <IoChatbubbleOutline size="24" color="white" />
         </IdeSideBarIcon>
         <IdeSideBarIcon>
-          <PiUserPlus size="30" color="white" />
+          <PiUserPlus size="30" color="white" onClick={() => setFriend(!friend)} />
         </IdeSideBarIcon>
       </IdeSideBarIcons>
     </div>

@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const IdeContainer = styled.div`
+  position: relative;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
@@ -30,7 +31,7 @@ export const File = styled.div`
 export const Section = styled.div`
   display: flex;
   flex-direction: column;
-  /* width: 60%; */
+  width: 60%;
   flex-grow: 1;
   background-color: #2f3336;
   height: 100%;

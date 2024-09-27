@@ -7,14 +7,17 @@ import FileTree from './FileTree/FileTree';
 
 import Code from './Editor/Code';
 import Terminal from './Terminal/Terminal';
+import Modal from './Modal/Modal';
 
 const Ide = () => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
+  const [friend, setFriend] = useState(false);
 
   return (
     <IdeContainer>
+      {friend && <Modal setFriend={setFriend} />}
       <Header />
       <IdeCenter>
         <Side>
@@ -25,6 +28,8 @@ const Ide = () => {
             setTerminal={setTerminal}
             chat={chat}
             setChat={setChat}
+            friend={friend}
+            setFriend={setFriend}
           />
         </Side>
         {files && (
