@@ -1,6 +1,7 @@
 import { atom } from 'recoil';
+import { IFolder } from './types';
 
-const FolderState = atom({
+const FolderState = atom<IFolder[]>({
   key: 'FolderState',
   default: [
     { id: '1', name: 'Unread' },

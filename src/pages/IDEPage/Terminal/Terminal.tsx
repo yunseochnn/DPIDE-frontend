@@ -1,22 +1,12 @@
-import { ReactTerminal } from 'react-terminal';
 import { TerminalContent, TerminalTop, TerminalWrapper } from './Terminal.style';
+import XtermComponent from './XtermComponent';
 
 const Terminal = () => {
   return (
     <TerminalWrapper>
       <TerminalTop></TerminalTop>
       <TerminalContent>
-        <ReactTerminal
-          showControlBar={false}
-          themes={{
-            'my-custom-theme': {
-              themeBGColor: '#222426',
-              themePromptColor: '#FFFFFF',
-              themeColor: '#FFFFFF',
-            },
-          }}
-          theme="my-custom-theme"
-        />
+        <XtermComponent />
       </TerminalContent>
     </TerminalWrapper>
   );

@@ -2,10 +2,10 @@ import styled from 'styled-components';
 
 export const TerminalWrapper = styled.div`
   display: flex;
-  height: 550px;
+  height: 350px;
   flex-direction: column;
   border-top: 1px solid black;
-  background-color: #222426;
+  background-color: #000;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -20,4 +20,5 @@ export const TerminalTop = styled.div`
 
 export const TerminalContent = styled.div`
   height: 100%;
+  overflow: hidden;
 `;
