@@ -4,7 +4,7 @@ import Node, { TreeNode } from './Node';
 
 import { useRecoilValue } from 'recoil';
 
-import FolderState from '../../../../\brecoil/Floder/\batoms';
+import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Props {
   treeRef: React.MutableRefObject<TreeApi<TreeNode> | null>;
