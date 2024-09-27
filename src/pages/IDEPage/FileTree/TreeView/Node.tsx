@@ -1,26 +1,48 @@
-// 커스텀 노드 생성
-import { NodeRendererProps } from 'react-arborist';
+import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-export interface TreeNode {
-  id: string;
-  name: string;
-  childern?: TreeNode[];
+import { SetStateAction } from 'react';
+import { IFolder } from '../../../../recoil/Folder/types';
+
+interface NodeProps extends NodeRendererProps<IFolder> {
+  isSelected: boolean;
+  setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-function Node({ node, style }: NodeRendererProps<TreeNode>) {
-  // console.log(node, tree);
+function Node({ node, style, isSelected, setSelectedNode }: NodeProps) {
+  const nodeStyle = {
+    ...style,
+    backgroundColor: isSelected ? '#d3d3d3' : 'transparent',
+    paddingTop: '2px',
+    paddingBottom: '2px',
+  };
+
   return (
-    <div className="node-container" style={style}>
+    <div
+      className="node-container"
+      style={nodeStyle}
+      onClick={() => {
+        setSelectedNode(node);
+        console.log(node);
+      }}
+    >
       <div className="node-content" onClick={() => node.isInternal && node.toggle()} style={{ cursor: 'pointer' }}>
-        {/* isOpen : 하위 요소 노출 여부 */}
-        {node.children ? node.isOpen ? <FaAngleDown color="white" /> : <FaAngleRight color="white" /> : null}
+        {node.children ? (
+          node.isOpen ? (
+            <FaAngleDown color={isSelected ? 'black' : 'white'} />
+          ) : (
+            <FaAngleRight color={isSelected ? 'black' : 'white'} />
+          )
+        ) : null}
 
-        {/* isInternal: 하위 요소 존재 여부 */}
-        {node.children ? <BsFolder color="white" /> : <FaRegFile color="white" />}
+        {node.children ? (
+          <BsFolder color={isSelected ? 'black' : 'white'} />
+        ) : (
+          <FaRegFile color={isSelected ? 'black' : 'white'} />
+        )}
 
-        <span style={{ color: 'white', paddingLeft: '8px' }}>
+        <span style={{ color: isSelected ? 'black' : 'white', paddingLeft: '8px' }}>
           <span>{node.data.name}</span>
         </span>
       </div>

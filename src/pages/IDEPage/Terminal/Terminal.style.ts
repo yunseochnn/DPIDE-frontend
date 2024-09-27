@@ -20,5 +20,6 @@ export const TerminalTop = styled.div`
 
 export const TerminalContent = styled.div`
   height: 100%;
+  width: 100%;
   overflow: hidden;
 `;
