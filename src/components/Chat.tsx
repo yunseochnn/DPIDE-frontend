@@ -79,7 +79,9 @@ const ChatMessages = styled.div`
   height: calc(100vh - 170px);
 `;
 
-const ChatMessage = styled.div<ChatMessageProps>`
+const ChatMessage = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
@@ -102,7 +104,9 @@ const ProfileImage = styled.img`
   margin-right: 8px;
 `;
 
-const MessageContent = styled.div<ChatMessageProps>`
+const MessageContent = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   display: flex;
   flex-direction: column;
   ${({ isOwnMessage }) =>
@@ -122,7 +126,9 @@ const SenderName = styled.div`
   margin-bottom: 5px;
 `;
 
-const MessageText = styled.div<ChatMessageProps>`
+const MessageText = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   background-color: ${({ isOwnMessage, theme }) => (isOwnMessage ? theme.colors.green1 : '#3a3d41')};
   color: ${({ isOwnMessage }) => (isOwnMessage ? '#000000' : '#ffffff')};
   padding: 10px;
