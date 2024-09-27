@@ -1,16 +1,19 @@
 import { Tree, TreeApi } from 'react-arborist';
 
 import Node, { TreeNode } from './Node';
-import { data } from '../../mock/data';
+
+import { useRecoilState } from 'recoil';
+import { FolderState } from '../../../../stores';
 
 interface Props {
   treeRef: React.MutableRefObject<TreeApi<TreeNode> | null>;
 }
 
 const TreeView = ({ treeRef }: Props) => {
+  const [Folder, setFolder] = useRecoilState(FolderState);
   return (
     <div>
-      <Tree data={data} ref={treeRef}>
+      <Tree data={Folder} ref={treeRef}>
         {props => <Node {...props} />}
       </Tree>
     </div>

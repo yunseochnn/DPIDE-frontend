@@ -1266,7 +1266,7 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prop-types@^15.8.1:
+prop-types@^15.7.2, prop-types@^15.8.1:
   version "15.8.1"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.8.1.tgz#67d87bf1a694f48435cf332c24af10214a3140b5"
   integrity sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==
@@ -1311,6 +1311,13 @@ react-arborist@^3.4.0:
     react-window "^1.8.10"
     redux "^5.0.0"
     use-sync-external-store "^1.2.0"
+
+react-device-detect@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/react-device-detect/-/react-device-detect-2.1.2.tgz#60abb6fa361ec4cc839469a0c4c3e9b8ea17d6b5"
+  integrity sha512-N42xttwez3ECgu4KpOL2ICesdfoz8NCBfmc1rH9FRYSjH7NmMyANPSrQ3EvAtJyj/6TzJNhrANSO38iXjCB2Ug==
+  dependencies:
+    ua-parser-js "^0.7.30"
 
 react-dnd-html5-backend@^14.0.3:
   version "14.1.0"
@@ -1367,6 +1374,14 @@ react-router@6.26.2:
   integrity sha512-tvN1iuT03kHgOFnLPfLJ8V95eijteveqdOSk+srqfePtQvqCExB8eHOYnlilbOcyJyKnYkr1vJvf7YqotAJu1A==
   dependencies:
     "@remix-run/router" "1.19.2"
+
+react-terminal@^1.4.4:
+  version "1.4.4"
+  resolved "https://registry.yarnpkg.com/react-terminal/-/react-terminal-1.4.4.tgz#ac9dcd231f2cb909df5f10f1a34eb6c0dc1eb011"
+  integrity sha512-ro3jofMYh0579oJQbx4FeJ52aU7vzNazHOBPjP7WpOCn6dnQLzB4e3UOA1KZxZzV7LQl7Bn+lovC5LmJo7pa0g==
+  dependencies:
+    prop-types "^15.7.2"
+    react-device-detect "2.1.2"
 
 react-window@^1.8.10:
   version "1.8.10"
@@ -1564,6 +1579,11 @@ typescript@^5.5.3:
   version "5.6.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.2.tgz#d1de67b6bef77c41823f822df8f0b3bcff60a5a0"
   integrity sha512-NW8ByodCSNCwZeghjN3o+JX5OFH0Ojg6sadjEKY4huZ52TqbJTJnDo5+Tw98lSy63NZvi4n+ez5m2u5d4PkZyw==
+
+ua-parser-js@^0.7.30:
+  version "0.7.39"
+  resolved "https://registry.yarnpkg.com/ua-parser-js/-/ua-parser-js-0.7.39.tgz#c71efb46ebeabc461c4612d22d54f88880fabe7e"
+  integrity sha512-IZ6acm6RhQHNibSt7+c09hhvsKy9WUr4DVbeq9U8o71qxyYtJpQeDxQnMrVqnIFMLcQjHO0I9wgfO2vIahht4w==
 
 uri-js@^4.2.2:
   version "4.4.1"
