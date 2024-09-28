@@ -8,7 +8,7 @@ import {
   IdeExplorer_ProjectName,
   IdeExplorer_Top,
 } from './FileTree.style.ts';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import TreeView from './TreeView/TreeView.tsx';
 import { NodeApi, TreeApi } from 'react-arborist';
 import { IFolder } from '../../../recoil/Folder/types.ts';
@@ -17,6 +17,7 @@ const FileTree: React.FC = () => {
   const [plusModal, setPlusModal] = useState(false);
   const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
   const treeRef = useRef<TreeApi<IFolder> | null>(null);
+  const ExplorerRef = useRef<HTMLDivElement | null>(null);
 
   const onClickFolder = () => {
     setPlusModal(false);
@@ -28,8 +29,23 @@ const FileTree: React.FC = () => {
 
   console.log(selectedNode);
 
+  useEffect(() => {
+    const handleClick = (event: MouseEvent) => {
+      if (ExplorerRef.current && ExplorerRef.current.contains(event.target as Node)) {
+        setSelectedNode(null);
+      }
+    };
+
+    //document에 클릭 이벤트 리스너 추가
+    document.addEventListener('click', handleClick);
+    //컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
   return (
-    <IdeExplorer>
+    <IdeExplorer ref={ExplorerRef}>
       <IdeExplorer_Top>
         <IdeExplorer_ProjectName>프로젝트</IdeExplorer_ProjectName>
         <IdeExplorer_Plus>
