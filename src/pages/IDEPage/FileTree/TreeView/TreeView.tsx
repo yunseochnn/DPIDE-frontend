@@ -40,6 +40,7 @@ const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode, edi
         onCreate={onCreate}
         searchTerm={term}
         searchMatch={(node, term) => node.data.name.toLowerCase().includes(term.toLowerCase())}
+        width={'100%'}
       >
         {props => <Node {...props} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />}
       </Tree>

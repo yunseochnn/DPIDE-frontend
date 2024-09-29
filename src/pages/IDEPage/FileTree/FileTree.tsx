@@ -25,6 +25,7 @@ const FileTree: React.FC = () => {
   const [edit, setEdit] = useState<boolean>(false);
   const [term, setTerm] = useState('');
   console.log(selectedNode);
+
   const onClickFolder = () => {
     treeRef.current?.createInternal();
     setPlusModal(false);

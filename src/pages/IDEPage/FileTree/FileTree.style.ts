@@ -52,6 +52,11 @@ export const IdeExplorer_PlusModal_content = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
+  &:hover {
+    background-color: gray;
+  }
+
   & + & {
     border-top: 1px solid white;
   }

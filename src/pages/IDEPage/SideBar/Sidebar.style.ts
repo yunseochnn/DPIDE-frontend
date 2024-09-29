@@ -9,4 +9,14 @@ export const IdeSideBarIcons = styled.div`
 `;
 export const IdeSideBarIcon = styled.div`
   cursor: pointer;
+  svg {
+    color: white;
+    width: 24px;
+    height: 24px;
+  }
+  &:hover {
+    svg {
+      color: gray;
+    }
+  }
 `;
