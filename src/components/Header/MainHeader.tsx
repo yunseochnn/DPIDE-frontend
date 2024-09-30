@@ -68,10 +68,8 @@ const MainHeader = () => {
   return (
     <HeaderContainer>
       <HeaderWrapper>
-        <LogoContainer to="/">
-          <Logo src={logo2} alt="Logo" />
-          <ServiceName>DPIDE</ServiceName>
-        </LogoContainer>
+        <Logo src={logo2} alt="Logo" />
+        <ServiceName>DPIDE</ServiceName>
         <Spacer />
         <NotifyButton onClick={toggleNotify} className="notify-button">
           <NotifyIcon size={32} />
@@ -110,12 +108,6 @@ const HeaderWrapper = styled.div`
   margin: 0 auto;
   padding-right: 10px;
   padding-left: 10px;
-`;
-
-const LogoContainer = styled(Link)`
-  display: flex;
-  align-items: center;
-  text-decoration: none;
 `;
 
 const Logo = styled.img`

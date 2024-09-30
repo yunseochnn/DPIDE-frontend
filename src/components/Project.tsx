@@ -1,12 +1,30 @@
 import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
 import { MdEdit } from 'react-icons/md';
+import { useRecoilState } from 'recoil';
+import { dropdownOpenState } from '../recoil/Project/atoms';
 
 const Project = () => {
+  const [isDropdownOpen, setDropdownOpen] = useRecoilState(dropdownOpenState);
+
+  const toggleDropdown = () => {
+    setDropdownOpen(!isDropdownOpen);
+  };
+
+  const handleEdit = () => {};
+
+  const handleDelete = () => {};
+
   return (
     <ProjectContainer>
       <ProjectBox>
-        <MenuIcon />
+        <MenuIcon onClick={toggleDropdown} />
+        {isDropdownOpen && (
+          <DropdownMenu>
+            <DropdownItem onClick={handleEdit}>수정</DropdownItem>
+            <DropdownItem onClick={handleDelete}>삭제</DropdownItem>
+          </DropdownMenu>
+        )}
         <ProjectTitle>Note-app</ProjectTitle>
         <ProjectDescription>이것은 프로젝트 설명입니다.</ProjectDescription>
         <EditButton>
@@ -48,6 +66,28 @@ const MenuIcon = styled(CiMenuBurger)`
   right: 20px;
   cursor: pointer;
   color: #333;
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 40px;
+  right: 20px;
+  background-color: #ffffff;
+  border: 1px solid #e1e1e8;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+
+  &:hover {
+    background-color: #f4f4f4;
+  }
 `;
 
 const ProjectTitle = styled.h3`

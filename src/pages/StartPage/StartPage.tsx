@@ -10,20 +10,14 @@ import {
   StartWrapper_Bottom_context_text2,
   StartWrapper_Login_Button,
   StartWrapper_SignUp_Button,
-  StartWrapper_Top,
-  StartWrapper_Top_Logo,
 } from './StartPage.style';
+import StartHeader from '../../components/Header/StartHeader';
 
 const StartPage = () => {
   const navigate = useNavigate();
   return (
     <StartContainer>
-      <StartWrapper_Top>
-        <StartWrapper_Top_Logo>
-          <img src="/src/assets/images/logo.png" />
-        </StartWrapper_Top_Logo>
-      </StartWrapper_Top>
-
+      <StartHeader />
       <StartWrapper_Bottom>
         <Start>
           <StartWrapper_Bottom_context>

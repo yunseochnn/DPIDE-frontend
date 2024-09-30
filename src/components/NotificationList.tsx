@@ -33,7 +33,7 @@ export default NotificationList;
 
 const NotificationContainer = styled.div`
   position: absolute;
-  top: 79px;
+  top: 85px;
   right: 10px;
   width: 300px;
   background-color: #fff;

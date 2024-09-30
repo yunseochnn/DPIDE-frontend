@@ -7,7 +7,7 @@ export const isModalOpenState = atom<boolean>({
 
 export const selectedButtonState = atom<'myProjects' | 'sharedProjects' | null>({
   key: 'selectedButtonState',
-  default: null,
+  default: 'myProjects',
 });
 export const isSuccessModalOpenState = atom<boolean>({
   key: 'isSuccessModalOpenState',

@@ -1,10 +1,10 @@
-import CreateProject from '../../components/Modal/CreateProject';
-import MainHeader from '../../components/Header/MainHeader';
+import CreateProject from '../../components/Modal/CreateProject.tsx';
+import MainHeader from '../../components/Header/MainHeader.tsx';
 import { FaPlus } from 'react-icons/fa6';
-import Project from '../../components/Project';
+import Project from '../../components/Project.tsx';
 import { useRecoilState } from 'recoil';
 import { isModalOpenState, selectedButtonState } from '../../recoil/Main/atoms.ts';
-import { MainContainer, NewProjectButton, ContentWrapper, Sidebar, ProjectButton } from './Main.style';
+import { MainContainer, NewProjectButton, ContentWrapper, Sidebar, ProjectButton } from './Main.style.ts';
 const Main = () => {
   const [isModalOpen, setModalOpen] = useRecoilState(isModalOpenState);
   const [selectedButton, setSelectedButton] = useRecoilState(selectedButtonState);
