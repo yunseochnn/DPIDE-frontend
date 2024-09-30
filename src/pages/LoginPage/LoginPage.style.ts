@@ -80,3 +80,8 @@ export const LogintContent = styled.div`
     text-decoration: none;
   }
 `;
+
+export const Button = styled.div`
+  display: flex;
+  flex-direction: column;
+`;

@@ -1,17 +1,22 @@
+import { useCookies } from 'react-cookie';
 import apiClient from '../../apiClient';
 
-const LoginRequest = async (email: string, password: string) => {
+const SignUpRequest = async (email: string, password: string) => {
   const result = await apiClient
     .post('/user/login', {
       email: email,
       password: password,
     })
+
     .then(response => {
-      return response.data;
+      console.log(response);
+
+      return response;
     })
     .catch(error => {
-      error.response.data;
+      return error.response;
     });
+  return result;
 };
 
-export default LoginRequest;
+export default SignUpRequest;
