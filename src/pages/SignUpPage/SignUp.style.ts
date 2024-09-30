@@ -79,6 +79,13 @@ export const SignUp_content = styled.div`
   flex-direction: column;
 `;
 
+export const Content = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 26px;
+`;
+
 export const SignUp_button = styled.button`
   width: 398px;
   height: 61px;
@@ -89,7 +96,6 @@ export const SignUp_button = styled.button`
   background-color: ${({ theme }) => theme.colors.green1};
   border: none;
   cursor: pointer;
-  margin-top: 26px;
 `;
 
 export const SignUp_text = styled.div`
@@ -101,4 +107,10 @@ export const SignUp_text = styled.div`
     list-style: nones;
     text-decoration: none;
   }
+`;
+
+export const Error = styled.div`
+  font-size: 12px;
+  color: red;
+  margin-bottom: 2px;
 `;

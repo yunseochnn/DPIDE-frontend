@@ -15,11 +15,16 @@ export const CodeTop = styled.div`
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid black;
-  padding: 0 18px;
+  padding: 0 18px 0 0;
   box-sizing: border-box;
 `;
 
-export const Files = styled.div``;
+export const Files = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  height: 100%;
+`;
 export const CodeButtons = styled.div`
   display: flex;
   align-items: center;

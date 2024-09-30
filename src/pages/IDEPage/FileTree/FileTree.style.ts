@@ -52,6 +52,11 @@ export const IdeExplorer_PlusModal_content = styled.div`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+
+  &:hover {
+    background-color: gray;
+  }
+
   & + & {
     border-top: 1px solid white;
   }
@@ -60,4 +65,14 @@ export const IdeExplorer_PlusModal_content = styled.div`
 export const IdeExplorer_Folders = styled.div`
   padding: 10px 0 0 5px;
   height: auto;
+  width: 100%;
+`;
+
+export const InputBox = styled.input`
+  border: 1px solid rgba(16, 16, 16);
+  border-radius: 3px;
+  height: 30px;
+  margin: 10px 10px 0 10px;
+  padding-left: 5px;
+  color: white;
 `;

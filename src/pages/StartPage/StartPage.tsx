@@ -12,9 +12,19 @@ import {
   StartWrapper_SignUp_Button,
 } from './StartPage.style';
 import StartHeader from '../../components/Header/StartHeader';
+import { useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 
 const StartPage = () => {
   const navigate = useNavigate();
+  const [cookies] = useCookies(['Authorization', 'Refresh-Token', 'userId']);
+
+  useEffect(() => {
+    if (cookies['Authorization'] && cookies['Refresh-Token'] && cookies['userId']) {
+      navigate('/main');
+    }
+  }, [cookies, navigate]);
+
   return (
     <StartContainer>
       <StartHeader />
