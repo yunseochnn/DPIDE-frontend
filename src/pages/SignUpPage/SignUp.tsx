@@ -14,9 +14,10 @@ import {
   SignUpWrapper,
 } from './SignUp.style';
 import { useForm } from 'react-hook-form';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SignUpRequest from '../../apis/Auth/SignUp/SignUpRequest';
 import { SignUpErrorDto, SignUpResponseDto } from '../../apis/Auth/SignUp/SignUpResponse.dto';
+import { useCookies } from 'react-cookie';
 
 interface FormIF {
   email: string;
@@ -29,6 +30,7 @@ const SignUp = () => {
   const [pwState, setPwState] = useState(false);
   const [pwConfirmState, setPwConfirmState] = useState(false);
   const [error, setError] = useState(false);
+  const [cookies] = useCookies(['Authorization', 'Refresh-Token', 'userId']);
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const {
@@ -77,6 +79,13 @@ const SignUp = () => {
   const onPasswordConfirmHandler = () => {
     setPwConfirmState(!pwConfirmState);
   };
+
+  useEffect(() => {
+    if (cookies['Authorization'] && cookies['Refresh-Token'] && cookies['userId']) {
+      navigate('/main');
+    }
+  }, [cookies, navigate]);
+
   return (
     <SignUpContainer>
       <SignUpWrapper>

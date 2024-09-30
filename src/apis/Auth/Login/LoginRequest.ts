@@ -1,4 +1,3 @@
-import { useCookies } from 'react-cookie';
 import apiClient from '../../apiClient';
 
 const SignUpRequest = async (email: string, password: string) => {

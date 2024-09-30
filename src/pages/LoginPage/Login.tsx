@@ -17,7 +17,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import LoginRequest from '../../apis/Auth/Login/LoginRequest';
 import { useCookies } from 'react-cookie';
 import { AxiosResponse } from 'axios';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface FormInput {
   email: string;
@@ -66,6 +66,12 @@ const Login = () => {
   const onSubmit: SubmitHandler<FormInput> = async data => {
     LoginRequest(data.email, data.password).then(LoginResponse);
   };
+
+  useEffect(() => {
+    if (cookies['Authorization'] && cookies['Refresh-Token'] && cookies['userId']) {
+      navigate('/main');
+    }
+  }, [cookies, navigate]);
 
   return (
     <LoginContainer>
