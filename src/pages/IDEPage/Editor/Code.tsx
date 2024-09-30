@@ -15,7 +15,7 @@ const Code = () => {
       <CodeTop>
         <Files>
           {File.map(file => (
-            <FileList file={file} />
+            <FileList file={file} key={file.id} />
           ))}
         </Files>
         <CodeButtons>

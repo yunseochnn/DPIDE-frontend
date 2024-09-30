@@ -13,6 +13,7 @@ const SignUpRequest = async (email: string, password: string) => {
       return response;
     })
     .catch(error => {
+      console.log(error);
       return error.response;
     });
   return result;

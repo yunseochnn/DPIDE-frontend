@@ -18,6 +18,8 @@ import { useEffect, useState } from 'react';
 import SignUpRequest from '../../apis/Auth/SignUp/SignUpRequest';
 import { SignUpErrorDto, SignUpResponseDto } from '../../apis/Auth/SignUp/SignUpResponse.dto';
 import { useCookies } from 'react-cookie';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface FormIF {
   email: string;
@@ -49,6 +51,10 @@ const SignUp = () => {
     const { status, message } = responseBody;
     if (status === 201) {
       //toast message로 회원가입 완료 메시지
+      toast.success('회원가입 완료!', {
+        autoClose: 2000,
+        pauseOnHover: false,
+      });
 
       navigate('/login');
     }

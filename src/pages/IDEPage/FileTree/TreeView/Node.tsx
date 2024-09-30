@@ -10,25 +10,34 @@ import FileState from '../../../../recoil/File/atoms';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import styled from 'styled-components';
+import CodeState from '../../../../recoil/Code/atoms';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
   setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-const NodeContainer = styled.div<{ isSelected: boolean }>`
-  background-color: ${props => (props.isSelected ? '#d3d3d3' : 'transparent')};
+const NodeContainer = styled.div`
+  background-color: transparent;
   padding-top: 2px;
   padding-bottom: 2px;
   cursor: pointer;
 
   &:hover {
-    background-color: ${props => (props.isSelected ? '#d3d3d3' : 'gray')};
+    background-color: gray;
+  }
+
+  &.selected {
+    background-color: #d3d3d3;
+    &:hover {
+      background-color: #d3d3d3;
+    }
   }
 `;
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
+  const [code, setCode] = useRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
 
   const onClickNode = async () => {
@@ -38,6 +47,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       //백엔드로 파일 read 로직 후 코드 업데이트
       //content에 파일 read 해 온 content 넣기
       await setFiles([...Files, { id: node.data.id, content: '', name: node.data.name, modifyContent: '' }]);
+      setCode({ id: node.data.id, content: '' });
       //FileState 업데이트 되면 리렌더링 해야할듯
     }
   };
@@ -62,7 +72,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   };
 
   return (
-    <NodeContainer style={style} onClick={onClickNode} isSelected={isSelected}>
+    <NodeContainer style={style} onClick={onClickNode} className={isSelected ? 'selected' : ''}>
       <div className="node-content" onClick={() => node.isInternal && node.toggle()} style={{ display: 'flex' }}>
         {node.children ? (
           node.isOpen ? (

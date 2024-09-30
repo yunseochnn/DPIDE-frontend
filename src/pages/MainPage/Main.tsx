@@ -24,7 +24,6 @@ const Main = () => {
           <NewProjectButton onClick={openModal}>
             <FaPlus />새 프로젝트
           </NewProjectButton>
-
           <Sidebar>
             <ProjectButton isSelected={selectedButton === 'myProjects'} onClick={() => handleButtonClick('myProjects')}>
               내 프로젝트
