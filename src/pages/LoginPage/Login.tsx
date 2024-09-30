@@ -12,6 +12,7 @@ import {
 } from './LoginPage.style';
 import { Link } from 'react-router-dom';
 import { SubmitHandler, useForm } from 'react-hook-form';
+import axios from 'axios';
 
 interface FormInput {
   email: string;
@@ -26,9 +27,8 @@ const Login = () => {
   } = useForm<FormInput>();
   // const [error, setError] = useState(true);
 
-  const onSubmit: SubmitHandler<FormInput> = data => {
-    console.log('Email: ', data.email);
-    console.log('Passwor: ', data.password);
+  const onSubmit: SubmitHandler<FormInput> = async data => {
+    console.log(data);
   };
 
   return (

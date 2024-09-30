@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
+  Content,
+  Error,
   ErrorMessage,
   SignUp_button,
   SignUp_content,
@@ -13,6 +15,8 @@ import {
 } from './SignUp.style';
 import { useForm } from 'react-hook-form';
 import { useState } from 'react';
+import SignUpRequest from '../../apis/Auth/SignUp/SignUpRequest';
+import { SignUpErrorDto, SignUpResponseDto } from '../../apis/Auth/SignUp/SignUpResponse.dto';
 
 interface FormIF {
   email: string;
@@ -24,6 +28,9 @@ interface FormIF {
 const SignUp = () => {
   const [pwState, setPwState] = useState(false);
   const [pwConfirmState, setPwConfirmState] = useState(false);
+  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -31,8 +38,36 @@ const SignUp = () => {
     watch,
   } = useForm<FormIF>();
 
-  const onSubmitHandler = (data: FormIF) => {
-    console.log(data);
+  const SignUpResponse = (responseBody: SignUpResponseDto | SignUpErrorDto | null) => {
+    console.log(responseBody);
+    if (!responseBody) {
+      alert('네트워크 이상입니다.');
+      return;
+    }
+    const { status, message } = responseBody;
+    if (status === 201) {
+      //toast message로 회원가입 완료 메시지
+
+      navigate('/login');
+    }
+    if (status === 400) {
+      setError(true);
+      setErrorMessage('회원가입 형식에 맞지 않습니다.');
+    }
+    if (status === 409) {
+      if (message === 'Email already in use') {
+        setError(true);
+        setErrorMessage('중복되는 이메일입니다.');
+      }
+      if (message === 'Nickname already in use') {
+        setError(true);
+        setErrorMessage('중복되는 닉네임입니다.');
+      }
+    }
+  };
+
+  const onSubmitHandler = async (data: FormIF) => {
+    SignUpRequest(data.email, data.password, data.nickname).then(SignUpResponse);
   };
 
   const onPasswordHandler = () => {
@@ -78,6 +113,7 @@ const SignUp = () => {
             {errors.password && errors.password?.type === 'required' && (
               <ErrorMessage>비밀번호를 입력해주세요.</ErrorMessage>
             )}
+
             {errors.password && errors.password?.type === 'pattern' && (
               <ErrorMessage>비밀번호는 최소 8자 이상이며, 문자와 숫자를 포함해야 합니다.</ErrorMessage>
             )}
@@ -114,7 +150,10 @@ const SignUp = () => {
           </SignUp_InputBoxs>
 
           <SignUp_content>
-            <SignUp_button type="submit">회원가입</SignUp_button>
+            <Content>
+              {error && <Error>{errorMessage}</Error>}
+              <SignUp_button type="submit">회원가입</SignUp_button>
+            </Content>
             <SignUp_text>
               계정이 있으신가요? <Link to={'/login'}>로그인</Link>
             </SignUp_text>
