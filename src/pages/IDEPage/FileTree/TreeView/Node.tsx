@@ -51,6 +51,11 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       //FileState 업데이트 되면 리렌더링 해야할듯
     }
   };
+  // useEffect(() => {
+  //   if (node.data.id === code.id && selectedNode === node) {
+  //     setSelectedNode(node);
+  //   }
+  // }, [node, code.id, setSelectedNode, selectedNode]);
 
   const onDeleteClickHandler = () => {
     confirmAlert({

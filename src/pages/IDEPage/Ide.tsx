@@ -9,16 +9,19 @@ import Code from './Editor/Code';
 import Terminal from './Terminal/Terminal';
 import Modal from './Modal/Modal';
 import Chat from '../../components/Chat';
+import EditModal from './FileTree/EditModal/EditModal';
 
 const Ide = () => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
   const [friend, setFriend] = useState(false);
+  const [edit, setEdit] = useState('');
 
   return (
     <IdeContainer>
       {friend && <Modal setFriend={setFriend} />}
+      {edit !== '' && <EditModal edit={edit} setEdit={setEdit} />}
       <Header />
       <IdeCenter>
         <Side>
@@ -35,7 +38,7 @@ const Ide = () => {
         </Side>
         {files && (
           <File>
-            <FileTree />
+            <FileTree edit={edit} setEdit={setEdit} />
           </File>
         )}
         <Section>

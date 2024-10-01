@@ -9,20 +9,24 @@ import {
   IdeExplorer_Top,
   InputBox,
 } from './FileTree.style.ts';
-import { useEffect, useRef, useState } from 'react';
+import { SetStateAction, useEffect, useRef, useState } from 'react';
 import TreeView from './TreeView/TreeView.tsx';
 import { NodeApi, TreeApi } from 'react-arborist';
 import { IFolder } from '../../../recoil/Folder/types.ts';
 import { FaSearch } from 'react-icons/fa';
 
-const FileTree: React.FC = () => {
+interface Prop {
+  edit: string;
+  setEdit: React.Dispatch<SetStateAction<string>>;
+}
+
+const FileTree: React.FC<Prop> = ({ edit, setEdit }) => {
   const [plusModal, setPlusModal] = useState(false);
   const [search, setSearch] = useState(false);
   const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
   const treeRef = useRef<TreeApi<IFolder> | null>(null);
   const ExplorerRef = useRef<HTMLDivElement | null>(null);
   const PlusRef = useRef<HTMLDivElement | null>(null);
-  const [edit, setEdit] = useState<boolean>(false);
   const [term, setTerm] = useState('');
   console.log(selectedNode);
 
@@ -30,12 +34,14 @@ const FileTree: React.FC = () => {
     treeRef.current?.createInternal();
     setPlusModal(false);
     if (selectedNode?.children === null) return;
+    setEdit('폴더');
   };
 
   const onClickFile = () => {
     treeRef.current?.createLeaf();
     setPlusModal(false);
     if (selectedNode?.children === null) return;
+    setEdit('파일');
   };
 
   useEffect(() => {
@@ -83,14 +89,7 @@ const FileTree: React.FC = () => {
 
       {/* IdeExplorer_Folders 공간 외에 눌렀을 때 selectNodeId가 null이 되도록! */}
       <IdeExplorer_Folders>
-        <TreeView
-          treeRef={treeRef}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-          edit={edit}
-          setEdit={setEdit}
-          term={term}
-        />
+        <TreeView treeRef={treeRef} selectedNode={selectedNode} setSelectedNode={setSelectedNode} term={term} />
       </IdeExplorer_Folders>
     </IdeExplorer>
   );

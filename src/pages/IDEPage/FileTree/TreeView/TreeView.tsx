@@ -10,11 +10,9 @@ interface Props {
   treeRef: React.MutableRefObject<TreeApi<IFolder> | null>;
   selectedNode: NodeApi<IFolder> | null;
   setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
-  edit: boolean;
-  setEdit: React.Dispatch<SetStateAction<boolean>>;
   term: string;
 }
-const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode, edit, setEdit, term }) => {
+const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode, term }) => {
   const initalFolder = useRecoilValue(FolderState);
   const onCreate: CreateHandler<IFolder> = ({ type }) => {
     const newNode: IFolder = {
