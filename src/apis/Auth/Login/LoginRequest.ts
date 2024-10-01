@@ -6,7 +6,6 @@ const SignUpRequest = async (email: string, password: string) => {
       email: email,
       password: password,
     })
-
     .then(response => {
       console.log(response);
 

@@ -1,5 +1,5 @@
-import { CookieSetOptions } from 'universal-cookie';
 import apiClient from './apiClient';
+import { CookieSetOptions } from 'universal-cookie';
 
 interface ICode {
   status: number;
@@ -8,7 +8,7 @@ interface ICode {
 
 const RefreshToken = async (
   refreshToken: string,
-  setCookie: (name: string, value: string, options?: CookieSetOptions) => void,
+  setCookie: (name: 'Authorization' | 'Refresh-Token' | 'userId', value: string, options?: CookieSetOptions) => void,
 ) => {
   try {
     const result = await apiClient.post<ICode>(
@@ -34,6 +34,7 @@ const RefreshToken = async (
     }
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 

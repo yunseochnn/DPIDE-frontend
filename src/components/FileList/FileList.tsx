@@ -13,10 +13,16 @@ const FileList = ({ file }: Props) => {
   const [File, setFile] = useRecoilState(FileState);
   const [code, setCode] = useRecoilState(CodeState);
 
-  const onCloseClickHandler = () => {
+  const onCloseClickHandler = (event: React.MouseEvent) => {
+    event.stopPropagation(); // 파일 닫기 버튼 클릭 시 클릭 이벤트 버블링 방지
     //저장하지 않으거면 저장할건지 물어보고 저장하는 로직
     const updateFile = File.filter(f => f.id !== file.id);
     setFile(updateFile);
+    if (File.length !== 0) {
+      setCode({ id: File[File.length - 1].id, content: File[File.length - 1].modifyContent });
+    } else {
+      setCode({ id: '', content: '' });
+    }
   };
   const isSelect = file.id === code.id;
   const onClick = () => {

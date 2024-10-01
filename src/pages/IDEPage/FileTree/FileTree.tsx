@@ -18,12 +18,13 @@ import { FaSearch } from 'react-icons/fa';
 interface Prop {
   edit: string;
   setEdit: React.Dispatch<SetStateAction<string>>;
+  selectedNode: NodeApi<IFolder> | null;
+  setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-const FileTree: React.FC<Prop> = ({ edit, setEdit }) => {
+const FileTree: React.FC<Prop> = ({ edit, setEdit, selectedNode, setSelectedNode }) => {
   const [plusModal, setPlusModal] = useState(false);
   const [search, setSearch] = useState(false);
-  const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
   const treeRef = useRef<TreeApi<IFolder> | null>(null);
   const ExplorerRef = useRef<HTMLDivElement | null>(null);
   const PlusRef = useRef<HTMLDivElement | null>(null);

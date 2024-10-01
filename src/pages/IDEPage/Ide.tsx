@@ -10,6 +10,8 @@ import Terminal from './Terminal/Terminal';
 import Modal from './Modal/Modal';
 import Chat from '../../components/Chat';
 import EditModal from './FileTree/EditModal/EditModal';
+import { NodeApi } from 'react-arborist';
+import { IFolder } from '../../recoil/Folder/types';
 
 const Ide = () => {
   const [files, setFiles] = useState(true);
@@ -17,6 +19,7 @@ const Ide = () => {
   const [chat, setChat] = useState(true);
   const [friend, setFriend] = useState(false);
   const [edit, setEdit] = useState('');
+  const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
 
   return (
     <IdeContainer>
@@ -38,7 +41,7 @@ const Ide = () => {
         </Side>
         {files && (
           <File>
-            <FileTree edit={edit} setEdit={setEdit} />
+            <FileTree edit={edit} setEdit={setEdit} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
           </File>
         )}
         <Section>
