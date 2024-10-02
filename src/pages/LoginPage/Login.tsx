@@ -35,9 +35,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   const LoginResponse = (responseBody: AxiosResponse) => {
-    console.log(responseBody);
     const responseData = responseBody.data;
-    console.log(responseData);
     if (!responseData) {
       alert('네트워크 이상입니다.');
       return;
@@ -47,7 +45,6 @@ const Login = () => {
       //토큰 userId 저장
       const authToken = responseBody.headers['authorization']?.replace('Bearer ', '').trim();
       const refreshToken = responseBody.headers['refresh-token'].trim();
-      console.log(`Bearer ${authToken}`);
       if (authToken) {
         setCookie('Authorization', authToken, { path: '/', secure: false, sameSite: 'strict' });
       }

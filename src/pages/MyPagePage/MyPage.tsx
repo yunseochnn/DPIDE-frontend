@@ -41,7 +41,6 @@ const MyPage = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
   const authorization = cookies['Authorization'];
   const refreshToken = cookies['Refresh-Token'];
-  console.log(refreshToken);
   const Nic = cookies['nickname'];
   const [editNickname, setEditNickname] = useState(false);
   const [nicknameError, setNicknameError] = useState('');
@@ -95,6 +94,7 @@ const MyPage = () => {
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
               removeCookie('userId', { path: '/' });
+              removeCookie('nickname', { path: '/' });
 
               navigate('/');
             }
@@ -165,6 +165,7 @@ const MyPage = () => {
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
               removeCookie('userId', { path: '/' });
+              removeCookie('nickname', { path: '/' });
 
               navigate('/');
             }
