@@ -10,35 +10,120 @@ import FileState from '../../../../recoil/File/atoms';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import styled from 'styled-components';
+import CodeState from '../../../../recoil/Code/atoms';
+import RemoveFileRequest from '../../../../apis/IDE/File/RemoveFileRequest';
+import { useParams } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import FileContentRequest from '../../../../apis/IDE/File/FileContentRequest';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
   setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-const NodeContainer = styled.div<{ isSelected: boolean }>`
-  background-color: ${props => (props.isSelected ? '#d3d3d3' : 'transparent')};
+const NodeContainer = styled.div`
+  background-color: transparent;
   padding-top: 2px;
   padding-bottom: 2px;
   cursor: pointer;
 
   &:hover {
-    background-color: ${props => (props.isSelected ? '#d3d3d3' : 'gray')};
+    background-color: gray;
+  }
+
+  &.selected {
+    background-color: #d3d3d3;
+    &:hover {
+      background-color: #d3d3d3;
+    }
   }
 `;
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
+  const [code, setCode] = useRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
+  const [cookies] = useCookies(['Authorization']);
+  const Authorization = cookies['Authorization'];
+  const { projectId } = useParams();
+  const id = Number(projectId);
+  const fileId = Number(node.data.id);
 
   const onClickNode = async () => {
     setSelectedNode(node);
     console.log(node);
     if (!node.children && !Files.find(file => file.id === node.data.id)) {
       //백엔드로 파일 read 로직 후 코드 업데이트
-      //content에 파일 read 해 온 content 넣기
-      await setFiles([...Files, { id: node.data.id, content: '', name: node.data.name, modifyContent: '' }]);
-      //FileState 업데이트 되면 리렌더링 해야할듯
+      try {
+        const response = await FileContentRequest(id, fileId, Authorization);
+
+        if (!response) {
+          alert('네트워크 오류');
+          return;
+        }
+
+        //Blob 데이터를 문자열로 변화
+        const blobToString = (blob: Blob): Promise<string> => {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string); //성공적으로 읽으면 resolve
+            reader.onerror = reject; //읽기 실패 시 reject
+            reader.readAsText(blob); //Blob을 텍스트로 읽기
+          });
+        };
+
+        const fileContent = await blobToString(response); //Blob을 문자열로 변환
+        console.log('받아온 내용: ', fileContent);
+
+        //content에 파일 read 해 온 content 넣기
+        await setFiles([
+          ...Files,
+          { id: node.data.id, content: fileContent, name: node.data.name, modifyContent: fileContent },
+        ]);
+        setCode({ id: node.data.id, content: fileContent });
+      } catch (error) {
+        console.log(error);
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            const { status } = error.response;
+            if (status === 404) {
+              console.log('파일을 찾을 수 없음');
+            } else if (status === 500) {
+              console.log('서버 오류');
+            }
+          }
+        }
+      }
+    }
+  };
+
+  const RemoveFileResponse = async () => {
+    try {
+      const response = await RemoveFileRequest(id, fileId, Authorization);
+
+      if (!response) {
+        alert('네트워크 문제');
+        return;
+      }
+
+      const { status } = response;
+      if (status === 200) {
+        toast.dark('파일이 삭제되었습니다.');
+      }
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          const { status } = error.response;
+          if (status === 404) {
+            console.log('파일을 찾을 수 없습니다.');
+          } else if (status === 500) {
+            console.log('서버 오류');
+          }
+        }
+      }
     }
   };
 
@@ -50,7 +135,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
         {
           label: '네',
           onClick: () => {
-            //파일 삭제하는 로직
+            RemoveFileResponse();
           },
         },
         {
@@ -62,7 +147,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   };
 
   return (
-    <NodeContainer style={style} onClick={onClickNode} isSelected={isSelected}>
+    <NodeContainer style={style} onClick={onClickNode} className={isSelected ? 'selected' : ''}>
       <div className="node-content" onClick={() => node.isInternal && node.toggle()} style={{ display: 'flex' }}>
         {node.children ? (
           node.isOpen ? (

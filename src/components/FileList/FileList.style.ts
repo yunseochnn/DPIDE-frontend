@@ -9,6 +9,10 @@ export const FileListContainer = styled.div`
   flex: 1;
   padding: 0 2px;
   cursor: pointer;
+
+  &.select {
+    background-color: black;
+  }
 `;
 
 export const FileIcon = styled.div`
