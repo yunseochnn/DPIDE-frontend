@@ -1,6 +1,6 @@
 import apiClient from '../../apiClient';
 
-const SignUpRequest = async (email: string, password: string) => {
+const LoginRequest = async (email: string, password: string) => {
   const result = await apiClient
     .post('/user/login', {
       email: email,
@@ -18,4 +18,4 @@ const SignUpRequest = async (email: string, password: string) => {
   return result;
 };
 
-export default SignUpRequest;
+export default LoginRequest;

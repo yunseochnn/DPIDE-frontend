@@ -3,11 +3,11 @@ import apiClient from '../../apiClient';
 const LogoutRequest = async (RefreshToken: string, Authorization: string) => {
   try {
     const result = await apiClient.post(
-      '/user/logout',
+      `/user/logout`,
       {},
       {
         headers: {
-          RefreshToken: RefreshToken,
+          'Refresh-Token': RefreshToken,
           Authorization: `Bearer ${Authorization}`,
         },
       },
