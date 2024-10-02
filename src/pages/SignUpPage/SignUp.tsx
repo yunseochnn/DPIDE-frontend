@@ -43,7 +43,6 @@ const SignUp = () => {
   } = useForm<FormIF>();
 
   const SignUpResponse = (responseBody: SignUpResponseDto | SignUpErrorDto | null) => {
-    console.log(responseBody);
     if (!responseBody) {
       alert('네트워크 이상입니다.');
       return;

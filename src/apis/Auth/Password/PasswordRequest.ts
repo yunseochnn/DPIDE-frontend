@@ -1,12 +1,12 @@
 import apiClient from '../../apiClient';
 
-const PasswordRequest = async (oldPassword: string, newPasword: string, Authorization: string) => {
+const PasswordRequest = async (oldPassword: string, newPassword: string, Authorization: string) => {
   try {
     const result = await apiClient.put(
       '/user',
       {
         oldPassword: oldPassword,
-        newPasword: newPasword,
+        newPassword: newPassword,
       },
       {
         headers: {
