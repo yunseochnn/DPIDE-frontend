@@ -1,37 +1,75 @@
+import { useState } from 'react';
 import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
 import { MdEdit } from 'react-icons/md';
-import { useRecoilState } from 'recoil';
-import { dropdownOpenState } from '../recoil/Project/atoms';
+import { ProjectType } from '../types';
+import EditProjectModal from '../components/modal/EditProjectModal';
+import { useNavigate } from 'react-router-dom';
 
-const Project = () => {
-  const [isDropdownOpen, setDropdownOpen] = useRecoilState(dropdownOpenState);
+interface ProjectProps {
+  projects: ProjectType[] | undefined;
+  token: string;
+}
 
-  const toggleDropdown = () => {
-    setDropdownOpen(!isDropdownOpen);
+const Project = ({ projects, token }: ProjectProps) => {
+  const navigate = useNavigate();
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
+
+  const toggleDropdown = (projectId: number) => {
+    setActiveDropdown(activeDropdown === projectId ? null : projectId);
   };
 
-  const handleEdit = () => {};
+  const openEditModal = (project: ProjectType) => {
+    setSelectedProject(project);
+    setModalOpen(true);
+    setActiveDropdown(null);
+  };
 
-  const handleDelete = () => {};
+  const handleDelete = (projectId: number) => {
+    console.log(`프로젝트 삭제: ${projectId}`);
+    setActiveDropdown(null);
+  };
+
+  const closeEditModal = () => {
+    setModalOpen(false);
+    setSelectedProject(null);
+  };
+
+  if (!projects || projects.length === 0) {
+    return <div>프로젝트가 없습니다.</div>;
+  }
 
   return (
     <ProjectContainer>
-      <ProjectBox>
-        <MenuIcon onClick={toggleDropdown} />
-        {isDropdownOpen && (
-          <DropdownMenu>
-            <DropdownItem onClick={handleEdit}>수정</DropdownItem>
-            <DropdownItem onClick={handleDelete}>삭제</DropdownItem>
-          </DropdownMenu>
-        )}
-        <ProjectTitle>Note-app</ProjectTitle>
-        <ProjectDescription>이것은 프로젝트 설명입니다.</ProjectDescription>
-        <EditButton>
-          Edit
-          <MdEdit />
-        </EditButton>
-      </ProjectBox>
+      {projects.map((project: ProjectType) => (
+        <ProjectBox key={project.id}>
+          <MenuIcon onClick={() => toggleDropdown(project.id)} />
+          {activeDropdown === project.id && (
+            <DropdownMenu>
+              <DropdownItem onClick={() => openEditModal(project)}>수정</DropdownItem>
+              <DropdownItem onClick={() => handleDelete(project.id)}>삭제</DropdownItem>
+            </DropdownMenu>
+          )}
+          <ProjectTitle>{project.name}</ProjectTitle>
+          <ProjectDescription>{project.description}</ProjectDescription>
+          <EditButton onClick={() => navigate(`/ide/${project.id}?extension=${project.language}`)}>
+            Edit <MdEdit />
+          </EditButton>
+        </ProjectBox>
+      ))}
+
+      {isModalOpen && selectedProject && (
+        <EditProjectModal
+          projectId={selectedProject.id}
+          currentName={selectedProject.name}
+          currentDescription={selectedProject.description}
+          token={token}
+          onClose={closeEditModal}
+          refreshProjects={() => console.log('프로젝트 갱신')}
+        />
+      )}
     </ProjectContainer>
   );
 };
@@ -49,8 +87,9 @@ const ProjectContainer = styled.div`
 
 const ProjectBox = styled.div`
   position: relative;
-  width: 300px;
-  height: 230px;
+  width: 100%;
+  max-width: 300px;
+  height: auto;
   background-color: #ffffff;
   border: 1px solid #e1e1e8;
   border-radius: 8px;
@@ -58,6 +97,10 @@ const ProjectBox = styled.div`
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    max-width: 100%;
+  }
 `;
 
 const MenuIcon = styled(CiMenuBurger)`
@@ -66,28 +109,6 @@ const MenuIcon = styled(CiMenuBurger)`
   right: 20px;
   cursor: pointer;
   color: #333;
-`;
-
-const DropdownMenu = styled.div`
-  position: absolute;
-  top: 40px;
-  right: 20px;
-  background-color: #ffffff;
-  border: 1px solid #e1e1e8;
-  border-radius: 6px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-`;
-
-const DropdownItem = styled.div`
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
-
-  &:hover {
-    background-color: #f4f4f4;
-  }
 `;
 
 const ProjectTitle = styled.h3`
@@ -105,7 +126,8 @@ const ProjectDescription = styled.p`
 `;
 
 const EditButton = styled.button`
-  width: 257px;
+  width: 100%;
+  max-width: 257px;
   height: 34px;
   background-color: ${({ theme }) => theme.colors.green2};
   color: #000000;
@@ -115,5 +137,26 @@ const EditButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 90px;
   gap: 8px;
+`;
+
+const DropdownMenu = styled.div`
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 120px;
+  z-index: 100;
+`;
+
+const DropdownItem = styled.div`
+  padding: 10px;
+  cursor: pointer;
+  &:hover {
+    background-color: #f1f1f1;
+  }
 `;

@@ -72,7 +72,7 @@ const MainHeader = () => {
         <ServiceName>DPIDE</ServiceName>
         <Spacer />
         <NotifyButton onClick={toggleNotify} className="notify-button">
-          <NotifyIcon size={32} />
+          <NotifyIcon size={28} />
         </NotifyButton>
         <ProfileButton onClick={toggleProfileMenu} className="profile-button">
           <ProfileCircle>
