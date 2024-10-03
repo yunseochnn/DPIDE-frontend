@@ -5,7 +5,7 @@ import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 import { SetStateAction } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import FileState from '../../../../recoil/File/atoms';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -42,7 +42,7 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
-  const [code, setCode] = useRecoilState(CodeState);
+  const setCode = useSetRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
@@ -113,8 +113,11 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       }
 
       const { status } = response;
-      if (status === 200) {
-        toast.dark('파일이 삭제되었습니다.');
+      if (status === 204) {
+        toast.dark('파일이 삭제되었습니다.', {
+          pauseOnHover: false,
+          autoClose: 2000,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -133,13 +136,13 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
   const onDeleteClickHandler = () => {
     confirmAlert({
-      title: '삭제',
       message: `"${node.data.name}"을 삭제하시겠습니까?`,
       buttons: [
         {
           label: '네',
-          onClick: () => {
-            RemoveFileResponse();
+          onClick: async () => {
+            await RemoveFileResponse();
+            setSelectedNode(null);
           },
         },
         {

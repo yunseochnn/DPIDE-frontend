@@ -1,5 +1,5 @@
 import { File, IdeCenter, IdeChat, IdeContainer, Section, Side } from './Ide.style';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import Header from './Header/Header';
 import Sidebar from './SideBar/Sidebar';
@@ -13,7 +13,7 @@ import EditModal from './FileTree/EditModal/EditModal';
 import { NodeApi } from 'react-arborist';
 import { IFolder } from '../../recoil/Folder/types';
 
-const Ide = () => {
+const Ide = React.memo(() => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
@@ -56,6 +56,6 @@ const Ide = () => {
       </IdeCenter>
     </IdeContainer>
   );
-};
+});
 
 export default Ide;

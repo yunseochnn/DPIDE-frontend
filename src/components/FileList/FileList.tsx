@@ -43,8 +43,8 @@ const FileList = ({ file }: Props) => {
         buttons: [
           {
             label: '네',
-            onClick: () => {
-              FileSaveResponse();
+            onClick: async () => {
+              await FileSaveResponse();
             },
           },
           {

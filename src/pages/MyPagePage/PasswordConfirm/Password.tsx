@@ -43,7 +43,10 @@ const Password = () => {
       const { status } = response;
       if (status === 200) {
         setError('');
-        toast.success('비밀번호변경이 완료되었습니다.');
+        toast.success('비밀번호변경이 완료되었습니다.', {
+          pauseOnHover: false,
+          autoClose: 2000,
+        });
         reset();
       }
     } catch (error) {

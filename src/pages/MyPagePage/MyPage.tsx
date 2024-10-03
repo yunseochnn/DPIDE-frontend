@@ -139,7 +139,10 @@ const MyPage = () => {
       const { status } = response;
 
       if (status === 200) {
-        toast.success('탈퇴가 완료되었습니다.');
+        toast.success('탈퇴가 완료되었습니다.', {
+          pauseOnHover: false,
+          autoClose: 2000,
+        });
         removeCookie('Authorization', { path: '/' });
         removeCookie('Refresh-Token', { path: '/' });
         removeCookie('userId', { path: '/' });
@@ -160,7 +163,10 @@ const MyPage = () => {
             const result = await LeaveRequest(authorization, refreshToken);
             const { status } = result;
             if (status === 200) {
-              toast.success('탈퇴가 완료되었습니다.');
+              toast.success('탈퇴가 완료되었습니다.', {
+                autoClose: 2000,
+                pauseOnHover: false,
+              });
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
               removeCookie('userId', { path: '/' });

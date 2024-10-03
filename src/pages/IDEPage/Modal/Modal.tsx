@@ -34,7 +34,6 @@ const Modal = ({ setFriend }: Props) => {
   const id = Number(projectId);
 
   const [cookies] = useCookies(['Authorization', 'userId']);
-  const userId = Number(cookies['userId']);
   const Authorization = cookies['Authorization'];
 
   interface IForm {
@@ -43,7 +42,7 @@ const Modal = ({ setFriend }: Props) => {
   const onSubmitHandler = async (data: IForm) => {
     const { email } = data;
     try {
-      const response = await FriendRequest(id, userId, email, Authorization);
+      const response = await FriendRequest(id, email, Authorization);
 
       if (!response) {
         alert('네트워크 이상입니다.');
@@ -52,7 +51,10 @@ const Modal = ({ setFriend }: Props) => {
 
       const { status } = response;
       if (status === 200) {
-        toast.success('친구초대가 완료되었습니다!');
+        toast.success('친구초대가 완료되었습니다!', {
+          autoClose: 2000,
+          pauseOnHover: false,
+        });
         reset();
       }
     } catch (error) {
@@ -60,10 +62,16 @@ const Modal = ({ setFriend }: Props) => {
         if (error.response) {
           const { status } = error.response;
           if (status === 403) {
-            toast.error('초대권한이 없습니다.');
+            toast.error('초대권한이 없습니다.', {
+              pauseOnHover: false,
+              autoClose: 2000,
+            });
             reset();
           } else if (status === 404) {
-            toast.error('사용자의 이메일이 아닙니다.');
+            toast.error('사용자의 이메일이 아닙니다.', {
+              pauseOnHover: false,
+              autoClose: 2000,
+            });
           } else if (status === 500) {
             console.log('데이터베이스 오류');
           }
