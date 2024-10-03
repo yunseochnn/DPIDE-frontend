@@ -87,19 +87,6 @@ export const MyPageContent_Nickname_Top_button = styled.button`
   cursor: pointer;
 `;
 
-export const MyPageContent_Nickname_Pw = styled.input`
-  width: 300px;
-  height: 50px;
-  border: 1px solid #bdbdbd;
-  border-radius: 3px;
-  font-size: 16px;
-  padding-left: 10px;
-  margin-top: 10px;
-
-  &::placeholder {
-    color: #bdbdbd;
-  }
-`;
 export const MyPageContent_Nickname_Content = styled.span`
   margin-left: 5px;
   font-size: 20px;

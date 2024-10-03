@@ -1,11 +1,10 @@
 import apiClient from '../../apiClient';
 
-const NicknameRequest = async (oldPassword: string, nickname: string, Authorization: string) => {
+const NicknameRequest = async (nickname: string, Authorization: string) => {
   try {
     const result = await apiClient.put(
-      '/user',
+      '/user/nickname',
       {
-        oldPassword: oldPassword,
         nickname: nickname,
       },
       {

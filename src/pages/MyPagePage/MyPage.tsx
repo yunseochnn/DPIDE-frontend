@@ -7,7 +7,6 @@ import {
   MyPageContent_Nickname,
   MyPageContent_Nickname_Content,
   MyPageContent_Nickname_Input,
-  MyPageContent_Nickname_Pw,
   MyPageContent_Nickname_Submit_button,
   MyPageContent_Nickname_Top,
   MyPageContent_Nickname_Top_button,
@@ -88,7 +87,7 @@ const MyPage = () => {
             // 토큰을 새로 발급받는 로직
             await RefreshToken(refreshToken, setCookie);
             // 새로 발급받은 토큰을 사용해 다시 요청
-            const result = await LeaveRequest(authorization);
+            const result = await LogoutRequest(refreshToken, authorization);
             const { status } = result;
             if (status === 200) {
               removeCookie('Authorization', { path: '/' });
@@ -130,7 +129,7 @@ const MyPage = () => {
   //회원탈퇴
   const LeaveResponse = async (authorization: string) => {
     try {
-      const response = await LeaveRequest(authorization);
+      const response = await LeaveRequest(authorization, refreshToken);
 
       if (!response) {
         alert('네트워크 오류입니다.');
@@ -158,7 +157,7 @@ const MyPage = () => {
             // 토큰을 새로 발급받는 로직
             await RefreshToken(refreshToken, setCookie);
             // 새로 발급받은 토큰을 사용해 다시 요청
-            const result = await LeaveRequest(authorization);
+            const result = await LeaveRequest(authorization, refreshToken);
             const { status } = result;
             if (status === 200) {
               toast.success('탈퇴가 완료되었습니다.');
@@ -199,9 +198,9 @@ const MyPage = () => {
 
   //닉네임 변경
   const onSubmitNicknameHandler = async (data: FormData) => {
-    const { nic, nicknamePw } = data;
+    const { nic } = data;
     try {
-      const response = await NicknameRequest(nicknamePw, nic, authorization);
+      const response = await NicknameRequest(nic, authorization);
 
       if (!response) {
         alert('네트워크 이상입니다.');
@@ -218,15 +217,11 @@ const MyPage = () => {
       console.log(error);
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          const { status, data } = error.response;
+          const { status } = error.response;
           if (status === 400) {
             console.log('요청하신 데이터가 유효하지 않습니다.');
           } else if (status === 401) {
-            if (data.message === 'Invalid old password') {
-              setNicknameError('비밀번호가 틀렸습니다.');
-            } else if (data.message === 'Nickname already in use') {
-              setNicknameError('중복된 닉네임입니다.');
-            }
+            setNicknameError('중복된 닉네임입니다.');
           } else if (status === 404) {
             console.log('사용자를 찾을 수 없습니다.');
           } else if (status === 500) {
@@ -269,15 +264,6 @@ const MyPage = () => {
               </MyPageContent_Nickname_Top_Title>
               <MyPageContent_Nickname_Submit_button type="submit">변경사항 저장</MyPageContent_Nickname_Submit_button>
             </MyPageContent_Nickname_Top>
-
-            <MyPageContent_Nickname_Pw
-              type="password"
-              placeholder="비밀번호를 입력해주세요."
-              {...register('nicknamePw', { required: true })}
-            />
-            {errors.nicknamePw && errors.nicknamePw?.type === 'required' && (
-              <NicknameError>비밀번호를 입력해주세요.</NicknameError>
-            )}
             {nicknameError !== '' && <NicknameError>{nicknameError}</NicknameError>}
           </MyPageContent_Submit_Nickname>
         ) : (

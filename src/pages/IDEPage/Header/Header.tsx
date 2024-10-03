@@ -17,6 +17,7 @@ const Header = () => {
   const [Files, setFiles] = useRecoilState(FileState);
 
   const FileSaveResponse = async (file: IFile) => {
+    if (file.modifyContent === file.content) return;
     const fileId = Number(file.id);
     try {
       const response = await FileSaveRequest(id, fileId, file.modifyContent, Authorization);
@@ -32,7 +33,10 @@ const Header = () => {
   };
 
   const onCloseClickHandler = async () => {
-    if (Files.length === 0) return;
+    if (Files.length === 0) {
+      navigate('/main');
+      return;
+    }
 
     confirmAlert({
       message: '열려있는 파일들을 저장하시겠습니까?',

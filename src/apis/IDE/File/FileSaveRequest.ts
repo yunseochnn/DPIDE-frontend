@@ -15,7 +15,7 @@ const FileSaveRequest = async (projectId: number, fileId: number, content: strin
     const response = await fetch(`${baseURL}/projects/${projectId}/files/${fileId}`, {
       method: 'PUT',
       headers: {
-        Authorization: Authorization,
+        Authorization: `Bearer ${Authorization}`,
       },
       body: formData,
     });

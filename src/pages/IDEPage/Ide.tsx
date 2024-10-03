@@ -48,7 +48,11 @@ const Ide = () => {
           <Code />
           {terminal && <Terminal />}
         </Section>
-        {chat && <IdeChat>{/* <Chat /> */}</IdeChat>}
+        {chat && (
+          <IdeChat>
+            <Chat />
+          </IdeChat>
+        )}
       </IdeCenter>
     </IdeContainer>
   );
