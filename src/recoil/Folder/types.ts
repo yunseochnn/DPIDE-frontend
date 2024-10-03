@@ -4,5 +4,5 @@ export interface IFolder {
   children?: IFolder[];
   extension: string;
   path: string;
-  // parentId: string;
+  parentId: string;
 }

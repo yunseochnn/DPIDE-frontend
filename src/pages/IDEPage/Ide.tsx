@@ -24,7 +24,7 @@ const Ide = () => {
   return (
     <IdeContainer>
       {friend && <Modal setFriend={setFriend} />}
-      {edit !== '' && <EditModal edit={edit} setEdit={setEdit} />}
+      {edit !== '' && <EditModal edit={edit} setEdit={setEdit} selectedNode={selectedNode} />}
       <Header />
       <IdeCenter>
         <Side>
@@ -48,11 +48,7 @@ const Ide = () => {
           <Code />
           {terminal && <Terminal />}
         </Section>
-        {chat && (
-          <IdeChat>
-            <Chat />
-          </IdeChat>
-        )}
+        {chat && <IdeChat>{/* <Chat /> */}</IdeChat>}
       </IdeCenter>
     </IdeContainer>
   );
