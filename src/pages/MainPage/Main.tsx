@@ -97,7 +97,12 @@ const Main = () => {
           </Sidebar>
 
           {projects && projects.length > 0 ? (
-            <Project projects={projects} token={token} refreshProjects={refreshProjects} />
+            <Project
+              projects={projects}
+              token={token}
+              refreshProjects={refreshProjects}
+              selectedButton={selectedButton}
+            />
           ) : (
             <div>프로젝트가 없습니다.</div>
           )}

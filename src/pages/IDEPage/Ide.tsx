@@ -23,7 +23,8 @@ const Ide = React.memo(() => {
   const [edit, setEdit] = useState('');
   const { projectId } = useParams();
   const id = Number(projectId);
-  const [cookies] = useCookies(['nickname']);
+  const [cookies] = useCookies(['nickname', 'Authorization']);
+  const Authorization = cookies['Authorization'];
   const userName = cookies['nickname'];
   const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
 
@@ -56,7 +57,7 @@ const Ide = React.memo(() => {
         </Section>
         {chat && (
           <IdeChat>
-            <Chat projectId={id} userName={userName} />
+            <Chat projectId={id} userName={userName} token={Authorization} />
           </IdeChat>
         )}
       </IdeCenter>

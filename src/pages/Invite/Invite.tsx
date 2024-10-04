@@ -6,7 +6,8 @@ import { InviteChat, InviteContainer, InviteContent } from './invite.style';
 import { useParams } from 'react-router-dom';
 
 const Invite = () => {
-  const [cookies] = useCookies(['nickname']);
+  const [cookies] = useCookies(['nickname', 'Authorization']);
+  const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
   const id = Number(projectId);
   const userName = cookies['nickname'];
@@ -16,7 +17,7 @@ const Invite = () => {
       <InviteContent>
         <Code></Code>
         <InviteChat>
-          <Chat projectId={id} userName={userName} />
+          <Chat userName={userName} projectId={id} token={Authorization} />
         </InviteChat>
       </InviteContent>
     </InviteContainer>
