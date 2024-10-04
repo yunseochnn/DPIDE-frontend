@@ -30,7 +30,7 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormInput>();
-  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token', 'nickname']);
+  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token', 'nickname', 'userId']);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
@@ -41,7 +41,7 @@ const Login = () => {
       return;
     }
     const { status } = responseBody;
-    const { nickname } = responseData;
+    const { nickname, id } = responseData;
     if (status === 200) {
       //토큰 userId 저장
       const authToken = responseBody.headers['authorization']?.replace('Bearer ', '').trim();
@@ -51,6 +51,9 @@ const Login = () => {
       }
       if (refreshToken) {
         setCookie('Refresh-Token', refreshToken, { path: '/', secure: false, sameSite: 'strict' });
+      }
+      if (id) {
+        setCookie('userId', id, { path: '/', secure: false, sameSite: 'strict' });
       }
       if (nickname) {
         setCookie('nickname', nickname, { path: '/', secure: false, sameSite: 'strict' });
@@ -67,7 +70,7 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (cookies['Authorization'] && cookies['Refresh-Token']) {
+    if (cookies['Authorization'] && cookies['Refresh-Token'] && cookies['nickname'] && cookies['userId']) {
       navigate('/main');
     }
   }, [cookies, navigate]);

@@ -10,6 +10,7 @@ import GlobalStyle from './styles/GlobalStyle';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import { RecoilRoot } from 'recoil';
+import Invite from './pages/Invite/Invite';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Routes>
           <Route path="/" element={<StartPage />} />
           <Route path="/ide/:projectId" element={<Ide />} />
+          <Route path="/ide/invite/:projectId" element={<Invite />} />
           <Route path="/login" element={<Login />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/mypage" element={<MyPage />} />
