@@ -63,16 +63,11 @@ const MyPage = () => {
   const LogoutResponse = async () => {
     try {
       const response = await LogoutRequest(refreshToken, authorization);
-
-      if (!response) {
-        alert('네트워크 이상입니다.');
-        return;
-      }
       const { status } = response;
       if (status === 200) {
         removeCookie('Authorization', { path: '/' });
         removeCookie('Refresh-Token', { path: '/' });
-        removeCookie('userId', { path: '/' });
+        removeCookie('nickname', { path: '/' });
 
         navigate('/');
       }
@@ -92,7 +87,6 @@ const MyPage = () => {
             if (status === 200) {
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
-              removeCookie('userId', { path: '/' });
               removeCookie('nickname', { path: '/' });
 
               navigate('/');
@@ -131,11 +125,6 @@ const MyPage = () => {
     try {
       const response = await LeaveRequest(authorization, refreshToken);
 
-      if (!response) {
-        alert('네트워크 오류입니다.');
-        return;
-      }
-
       const { status } = response;
 
       if (status === 200) {
@@ -145,7 +134,7 @@ const MyPage = () => {
         });
         removeCookie('Authorization', { path: '/' });
         removeCookie('Refresh-Token', { path: '/' });
-        removeCookie('userId', { path: '/' });
+        removeCookie('nickname', { path: '/' });
 
         navigate('/');
       }
@@ -169,7 +158,6 @@ const MyPage = () => {
               });
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
-              removeCookie('userId', { path: '/' });
               removeCookie('nickname', { path: '/' });
 
               navigate('/');
