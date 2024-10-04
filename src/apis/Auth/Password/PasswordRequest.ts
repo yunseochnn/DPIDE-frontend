@@ -3,7 +3,7 @@ import apiClient from '../../apiClient';
 const PasswordRequest = async (oldPassword: string, newPassword: string, Authorization: string) => {
   try {
     const result = await apiClient.put(
-      '/user',
+      '/user/password',
       {
         oldPassword: oldPassword,
         newPassword: newPassword,
@@ -14,7 +14,7 @@ const PasswordRequest = async (oldPassword: string, newPassword: string, Authori
         },
       },
     );
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

@@ -1,12 +1,10 @@
 import apiClient from '../../apiClient';
 
-const FriendRequest = async (projectId: number, userId: number, email: string, Authorization: string) => {
+const FriendRequest = async (projectId: number, email: string, Authorization: string) => {
   try {
     const result = await apiClient.post(
       `/projects/${projectId}/invite`,
       {
-        projectId: projectId,
-        userId: userId,
         email: email,
       },
       {
@@ -15,7 +13,7 @@ const FriendRequest = async (projectId: number, userId: number, email: string, A
         },
       },
     );
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

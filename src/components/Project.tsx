@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
 import { MdEdit } from 'react-icons/md';
 import { ProjectType } from '../types';
-import EditProjectModal from '../components/modal/EditProjectModal';
 import { useNavigate } from 'react-router-dom';
+import EditProjectModal from './Modal/EditProjectModal';
 
 interface ProjectProps {
   projects: ProjectType[] | undefined;
@@ -38,7 +38,7 @@ const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
         },
       });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         console.log(`프로젝트 삭제 성공: ${projectId}`);
         refreshProjects();
       }

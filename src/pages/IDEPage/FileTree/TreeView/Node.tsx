@@ -5,7 +5,7 @@ import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 import { SetStateAction } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import FileState from '../../../../recoil/File/atoms';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
@@ -16,7 +16,8 @@ import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import FileContentRequest from '../../../../apis/IDE/File/FileContentRequest';
+import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
+import FolderState from '../../../../recoil/Folder/atoms';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
@@ -43,7 +44,8 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
-  const [code, setCode] = useRecoilState(CodeState);
+  const setFolder = useSetRecoilState(FolderState);
+  const setCode = useSetRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
@@ -51,53 +53,56 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const id = Number(projectId);
   const fileId = Number(node.data.id);
 
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+  const fetchStreamAsString = async () => {
+    const response = await fetch(`${baseURL}/projects/${id}/files/${fileId}`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('파일을 찾을 수 없습니다. (404)');
+      } else if (response.status === 500) {
+        throw new Error('서버 오류가 발생했습니다. (500)');
+      } else {
+        throw new Error(`HTTP 오류 발생: ${response.status}`);
+      }
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error('stream을 읽을 수 없습니다.');
+    }
+
+    const decoder = new TextDecoder('utf-8');
+    let result = ''; //최종적으로 받을 문자열을 저장하는 변수
+
+    //스트림 데이터 반복해서 읽기
+    while (true) {
+      const { done, value } = await reader.read(); //청크 데이터를 읽음
+
+      if (done) {
+        console.log('Stream complete');
+        break;
+      }
+
+      const text = decoder.decode(value, { stream: true }); //바이너리 데이터를 문자열로 변환
+      result += text; //읽은 문자열을 result에 추가
+    }
+    return result; //전체 데이터를 합친 문자열 반환
+  };
+
   const onClickNode = async () => {
     setSelectedNode(node);
     console.log(node);
     if (!node.children && !Files.find(file => file.id === node.data.id)) {
       //백엔드로 파일 read 로직 후 코드 업데이트
-      // try {
-      //   const response = await FileContentRequest(id, fileId, Authorization);
-
-      //   if (!response) {
-      //     alert('네트워크 오류');
-      //     return;
-      //   }
-
-      //   //Blob 데이터를 문자열로 변화
-      //   const blobToString = (blob: Blob): Promise<string> => {
-      //     return new Promise((resolve, reject) => {
-      //       const reader = new FileReader();
-      //       reader.onload = () => resolve(reader.result as string); //성공적으로 읽으면 resolve
-      //       reader.onerror = reject; //읽기 실패 시 reject
-      //       reader.readAsText(blob); //Blob을 텍스트로 읽기
-      //     });
-      //   };
-
-      //   const fileContent = await blobToString(response); //Blob을 문자열로 변환
-      //   console.log('받아온 내용: ', fileContent);
-
-      //   //content에 파일 read 해 온 content 넣기
-      //   await setFiles([
-      //     ...Files,
-      //     { id: node.data.id, content: fileContent, name: node.data.name, modifyContent: fileContent },
-      //   ]);
-      //   setCode({ id: node.data.id, content: fileContent });
-      // } catch (error) {
-      //   console.log(error);
-      //   if (axios.isAxiosError(error)) {
-      //     if (error.response) {
-      //       const { status } = error.response;
-      //       if (status === 404) {
-      //         console.log('파일을 찾을 수 없음');
-      //       } else if (status === 500) {
-      //         console.log('서버 오류');
-      //       }
-      //     }
-      //   }
-      // }
-      await setFiles([...Files, { id: node.data.id, content: '', name: node.data.name, modifyContent: '' }]);
-      setCode({ id: node.data.id, content: '' });
+      fetchStreamAsString()
+        .then(result => {
+          console.log('파일 내용: ', result);
+          setFiles([...Files, { id: node.data.id, content: result, name: node.data.name, modifyContent: result }]);
+          setCode({ id: node.data.id, content: result });
+        })
+        .catch(error => console.error('Error fetching stream data: ', error));
     }
   };
 
@@ -112,14 +117,20 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
       const { status } = response;
       if (status === 200) {
-        toast.dark('파일이 삭제되었습니다.');
+        const response = await FolderRequest(id, Authorization);
+        const { files } = response.data;
+        setFolder(files);
+        toast.dark('파일이 삭제되었습니다.', {
+          pauseOnHover: false,
+          autoClose: 2000,
+        });
       }
     } catch (error) {
       console.log(error);
       if (axios.isAxiosError(error)) {
         if (error.response) {
           const { status } = error.response;
-          if (status === 404) {
+          if (status === 400) {
             console.log('파일을 찾을 수 없습니다.');
           } else if (status === 500) {
             console.log('서버 오류');
@@ -131,13 +142,13 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
   const onDeleteClickHandler = () => {
     confirmAlert({
-      title: '삭제',
       message: `"${node.data.name}"을 삭제하시겠습니까?`,
       buttons: [
         {
           label: '네',
-          onClick: () => {
-            RemoveFileResponse();
+          onClick: async () => {
+            await RemoveFileResponse();
+            setSelectedNode(null);
           },
         },
         {

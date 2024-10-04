@@ -1,8 +1,8 @@
 import apiClient from '../../apiClient';
 
-const RemoveFileRequest = async (projectId: number, fileId: number, Authorization: string) => {
+const FolderRequest = async (projectId: number, Authorization: string) => {
   try {
-    const result = await apiClient.delete(`/projects/${projectId}/files/${fileId}`, {
+    const result = await apiClient.get(`/projects/${projectId}`, {
       headers: {
         Authorization: `Bearer ${Authorization}`,
       },
@@ -11,8 +11,9 @@ const RemoveFileRequest = async (projectId: number, fileId: number, Authorizatio
     return result;
   } catch (error) {
     console.log(error);
+
     throw error;
   }
 };
 
-export default RemoveFileRequest;
+export default FolderRequest;

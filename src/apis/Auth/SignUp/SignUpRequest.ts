@@ -8,10 +8,10 @@ const SignUpRequest = async (email: string, password: string, nickname: string) 
       nickname: nickname,
     })
     .then(response => {
-      return response.data;
+      return response;
     })
     .catch(error => {
-      return error.response.data;
+      return error.response;
     });
   return result;
 };

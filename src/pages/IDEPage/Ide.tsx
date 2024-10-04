@@ -1,5 +1,5 @@
 import { File, IdeCenter, IdeChat, IdeContainer, Section, Side } from './Ide.style';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 import Header from './Header/Header';
 import Sidebar from './SideBar/Sidebar';
@@ -15,11 +15,10 @@ import { IFolder } from '../../recoil/Folder/types';
 
 interface IdeProps {
   projectId: number;
-  token: string;
   userName: string;
 }
 
-const Ide = ({ projectId, token, userName }: IdeProps) => {
+const Ide = React.memo(({ projectId, userName }: IdeProps) => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
@@ -30,7 +29,7 @@ const Ide = ({ projectId, token, userName }: IdeProps) => {
   return (
     <IdeContainer>
       {friend && <Modal setFriend={setFriend} />}
-      {edit !== '' && <EditModal edit={edit} setEdit={setEdit} />}
+      {edit !== '' && <EditModal edit={edit} setEdit={setEdit} selectedNode={selectedNode} />}
       <Header />
       <IdeCenter>
         <Side>
@@ -56,12 +55,12 @@ const Ide = ({ projectId, token, userName }: IdeProps) => {
         </Section>
         {chat && (
           <IdeChat>
-            <Chat projectId={projectId} token={token} userName={userName} />
+            <Chat projectId={projectId} userName={userName} />
           </IdeChat>
         )}
       </IdeCenter>
     </IdeContainer>
   );
-};
+});
 
 export default Ide;

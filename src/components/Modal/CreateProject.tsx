@@ -12,12 +12,11 @@ interface ModalProps {
   closeModal: () => void;
   refreshProjects: () => void;
   token: string;
-  userId: string;
 }
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, token, userId }) => {
+const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, token }) => {
   const [isSuccessModalOpen, setSuccessModalOpen] = useRecoilState(isSuccessModalOpenState);
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
@@ -38,7 +37,6 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
           name: projectName,
           description: projectDescription,
           language: language,
-          userId: userId,
         },
         {
           headers: {

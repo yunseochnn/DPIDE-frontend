@@ -21,7 +21,7 @@ const RefreshToken = async (
       },
     );
 
-    if (result.data.status === 201) {
+    if (result.status === 200) {
       const token = result.headers['authorization']?.replace('Bearer ', '');
       if (token) {
         setCookie('Authorization', token, { path: '/', secure: false, sameSite: 'strict' });
@@ -29,7 +29,7 @@ const RefreshToken = async (
       }
     }
 
-    if (result.data.status === 401 || result.data.status === 500) {
+    if (result.data.status === 400 || result.data.status === 500) {
       alert(result.data.message);
     }
   } catch (error) {

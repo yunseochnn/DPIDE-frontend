@@ -103,4 +103,12 @@ export const EditModalButton = styled.button`
   cursor: pointer;
 `;
 
-export const EditModalInput = styled.div``;
+export const EditModalInput = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ErrorMessage = styled.div`
+  font-size: 10px;
+  color: red;
+`;

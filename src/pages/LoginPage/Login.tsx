@@ -30,17 +30,18 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm<FormInput>();
-  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
+  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token', 'nickname']);
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
   const LoginResponse = (responseBody: AxiosResponse) => {
     const responseData = responseBody.data;
-    if (!responseData) {
+    if (!responseBody) {
       alert('네트워크 이상입니다.');
       return;
     }
-    const { status, user } = responseData;
+    const { status } = responseBody;
+    const { nickname } = responseData;
     if (status === 200) {
       //토큰 userId 저장
       const authToken = responseBody.headers['authorization']?.replace('Bearer ', '').trim();
@@ -51,25 +52,22 @@ const Login = () => {
       if (refreshToken) {
         setCookie('Refresh-Token', refreshToken, { path: '/', secure: false, sameSite: 'strict' });
       }
-      if (user.id) {
-        setCookie('userId', user.id, { path: '/', secure: false, sameSite: 'strict' });
-      }
-      if (user.nickname) {
-        setCookie('nickname', user.nickname, { path: '/', secure: false, sameSite: 'strict' });
+      if (nickname) {
+        setCookie('nickname', nickname, { path: '/', secure: false, sameSite: 'strict' });
       }
       navigate('/main');
     }
-    if (status === 401) {
+    if (status === 400) {
       setError(true);
     }
   };
 
   const onSubmit: SubmitHandler<FormInput> = async data => {
-    LoginRequest(data.email, data.password).then(LoginResponse);
+    await LoginRequest(data.email, data.password).then(LoginResponse);
   };
 
   useEffect(() => {
-    if (cookies['Authorization'] && cookies['Refresh-Token'] && cookies['userId']) {
+    if (cookies['Authorization'] && cookies['Refresh-Token']) {
       navigate('/main');
     }
   }, [cookies, navigate]);
