@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
@@ -9,13 +10,15 @@ import { useNavigate } from 'react-router-dom';
 interface ProjectProps {
   projects: ProjectType[] | undefined;
   token: string;
+  refreshProjects: () => void;
 }
 
-const Project = ({ projects, token }: ProjectProps) => {
+const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const toggleDropdown = (projectId: number) => {
     setActiveDropdown(activeDropdown === projectId ? null : projectId);
@@ -27,9 +30,28 @@ const Project = ({ projects, token }: ProjectProps) => {
     setActiveDropdown(null);
   };
 
-  const handleDelete = (projectId: number) => {
-    console.log(`프로젝트 삭제: ${projectId}`);
-    setActiveDropdown(null);
+  const handleDelete = async (projectId: number) => {
+    try {
+      const response = await axios.delete(`/projects/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 204) {
+        console.log(`프로젝트 삭제 성공: ${projectId}`);
+        refreshProjects();
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 400) {
+        setErrorMessage('프로젝트를 찾을 수 없습니다.');
+      } else {
+        setErrorMessage('프로젝트 삭제에 실패했습니다.');
+      }
+      console.error(error);
+    } finally {
+      setActiveDropdown(null);
+    }
   };
 
   const closeEditModal = () => {
@@ -67,9 +89,10 @@ const Project = ({ projects, token }: ProjectProps) => {
           currentDescription={selectedProject.description}
           token={token}
           onClose={closeEditModal}
-          refreshProjects={() => console.log('프로젝트 갱신')}
+          refreshProjects={refreshProjects}
         />
       )}
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
     </ProjectContainer>
   );
 };
@@ -159,4 +182,9 @@ const DropdownItem = styled.div`
   &:hover {
     background-color: #f1f1f1;
   }
+`;
+
+const ErrorMessage = styled.div`
+  color: red;
+  margin-top: 10px;
 `;
