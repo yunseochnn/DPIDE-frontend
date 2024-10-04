@@ -12,18 +12,19 @@ import Chat from '../../components/Chat';
 import EditModal from './FileTree/EditModal/EditModal';
 import { NodeApi } from 'react-arborist';
 import { IFolder } from '../../recoil/Folder/types';
+import { useParams } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
-interface IdeProps {
-  projectId: number;
-  userName: string;
-}
-
-const Ide = React.memo(({ projectId, userName }: IdeProps) => {
+const Ide = React.memo(() => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
   const [friend, setFriend] = useState(false);
   const [edit, setEdit] = useState('');
+  const { projectId } = useParams();
+  const id = Number(projectId);
+  const [cookies] = useCookies(['nickname']);
+  const userName = cookies['nickname'];
   const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
 
   return (
@@ -55,7 +56,7 @@ const Ide = React.memo(({ projectId, userName }: IdeProps) => {
         </Section>
         {chat && (
           <IdeChat>
-            <Chat projectId={projectId} userName={userName} />
+            <Chat projectId={id} userName={userName} />
           </IdeChat>
         )}
       </IdeCenter>

@@ -20,6 +20,8 @@ const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const baseURL = import.meta.env.VITE_API_BASE_URL;
+
   const toggleDropdown = (projectId: number) => {
     setActiveDropdown(activeDropdown === projectId ? null : projectId);
   };
@@ -32,7 +34,7 @@ const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
 
   const handleDelete = async (projectId: number) => {
     try {
-      const response = await axios.delete(`/projects/${projectId}`, {
+      const response = await axios.delete(`${baseURL}/projects/${projectId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
