@@ -48,7 +48,7 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
         },
       );
 
-      if (response.status === 201 || response.status === 200) {
+      if (response.status === 200) {
         const { id, createdAt, updatedAt } = response.data;
         setSuccessModalOpen(true);
         refreshProjects();

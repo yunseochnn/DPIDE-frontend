@@ -40,7 +40,7 @@ const Main = () => {
         setProjects(response.data.projects);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          if (error.response && error.response.status === 401 && !isRetry) {
+          if (error.response && error.response.status === 400 && !isRetry) {
             try {
               await RefreshToken(refreshToken, (name: string, value: string, options) =>
                 setCookie(name as 'Authorization' | 'Refresh-Token' | 'userId', value, options),
@@ -65,8 +65,9 @@ const Main = () => {
   );
 
   const refreshProjects = useCallback(() => {
-    fetchProjects(`/projects`);
-  }, [fetchProjects]);
+    const url = selectedButton === 'myProjects' ? `/projects/${userId}` : `/projects/${userId}/invited`;
+    fetchProjects(url);
+  }, [fetchProjects, selectedButton, userId]);
 
   useEffect(() => {
     refreshProjects();
@@ -101,7 +102,7 @@ const Main = () => {
           </Sidebar>
 
           {projects && projects.length > 0 ? (
-            <Project projects={projects} token={token} />
+            <Project projects={projects} token={token} refreshProjects={refreshProjects} />
           ) : (
             <div>프로젝트가 없습니다.</div>
           )}
