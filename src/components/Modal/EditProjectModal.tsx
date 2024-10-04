@@ -23,13 +23,12 @@ const EditProjectModal = ({
   const [description, setDescription] = useState(currentDescription);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // 백엔드 서버의 baseURL을 가져옴
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const handleSave = async () => {
     try {
       const response = await axios.put(
-        `${baseURL}/projects/${projectId}`, // 백엔드 서버 URL을 포함
+        `${baseURL}/projects/${projectId}`,
         { name, description },
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } },
       );
