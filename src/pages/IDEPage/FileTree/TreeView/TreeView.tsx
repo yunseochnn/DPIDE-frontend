@@ -34,7 +34,8 @@ const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode, ter
         return;
       }
 
-      const { status, files } = response;
+      const { status } = response;
+      const { files } = response.data;
 
       if (status === 200) {
         setInitalFolder(files);

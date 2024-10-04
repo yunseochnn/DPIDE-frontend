@@ -13,7 +13,13 @@ import EditModal from './FileTree/EditModal/EditModal';
 import { NodeApi } from 'react-arborist';
 import { IFolder } from '../../recoil/Folder/types';
 
-const Ide = React.memo(() => {
+interface IdeProps {
+  projectId: number;
+  token: string;
+  userName: string;
+}
+
+const Ide = React.memo(({ projectId, token, userName }: IdeProps) => {
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
@@ -50,7 +56,7 @@ const Ide = React.memo(() => {
         </Section>
         {chat && (
           <IdeChat>
-            <Chat />
+            <Chat projectId={projectId} token={token} userName={userName} />
           </IdeChat>
         )}
       </IdeCenter>

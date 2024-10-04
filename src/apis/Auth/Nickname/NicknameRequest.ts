@@ -14,7 +14,7 @@ const NicknameRequest = async (nickname: string, Authorization: string) => {
       },
     );
 
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

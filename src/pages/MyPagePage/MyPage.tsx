@@ -152,7 +152,7 @@ const MyPage = () => {
     } catch (error) {
       console.log(error);
       if (axios.isAxiosError(error)) {
-        if (error.response && error.response.status === 401) {
+        if (error.response && error.response.status === 400) {
           // 401 Unauthorized 에러 처리
           console.log('유효하지 않은 토큰입니다.');
 

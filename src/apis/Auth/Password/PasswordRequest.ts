@@ -14,7 +14,7 @@ const PasswordRequest = async (oldPassword: string, newPassword: string, Authori
         },
       },
     );
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

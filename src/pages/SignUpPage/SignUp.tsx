@@ -16,10 +16,11 @@ import {
 import { useForm } from 'react-hook-form';
 import { useEffect, useState } from 'react';
 import SignUpRequest from '../../apis/Auth/SignUp/SignUpRequest';
-import { SignUpErrorDto, SignUpResponseDto } from '../../apis/Auth/SignUp/SignUpResponse.dto';
+import { SignUpResponseDto } from '../../apis/Auth/SignUp/SignUpResponse.dto';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AxiosResponse } from 'axios';
 
 interface FormIF {
   email: string;
@@ -42,13 +43,13 @@ const SignUp = () => {
     watch,
   } = useForm<FormIF>();
 
-  const SignUpResponse = (responseBody: SignUpResponseDto | SignUpErrorDto | null) => {
+  const SignUpResponse = (responseBody: AxiosResponse<SignUpResponseDto> | null) => {
     if (!responseBody) {
       alert('네트워크 이상입니다.');
       return;
     }
-    const { status, message } = responseBody;
-    if (status === 201) {
+    const { status, statusText } = responseBody;
+    if (status === 200) {
       //toast message로 회원가입 완료 메시지
       toast.success('회원가입 완료!', {
         autoClose: 2000,
@@ -59,17 +60,7 @@ const SignUp = () => {
     }
     if (status === 400) {
       setError(true);
-      setErrorMessage('회원가입 형식에 맞지 않습니다.');
-    }
-    if (status === 409) {
-      if (message === 'Email already in use') {
-        setError(true);
-        setErrorMessage('중복되는 이메일입니다.');
-      }
-      if (message === 'Nickname already in use') {
-        setError(true);
-        setErrorMessage('중복되는 닉네임입니다.');
-      }
+      setErrorMessage(statusText);
     }
   };
 

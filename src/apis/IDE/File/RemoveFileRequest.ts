@@ -7,7 +7,7 @@ const RemoveFileRequest = async (projectId: number, fileId: number, Authorizatio
         Authorization: `Bearer ${Authorization}`,
       },
     });
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

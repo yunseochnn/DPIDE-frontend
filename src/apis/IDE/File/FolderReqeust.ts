@@ -7,7 +7,7 @@ const FolderRequest = async (projectId: number, Authorization: string) => {
         Authorization: `Bearer ${Authorization}`,
       },
     });
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
 

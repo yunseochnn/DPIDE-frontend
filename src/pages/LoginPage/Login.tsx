@@ -36,11 +36,12 @@ const Login = () => {
 
   const LoginResponse = (responseBody: AxiosResponse) => {
     const responseData = responseBody.data;
-    if (!responseData) {
+    if (!responseBody) {
       alert('네트워크 이상입니다.');
       return;
     }
-    const { status, user } = responseData;
+    const { status } = responseBody;
+    const { user } = responseData;
     if (status === 200) {
       //토큰 userId 저장
       const authToken = responseBody.headers['authorization']?.replace('Bearer ', '').trim();
@@ -65,7 +66,7 @@ const Login = () => {
   };
 
   const onSubmit: SubmitHandler<FormInput> = async data => {
-    LoginRequest(data.email, data.password).then(LoginResponse);
+    await LoginRequest(data.email, data.password).then(LoginResponse);
   };
 
   useEffect(() => {

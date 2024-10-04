@@ -52,17 +52,6 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
     async (data: FormValues) => {
       const { name } = data;
 
-      if (edit === '파일') {
-        const et = name.split('.');
-        if (et[et.length - 1] !== extension) {
-          setError('name', {
-            type: 'manual',
-            message: `${extension}파일명으로 작성해주세요`,
-          });
-          return;
-        }
-      }
-
       try {
         const response = await CreatFileRequest(id, name, extension, path, parentId, Authorization);
 
@@ -73,7 +62,7 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
 
         const { status } = response;
 
-        if (status === 201) {
+        if (status === 200) {
           setEdit('');
           toast.success('파일 생성이 완료되었습니다.', {
             pauseOnHover: false,

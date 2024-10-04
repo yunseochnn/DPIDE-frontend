@@ -13,7 +13,7 @@ const FriendRequest = async (projectId: number, email: string, Authorization: st
         },
       },
     );
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

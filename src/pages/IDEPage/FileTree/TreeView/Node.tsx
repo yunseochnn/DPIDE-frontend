@@ -113,7 +113,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       }
 
       const { status } = response;
-      if (status === 204) {
+      if (status === 200) {
         toast.dark('파일이 삭제되었습니다.', {
           pauseOnHover: false,
           autoClose: 2000,
@@ -124,7 +124,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
           const { status } = error.response;
-          if (status === 404) {
+          if (status === 400) {
             console.log('파일을 찾을 수 없습니다.');
           } else if (status === 500) {
             console.log('서버 오류');

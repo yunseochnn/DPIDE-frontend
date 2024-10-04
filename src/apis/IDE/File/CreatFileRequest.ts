@@ -23,7 +23,7 @@ const CreatFileRequest = async (
         },
       },
     );
-    return result.data;
+    return result;
   } catch (error) {
     console.log(error);
     throw error;

@@ -26,6 +26,7 @@ const Password = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
   } = useForm<FormData>();
   const [cookies] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
   const Authorization = cookies['Authorization'];
@@ -55,15 +56,7 @@ const Password = () => {
         if (error.response) {
           const { status, data } = error.response;
           if (status === 400) {
-            console.log('요청하신 데이터가 유효하지 않습니다.');
-          } else if (status === 401) {
-            if (data.message === 'Invalid old password') {
-              setError('비밀번호가 틀렸습니다.');
-            }
-          } else if (status === 404) {
-            console.log('사용자를 찾을 수 없습니다.');
-          } else if (status === 500) {
-            console.log('데이터 베이스 오류');
+            setError(data.message);
           }
         }
       }
@@ -111,8 +104,8 @@ const Password = () => {
           {errors.newPwConfirm && errors.newPwConfirm?.type === 'required' && (
             <ErrorMessage>새비밀번호 확인을 입력해주세요.</ErrorMessage>
           )}
-          {errors.newPwConfirm && errors.newPwConfirm?.type === 'pattern' && (
-            <ErrorMessage>비밀번호는 최소 8자 이상이며, 문자와 숫자를 포함해야 합니다.</ErrorMessage>
+          {watch('newPwConfirm') && watch('newPw') !== watch('newPwConfirm') && (
+            <ErrorMessage>새비밀번호가 일치하지 않습니다.</ErrorMessage>
           )}
           {error !== '' && <ErrorMessage>{error}</ErrorMessage>}
         </InputBox>
