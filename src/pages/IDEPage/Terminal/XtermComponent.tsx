@@ -20,7 +20,7 @@ const XtermComponent: React.FC = () => {
       fitAddon.fit();
 
       // 기본 메시지 출력
-      xterm.writeln('Welcome to xterm.js in React with TypeScript!');
+      xterm.writeln('Welcome to DPIDE!!');
 
       let inputBuffer = ''; // 입력된 문자열을 저장할 버퍼
 

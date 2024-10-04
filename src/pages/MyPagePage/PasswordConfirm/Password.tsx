@@ -1,12 +1,13 @@
 import {
   ErrorMessage,
+  InputBox,
   MyPageContent_Password,
   MyPageContent_Password_Input,
   MyPageContent_Password_InputBox,
   MyPageContent_Password_Top,
+  MyPageContent_Password_Top_button,
   MyPageContent_Password_Top_Title,
 } from './Password.style';
-import { InputBox, MyPageContent_Nickname_Top_button } from '../MyPage.style';
 import { useForm } from 'react-hook-form';
 import { useCookies } from 'react-cookie';
 import PasswordRequest from '../../../apis/Auth/Password/PasswordRequest';
@@ -66,7 +67,7 @@ const Password = () => {
     <MyPageContent_Password onSubmit={handleSubmit(onSubmit)}>
       <MyPageContent_Password_Top>
         <MyPageContent_Password_Top_Title>비밀번호 변경</MyPageContent_Password_Top_Title>
-        <MyPageContent_Nickname_Top_button type="submit">비밀번호 변경</MyPageContent_Nickname_Top_button>
+        <MyPageContent_Password_Top_button type="submit">비밀번호 변경</MyPageContent_Password_Top_button>
       </MyPageContent_Password_Top>
       <MyPageContent_Password_InputBox>
         <InputBox>
