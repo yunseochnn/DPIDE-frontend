@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { messagesState, inputState } from '../recoil/Chat/atoms';
@@ -8,8 +8,8 @@ import dayjs from 'dayjs';
 import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
 
 interface ChatProps {
-  projectId: number;
   userName: string;
+  projectId: number;
 }
 interface RecoilMessage {
   text: string;
@@ -24,56 +24,64 @@ interface ChatMessageProps {
 
 const socketUrl = `${import.meta.env.VITE_API_BASE_URL.replace('http', 'ws')}/ws`;
 
-const Chat = ({ projectId, userName }: ChatProps) => {
+const Chat = ({ userName, projectId }: ChatProps) => {
   const [messages, setMessages] = useRecoilState<RecoilMessage[]>(messagesState);
   const [input, setInput] = useRecoilState<string>(inputState);
-  const [client, setClient] = useState<Client | null>(null);
+  const client = useRef<Client | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const subscribe = useCallback(() => {
+    if (client.current) {
+      client.current.subscribe(`/topic/projectId/${projectId}`, message => {
+        const receivedMessage = JSON.parse(message.body);
+        setMessages(prevMessages => [
+          ...prevMessages,
+          {
+            text: receivedMessage.content,
+            sender: receivedMessage.sender,
+            profile: profile,
+            createdAt: receivedMessage.createdAt,
+          },
+        ]);
+      });
+    }
+  }, [projectId, setMessages]);
 
   useEffect(() => {
     const wsUrl = `${socketUrl}`;
-    const websocket = new WebSocket(wsUrl);
 
-    const stompClient = new Client({
-      webSocketFactory: () => websocket,
+    client.current = new Client({
+      brokerURL: wsUrl,
       debug: str => console.log(str),
-      reconnectDelay: 100000,
+      reconnectDelay: 50000,
       onConnect: () => {
-        stompClient.subscribe(`/topic/projectId/${projectId}`, message => {
-          const receivedMessage = JSON.parse(message.body);
-          setMessages(prevMessages => [
-            ...prevMessages,
-            {
-              text: receivedMessage.content,
-              sender: receivedMessage.sender,
-              profile: profile,
-              createdAt: receivedMessage.createdAt,
-            },
-          ]);
-        });
+        console.log('Connected to WebSocket');
+        subscribe(); // 연결 성공 후 구독
+      },
+      onStompError: frame => {
+        console.error('Broker reported error: ' + frame.headers['message']);
+        console.error('Additional details: ' + frame.body);
       },
       onDisconnect: () => {
         console.log('Disconnected from WebSocket');
       },
     });
 
-    stompClient.activate();
-    setClient(stompClient);
+    client.current.activate();
 
     return () => {
-      stompClient.deactivate();
+      client.current?.deactivate();
     };
-  }, [projectId, setMessages]);
-
+  }, [projectId, subscribe]);
   const sendMessage = () => {
-    if (client && input) {
+    if (client.current && client.current.connected && input) {
       const message = {
         sender: userName,
         content: input,
         projectId: projectId,
       };
 
-      client.publish({
+      client.current.publish({
         destination: `/app/message`,
         body: JSON.stringify(message),
       });
@@ -89,8 +97,9 @@ const Chat = ({ projectId, userName }: ChatProps) => {
           createdAt: sentAt,
         },
       ]);
-
       setInput('');
+    } else {
+      console.error('STOMP connection is not established or input is empty.');
     }
   };
 
