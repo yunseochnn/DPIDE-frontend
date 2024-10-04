@@ -19,7 +19,7 @@ const FileSaveRequest = async (projectId: number, fileId: number, content: strin
       },
       body: formData,
     });
-
+    console.log(response);
     return response;
   } catch (error) {
     console.log(error);

@@ -16,6 +16,8 @@ import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
+import FolderState from '../../../../recoil/Folder/atoms';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
@@ -42,6 +44,7 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
+  const setFolder = useSetRecoilState(FolderState);
   const setCode = useSetRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
   const [cookies] = useCookies(['Authorization']);
@@ -114,6 +117,9 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
       const { status } = response;
       if (status === 200) {
+        const response = await FolderRequest(id, Authorization);
+        const { files } = response.data;
+        setFolder(files);
         toast.dark('파일이 삭제되었습니다.', {
           pauseOnHover: false,
           autoClose: 2000,

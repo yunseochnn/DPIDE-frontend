@@ -9,10 +9,8 @@ import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
 
 interface ChatProps {
   projectId: number;
-  token: string;
   userName: string;
 }
-
 interface RecoilMessage {
   text: string;
   sender: string;
@@ -26,22 +24,18 @@ interface ChatMessageProps {
 
 const socketUrl = `${import.meta.env.VITE_API_BASE_URL.replace('http', 'ws')}/ws`;
 
-const Chat = ({ projectId, token, userName }: ChatProps) => {
+const Chat = ({ projectId, userName }: ChatProps) => {
   const [messages, setMessages] = useRecoilState<RecoilMessage[]>(messagesState);
   const [input, setInput] = useRecoilState<string>(inputState);
   const [client, setClient] = useState<Client | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // WebSocket 연결 설정
-    const wsUrl = `${socketUrl}?token=${token}`;
+    const wsUrl = `${socketUrl}`;
     const websocket = new WebSocket(wsUrl);
 
     const stompClient = new Client({
-      webSocketFactory: () => websocket, // SockJS 대신 WebSocket 직접 사용
-      connectHeaders: {
-        Authorization: `Bearer ${token}`,
-      },
+      webSocketFactory: () => websocket,
       debug: str => console.log(str),
       reconnectDelay: 100000,
       onConnect: () => {
@@ -69,7 +63,7 @@ const Chat = ({ projectId, token, userName }: ChatProps) => {
     return () => {
       stompClient.deactivate();
     };
-  }, [projectId, token, setMessages]);
+  }, [projectId, setMessages]);
 
   const sendMessage = () => {
     if (client && input) {

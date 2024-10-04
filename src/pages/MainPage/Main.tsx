@@ -16,15 +16,10 @@ const Main = () => {
   const [selectedButton, setSelectedButton] = useRecoilState(selectedButtonState);
 
   const [projects, setProjects] = useState<ProjectType[] | null>(null);
-  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId']);
+  const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token']);
 
   const token = cookies['Authorization'];
   const refreshToken = cookies['Refresh-Token'];
-  const userId = cookies['userId'];
-
-  if (!userId) {
-    console.error('userId가 쿠키에 없습니다.');
-  }
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
@@ -43,7 +38,7 @@ const Main = () => {
           if (error.response && error.response.status === 400 && !isRetry) {
             try {
               await RefreshToken(refreshToken, (name: string, value: string, options) =>
-                setCookie(name as 'Authorization' | 'Refresh-Token' | 'userId', value, options),
+                setCookie(name as 'Authorization' | 'Refresh-Token', value, options),
               );
               isRetry = true;
               const retryResponse = await axios.get(`${baseURL}${url}`, {
@@ -65,13 +60,13 @@ const Main = () => {
   );
 
   const refreshProjects = useCallback(() => {
-    const url = selectedButton === 'myProjects' ? `/projects/${userId}` : `/projects/${userId}/invited`;
+    const url = selectedButton === 'myProjects' ? `/projects` : `/projects/invited`;
     fetchProjects(url);
-  }, [fetchProjects, selectedButton, userId]);
+  }, [fetchProjects, selectedButton]);
 
   useEffect(() => {
     refreshProjects();
-  }, [selectedButton, token, userId, fetchProjects, refreshProjects]);
+  }, [selectedButton, token, fetchProjects, refreshProjects]);
 
   const openModal = () => setModalOpen(true);
   const closeModal = () => setModalOpen(false);
@@ -108,9 +103,7 @@ const Main = () => {
           )}
         </ContentWrapper>
       </MainContainer>
-      {isModalOpen && (
-        <CreateProject closeModal={closeModal} refreshProjects={refreshProjects} token={token} userId={userId} />
-      )}{' '}
+      {isModalOpen && <CreateProject closeModal={closeModal} refreshProjects={refreshProjects} token={token} />}{' '}
     </>
   );
 };

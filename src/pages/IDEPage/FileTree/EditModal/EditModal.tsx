@@ -19,6 +19,9 @@ import { IFolder } from '../../../../recoil/Folder/types';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form'; // react-hook-form 추가
+import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
+import { useSetRecoilState } from 'recoil';
+import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Prop {
   edit: string;
@@ -32,6 +35,7 @@ interface FormValues {
 
 const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const [cookies] = useCookies(['Authorization']);
+  const setFolder = useSetRecoilState(FolderState);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
   const params = new URLSearchParams(window.location.search);
@@ -40,6 +44,8 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const parentId = Number(selectedNode ? selectedNode.data.id : '-1');
   const path = selectedNode ? selectedNode.data.path : '/';
 
+  console.log(edit);
+  console.log(extension);
   const {
     register,
     handleSubmit,
@@ -64,6 +70,9 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
 
         if (status === 200) {
           setEdit('');
+          const response = await FolderRequest(id, Authorization);
+          const { files } = response.data;
+          setFolder(files);
           toast.success('파일 생성이 완료되었습니다.', {
             pauseOnHover: false,
             autoClose: 2000,
