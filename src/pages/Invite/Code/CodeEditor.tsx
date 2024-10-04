@@ -17,9 +17,7 @@ const CodeEditor = () => {
       style={{ width: '100%', height: '100%' }}
       value={code.content}
       onChange={handleCodeChange}
-      setOptions={{
-        tabSize: 2,
-      }}
+      readOnly={true}
     />
   );
 };
