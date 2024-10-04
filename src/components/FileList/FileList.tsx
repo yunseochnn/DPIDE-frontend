@@ -37,23 +37,46 @@ const FileList = ({ file }: Props) => {
   const onCloseClickHandler = (event: React.MouseEvent) => {
     event.stopPropagation(); // 파일 닫기 버튼 클릭 시 클릭 이벤트 버블링 방지
     //저장하지 않을거면 저장할건지 물어보고 저장하는 로직
-    if (file.modifyContent !== file.content) {
-      confirmAlert({
-        message: '파일을 저장하시겠습니까?',
-        buttons: [
-          {
-            label: '네',
-            onClick: async () => {
-              await FileSaveResponse();
+    if (file.id === code.id) {
+      if (file.modifyContent !== code.content) {
+        confirmAlert({
+          message: '파일을 저장하시겠습니까?',
+          buttons: [
+            {
+              label: '네',
+              onClick: async () => {
+                await FileSaveResponse();
+              },
             },
-          },
-          {
-            label: '아니오',
-            onClick: () => {},
-          },
-        ],
-      });
+            {
+              label: '아니오',
+              onClick: () => {},
+            },
+          ],
+        });
+      }
+    } else {
+      if (file.modifyContent !== file.content) {
+        if (file.modifyContent !== code.content) {
+          confirmAlert({
+            message: '파일을 저장하시겠습니까?',
+            buttons: [
+              {
+                label: '네',
+                onClick: async () => {
+                  await FileSaveResponse();
+                },
+              },
+              {
+                label: '아니오',
+                onClick: () => {},
+              },
+            ],
+          });
+        }
+      }
     }
+
     const updateFile = File.filter(f => f.id !== file.id);
     setFile(updateFile);
     if (updateFile.length !== 0) {
@@ -64,6 +87,7 @@ const FileList = ({ file }: Props) => {
   };
 
   const isSelect = file.id === code.id;
+
   const onClick = () => {
     if (File.length > 0) {
       const newFile = File.map(file => {

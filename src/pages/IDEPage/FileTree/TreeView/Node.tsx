@@ -2,7 +2,7 @@ import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-import { SetStateAction } from 'react';
+import { SetStateAction, useEffect } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -18,6 +18,7 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
 import FolderState from '../../../../recoil/Folder/atoms';
+import { IFile } from '../../../../recoil/File/type';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
@@ -44,8 +45,8 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
-  const setFolder = useSetRecoilState(FolderState);
-  const setCode = useSetRecoilState(CodeState);
+  const [Folder, setFolder] = useRecoilState(FolderState);
+  const [code, setCode] = useRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
@@ -56,7 +57,11 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchStreamAsString = async () => {
-    const response = await fetch(`${baseURL}/projects/${id}/files/${fileId}`);
+    const response = await fetch(`${baseURL}/projects/${id}/files/${fileId}`, {
+      headers: {
+        Authorization: `Bearer ${Authorization}`,
+      },
+    });
 
     if (!response.ok) {
       if (response.status === 404) {
@@ -94,8 +99,12 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const onClickNode = async () => {
     setSelectedNode(node);
     console.log(node);
-    if (!node.children && !Files.find(file => file.id === node.data.id)) {
-      //백엔드로 파일 read 로직 후 코드 업데이트
+
+    // node.data.id와 동일한 파일이 있는지 찾기
+    const foundFile = Files.find(file => file.id === node.data.id);
+
+    // 파일이 이미 열려있지 않으면 새로 열고, 파일 내용 로드
+    if (!node.children && !foundFile) {
       fetchStreamAsString()
         .then(result => {
           console.log('파일 내용: ', result);
@@ -104,6 +113,17 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
         })
         .catch(error => console.error('Error fetching stream data: ', error));
     }
+
+    // 파일이 이미 열려있는 경우 해당 파일의 onClick 함수 실행
+    if (foundFile) {
+      handleFileClick(foundFile); // 파일 목록에서 onClick과 동일한 로직을 실행
+    }
+  };
+
+  // 파일을 클릭할 때 실행할 함수
+  const handleFileClick = (file: IFile) => {
+    // FileList에서의 onClick 로직을 실행
+    setCode({ id: file.id, content: file.modifyContent });
   };
 
   const RemoveFileResponse = async () => {

@@ -1,5 +1,5 @@
 import { IoClose } from 'react-icons/io5';
-import React, { SetStateAction, useCallback } from 'react';
+import React, { SetStateAction, useCallback, useEffect } from 'react';
 import {
   EditModalButton,
   EditModalContainer,
@@ -20,7 +20,7 @@ import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form'; // react-hook-form 추가
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
-import { useSetRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Prop {
@@ -35,11 +35,11 @@ interface FormValues {
 
 const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const [cookies] = useCookies(['Authorization']);
-  const setFolder = useSetRecoilState(FolderState);
+  const [Folder, setFolder] = useRecoilState(FolderState);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
   const params = new URLSearchParams(window.location.search);
-  const extension = edit === '폴더' ? 'Folder' : params.get('extension')?.toLowerCase() || '';
+  const extension = edit === '폴더' ? 'folder' : params.get('extension')?.toLowerCase() || '';
   const id = Number(projectId);
   const parentId = Number(selectedNode ? selectedNode.data.id : '-1');
   const path = selectedNode ? selectedNode.data.path : '/';
@@ -53,6 +53,10 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
     setError,
     reset,
   } = useForm<FormValues>();
+
+  useEffect(() => {
+    console.log(Folder);
+  }, [Folder]);
 
   const onSubmit = useCallback(
     async (data: FormValues) => {
@@ -78,6 +82,7 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
             autoClose: 2000,
           });
           reset(); // 폼 리셋
+          console.log(Folder);
         }
       } catch (error) {
         console.log(error);
