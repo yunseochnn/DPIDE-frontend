@@ -1,35 +1,22 @@
-import { useNavigate } from 'react-router-dom';
-import { MyPageContainer, MyPageContent, MyPageContent_Leave, MyPageContent_UserImage } from './MyPage.style';
-import { FaRegCircleUser } from 'react-icons/fa6';
+import { Link, useNavigate } from 'react-router-dom';
+import { MyPageHeader, MyPageHeader_Logo, MyPageHeader_Logout, MyPageHeader_Title } from './Header.style';
 import { confirmAlert } from 'react-confirm-alert';
+import LogoutRequest from '../../../apis/Auth/Logout/LogoutRequest';
 import { useCookies } from 'react-cookie';
-import RefreshToken from '../../apis/RefrshToken';
-import LeaveRequest from '../../apis/Auth/Leave/LeaveRequest';
-import { toast } from 'react-toastify';
 import axios from 'axios';
-import Password from './PasswordConfirm/Password';
-import Nickname from './Nickname/Nickname';
-import Header from './Header/Header';
+import RefreshToken from '../../../apis/RefrshToken';
 
-const MyPage = () => {
+const Header = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
   const authorization = cookies['Authorization'];
   const refreshToken = cookies['Refresh-Token'];
-
   const navigate = useNavigate();
-
-  //회원탈퇴
-  const LeaveResponse = async (authorization: string) => {
+  //로그아웃
+  const LogoutResponse = async () => {
     try {
-      const response = await LeaveRequest(authorization, refreshToken);
-
+      const response = await LogoutRequest(refreshToken, authorization);
       const { status } = response;
-
       if (status === 200) {
-        toast.success('탈퇴가 완료되었습니다.', {
-          pauseOnHover: false,
-          autoClose: 2000,
-        });
         removeCookie('Authorization', { path: '/' });
         removeCookie('Refresh-Token', { path: '/' });
         removeCookie('nickname', { path: '/' });
@@ -39,7 +26,7 @@ const MyPage = () => {
     } catch (error) {
       console.log(error);
       if (axios.isAxiosError(error)) {
-        if (error.response && error.response.status === 400) {
+        if (error.response && error.response.status === 401) {
           // 401 Unauthorized 에러 처리
           console.log('유효하지 않은 토큰입니다.');
 
@@ -47,13 +34,9 @@ const MyPage = () => {
             // 토큰을 새로 발급받는 로직
             await RefreshToken(refreshToken, setCookie);
             // 새로 발급받은 토큰을 사용해 다시 요청
-            const result = await LeaveRequest(authorization, refreshToken);
+            const result = await LogoutRequest(refreshToken, authorization);
             const { status } = result;
             if (status === 200) {
-              toast.success('탈퇴가 완료되었습니다.', {
-                autoClose: 2000,
-                pauseOnHover: false,
-              });
               removeCookie('Authorization', { path: '/' });
               removeCookie('Refresh-Token', { path: '/' });
               removeCookie('nickname', { path: '/' });
@@ -65,20 +48,21 @@ const MyPage = () => {
             alert('새로운 토큰을 발급받지 못했습니다.');
           }
         }
-        alert('회원 탈퇴를 실패하였습니다.');
+        if (error.response && error.response.status === 500) {
+          console.log('데이터베이스 오류입니다.');
+        }
+        alert('로그아웃을 실패하였습니다.');
       }
     }
   };
 
-  const onClickLeaveHandler = () => {
+  const onClickLogoutHandler = () => {
     confirmAlert({
-      message: '정말 회원을 탈퇴하시겠습니까?',
+      message: '로그아웃을 하시겠습니까?',
       buttons: [
         {
           label: '네',
-          onClick: () => {
-            LeaveResponse(authorization);
-          },
+          onClick: () => LogoutResponse(),
         },
         {
           label: '아니오',
@@ -87,20 +71,19 @@ const MyPage = () => {
       ],
     });
   };
-
   return (
-    <MyPageContainer>
-      <Header />
-      <MyPageContent>
-        <MyPageContent_UserImage>
-          <FaRegCircleUser />
-        </MyPageContent_UserImage>
-        <Nickname />
-        <Password />
-        <MyPageContent_Leave onClick={onClickLeaveHandler}>탈퇴하기</MyPageContent_Leave>
-      </MyPageContent>
-    </MyPageContainer>
+    <>
+      <MyPageHeader>
+        <MyPageHeader_Logo>
+          <Link to={'/main'}>
+            <img src="/src/assets/images/logo2.png" />
+            <MyPageHeader_Title>D P I D E</MyPageHeader_Title>
+          </Link>
+        </MyPageHeader_Logo>
+        <MyPageHeader_Logout onClick={onClickLogoutHandler}>로그아웃</MyPageHeader_Logout>
+      </MyPageHeader>
+    </>
   );
 };
 
-export default MyPage;
+export default Header;

@@ -60,21 +60,10 @@ const Modal = ({ setFriend }: Props) => {
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          const { status } = error.response;
-          if (status === 403) {
-            toast.error('초대권한이 없습니다.', {
-              pauseOnHover: false,
-              autoClose: 2000,
-            });
-            reset();
-          } else if (status === 404) {
-            toast.error('사용자의 이메일이 아닙니다.', {
-              pauseOnHover: false,
-              autoClose: 2000,
-            });
-          } else if (status === 500) {
-            console.log('데이터베이스 오류');
-          }
+          const { data } = error.response;
+          toast.error(data.message, {
+            pauseOnHover: false,
+          });
         }
       }
     }

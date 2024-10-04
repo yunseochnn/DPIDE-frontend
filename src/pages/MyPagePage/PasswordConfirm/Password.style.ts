@@ -16,7 +16,7 @@ export const MyPageContent_Password_Top_Title = styled.div`
   font-size: 20px;
   font-weight: 600;
 `;
-export const MyPageContent_Password_Top_button = styled.div`
+export const MyPageContent_Password_Top_button = styled.button`
   width: 87px;
   height: 34px;
   border-radius: 5px;

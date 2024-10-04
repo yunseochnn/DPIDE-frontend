@@ -97,7 +97,6 @@ const Login = () => {
                 {`아직 계정이 없나요?`}
                 <Link to={'/sign-up'}>회원가입</Link>
               </LogintContent>
-              <LogintContent>비밀번호 재설정</LogintContent>
             </LoginContents>
           </LoginBox>
         </LoginForm>
