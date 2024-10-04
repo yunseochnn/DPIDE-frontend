@@ -56,7 +56,7 @@ const Chat = ({ userName, projectId }: ChatProps) => {
       reconnectDelay: 50000,
       onConnect: () => {
         console.log('Connected to WebSocket');
-        subscribe(); // 연결 성공 후 구독
+        subscribe();
       },
       onStompError: frame => {
         console.error('Broker reported error: ' + frame.headers['message']);
