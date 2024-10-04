@@ -7,10 +7,13 @@ import { Link } from 'react-router-dom';
 import NotificationList from '../NotificationList';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
+import { useCookies } from 'react-cookie';
 
 const MainHeader = () => {
   const [isNotifyOpen, setNotifyOpen] = useRecoilState(isNotifyOpenState);
   const [isProfileMenuOpen, setProfileMenuOpen] = useRecoilState(isProfileMenuOpenState);
+  const [cookies] = useCookies(['Authorization']);
+  const Authorization = cookies['Authorization'];
 
   const toggleNotify = () => {
     setNotifyOpen((prev: boolean) => {
@@ -50,21 +53,6 @@ const MainHeader = () => {
     };
   }, [isNotifyOpen, isProfileMenuOpen, setNotifyOpen, setProfileMenuOpen]);
 
-  const notifications = [
-    {
-      id: 1,
-      profileImg: profile,
-      message: '닉네임 1 님이 note-app에 초대했습니다',
-      time: '2시간 전',
-    },
-    {
-      id: 2,
-      profileImg: profile,
-      message: '닉네임 2 님이 note에 초대했습니다',
-      time: '3시간 전',
-    },
-  ];
-
   return (
     <HeaderContainer>
       <HeaderWrapper>
@@ -80,7 +68,7 @@ const MainHeader = () => {
           </ProfileCircle>
         </ProfileButton>
       </HeaderWrapper>
-      {isNotifyOpen && <NotificationList notifications={notifications} />}
+      {isNotifyOpen && <NotificationList token={Authorization} />}
       {isProfileMenuOpen && (
         <ProfileDropdown>
           <DropdownItem to="/mypage">마이페이지</DropdownItem>

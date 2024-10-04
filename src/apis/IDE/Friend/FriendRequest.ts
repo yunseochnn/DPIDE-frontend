@@ -3,8 +3,9 @@ import apiClient from '../../apiClient';
 const FriendRequest = async (projectId: number, email: string, Authorization: string) => {
   try {
     const result = await apiClient.post(
-      `/projects/${projectId}/invite`,
+      `/alarm`,
       {
+        projectId: projectId,
         email: email,
       },
       {

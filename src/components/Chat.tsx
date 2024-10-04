@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { useCallback, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
@@ -6,10 +7,17 @@ import profile from '../assets/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
 import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
+import { useCookies } from 'react-cookie';
 
 interface ChatProps {
   userName: string;
   projectId: number;
+  token: string;
+}
+interface ChatMessage {
+  senderName: string;
+  content: string;
+  createdAt: string;
 }
 interface RecoilMessage {
   text: string;
@@ -23,16 +31,49 @@ interface ChatMessageProps {
 }
 
 const socketUrl = `${import.meta.env.VITE_API_BASE_URL.replace('http', 'ws')}/ws`;
+const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-const Chat = ({ userName, projectId }: ChatProps) => {
+const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [messages, setMessages] = useRecoilState<RecoilMessage[]>(messagesState);
   const [input, setInput] = useRecoilState<string>(inputState);
   const client = useRef<Client | null>(null);
+  const [cookies] = useCookies(['userId']);
+  const userId = Number(cookies['userId']);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const fetchChatHistory = useCallback(async () => {
+    try {
+      const response = await axios.get(`${baseURL}/chat/${projectId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+
+      if (response.data && response.data.chatInfoList) {
+        const { chatInfoList } = response.data;
+
+        const formattedMessages = Array.isArray(chatInfoList)
+          ? chatInfoList.map((message: ChatMessage) => ({
+              text: message.content,
+              sender: message.senderName,
+              profile: profile,
+              createdAt: message.createdAt,
+            }))
+          : [];
+
+        setMessages(formattedMessages);
+      } else {
+        console.error('Invalid response format: ', response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch chat history:', error);
+    }
+  }, [projectId, setMessages, token]);
 
   const subscribe = useCallback(() => {
     if (client.current) {
-      client.current.subscribe(`/topic/projectId/${projectId}`, message => {
+      client.current.subscribe(`/topic/chatroom/${projectId}`, message => {
         const receivedMessage = JSON.parse(message.body);
         setMessages(prevMessages => [
           ...prevMessages,
@@ -48,6 +89,8 @@ const Chat = ({ userName, projectId }: ChatProps) => {
   }, [projectId, setMessages]);
 
   useEffect(() => {
+    fetchChatHistory();
+
     const wsUrl = `${socketUrl}`;
 
     client.current = new Client({
@@ -72,31 +115,24 @@ const Chat = ({ userName, projectId }: ChatProps) => {
     return () => {
       client.current?.deactivate();
     };
-  }, [projectId, subscribe]);
+  }, [projectId, subscribe, fetchChatHistory]);
+
   const sendMessage = () => {
     if (client.current && client.current.connected && input) {
       const message = {
         sender: userName,
         content: input,
         projectId: projectId,
+        userId: userId,
       };
 
+      // 메시지를 WebSocket을 통해 서버로 전송
       client.current.publish({
         destination: `/app/message`,
         body: JSON.stringify(message),
       });
 
-      const sentAt = dayjs().toISOString();
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          text: input,
-          sender: userName,
-          profile,
-          createdAt: sentAt,
-        },
-      ]);
+      // 입력 필드를 초기화
       setInput('');
     } else {
       console.error('STOMP connection is not established or input is empty.');
@@ -128,7 +164,12 @@ const Chat = ({ userName, projectId }: ChatProps) => {
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && sendMessage()}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
           placeholder="메시지를 입력하세요..."
         />
         <SendButton onClick={sendMessage}>전송</SendButton>
@@ -160,8 +201,9 @@ const ProfileImage = styled.img`
   border-radius: 50%;
   margin-right: 8px;
 `;
-
-const ChatMessage = styled.div<ChatMessageProps>`
+const ChatMessage = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
@@ -169,11 +211,11 @@ const ChatMessage = styled.div<ChatMessageProps>`
     isOwnMessage
       ? `
     justify-content: flex-end;
-    margin-left: auto;
+    margin-left: auto; 
   `
       : `
     justify-content: flex-start;
-    margin-right: auto;
+    margin-right: auto; 
   `}
 `;
 
@@ -184,14 +226,18 @@ const SenderName = styled.div`
   margin-bottom: 5px;
 `;
 
-const MessageContent = styled.div<ChatMessageProps>`
+const MessageContent = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   display: flex;
   flex-direction: column;
   align-items: ${({ isOwnMessage }) => (isOwnMessage ? 'flex-end' : 'flex-start')};
   position: relative;
 `;
 
-const MessageText = styled.div<ChatMessageProps>`
+const MessageText = styled.div.withConfig({
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps>`
   background-color: ${({ isOwnMessage, theme }) => (isOwnMessage ? theme.colors.green1 : '#3a3d41')};
   color: ${({ isOwnMessage }) => (isOwnMessage ? '#000000' : '#ffffff')};
   padding: 10px;

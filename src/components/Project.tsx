@@ -11,9 +11,10 @@ interface ProjectProps {
   projects: ProjectType[] | undefined;
   token: string;
   refreshProjects: () => void;
+  selectedButton: string | null;
 }
 
-const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
+const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectProps) => {
   const navigate = useNavigate();
   const [isModalOpen, setModalOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
@@ -78,7 +79,15 @@ const Project = ({ projects, token, refreshProjects }: ProjectProps) => {
           )}
           <ProjectTitle>{project.name}</ProjectTitle>
           <ProjectDescription>{project.description}</ProjectDescription>
-          <EditButton onClick={() => navigate(`/ide/${project.id}?extension=${project.language}`)}>
+          <EditButton
+            onClick={() => {
+              if (selectedButton === 'myProjects') {
+                navigate(`/ide/${project.id}?extension=${project.language}`);
+              } else {
+                navigate(`/ide/invite/${project.id}`);
+              }
+            }}
+          >
             Edit <MdEdit />
           </EditButton>
         </ProjectBox>

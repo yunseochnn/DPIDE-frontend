@@ -56,7 +56,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
 
   const acceptInvitation = async (alarmId: number) => {
     try {
-      await axios.post(
+      await axios.put(
         `${baseURL}/alarm/${alarmId}/accept`,
         {},
         {
@@ -82,7 +82,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
 
   const denyInvitation = async (alarmId: number) => {
     try {
-      await axios.post(
+      await axios.put(
         `${baseURL}/alarm/${alarmId}/deny`,
         {},
         {
