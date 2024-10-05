@@ -11,6 +11,7 @@ import { useCookies } from 'react-cookie';
 import CodeState from '../recoil/Code/atoms';
 import { useDebounce } from '../hooks/useDebounce';
 import ReceiveContent from '../recoil/ReceiveContent/atom';
+import { useLocation } from 'react-router-dom';
 
 interface ChatProps {
   userName: string;
@@ -49,6 +50,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const Code = useRecoilValue(CodeState);
   const setReceiveCode = useSetRecoilState(ReceiveContent);
   const sendCode = useDebounce(Code.content, 1000);
+  const location = useLocation();
 
   const fetchChatHistory = useCallback(async () => {
     try {
@@ -133,7 +135,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       client.current.subscribe(`/topic/request/${projectId}`, message => {
         const receiveMessage = JSON.parse(message.body);
 
-        if (receiveMessage.userId !== userId) {
+        if (receiveMessage.userId !== userId && location.search !== '') {
           // 코드 요청을 받은 경우 현재 코드를 전송
           const currentCodeMessage = {
             sender: userName,
@@ -148,7 +150,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         }
       });
     }
-  }, [Code.content, projectId, userId, userName]);
+  }, [Code.content, location.search, projectId, userId, userName]);
 
   useEffect(() => {
     const requestCode = {
