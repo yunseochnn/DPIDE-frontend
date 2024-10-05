@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { messagesState, inputState } from '../recoil/Chat/atoms';
@@ -14,11 +14,13 @@ interface ChatProps {
   projectId: number;
   token: string;
 }
+
 interface ChatMessage {
   senderName: string;
   content: string;
   createdAt: string;
 }
+
 interface RecoilMessage {
   text: string;
   sender: string;
@@ -37,10 +39,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [messages, setMessages] = useRecoilState<RecoilMessage[]>(messagesState);
   const [input, setInput] = useRecoilState<string>(inputState);
   const client = useRef<Client | null>(null);
-  const [cookies] = useCookies(['userId']);
+  const [cookies] = useCookies(['userId', 'nickname']);
   const userId = Number(cookies['userId']);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
+  const [isComposing, setIsComposing] = useState(false);
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -62,6 +64,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
             }))
           : [];
 
+        console.log(formattedMessages);
         setMessages(formattedMessages);
       } else {
         console.error('Invalid response format: ', response.data);
@@ -70,6 +73,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       console.error('Failed to fetch chat history:', error);
     }
   }, [projectId, setMessages, token]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const subscribe = useCallback(() => {
     if (client.current) {
@@ -117,6 +124,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     };
   }, [projectId, subscribe, fetchChatHistory]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
   const sendMessage = () => {
     if (client.current && client.current.connected && input) {
       const message = {
@@ -126,13 +137,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         userId: userId,
       };
 
-      // 메시지를 WebSocket을 통해 서버로 전송
       client.current.publish({
         destination: `/app/message`,
         body: JSON.stringify(message),
       });
-
-      // 입력 필드를 초기화
       setInput('');
     } else {
       console.error('STOMP connection is not established or input is empty.');
@@ -164,8 +172,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
           onKeyDown={e => {
-            if (e.key === 'Enter') {
+            if (e.key === 'Enter' && !isComposing) {
               e.preventDefault();
               sendMessage();
             }
