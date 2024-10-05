@@ -1,8 +1,16 @@
 import { atom } from 'recoil';
 
-const ReceiveContent = atom({
+interface IReceive {
+  sender: string;
+  content: string;
+}
+
+const ReceiveContent = atom<IReceive>({
   key: 'ReceiveContent',
-  default: '',
+  default: {
+    sender: '',
+    content: '',
+  },
 });
 
 export default ReceiveContent;

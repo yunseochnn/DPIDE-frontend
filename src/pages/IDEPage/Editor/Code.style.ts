@@ -6,6 +6,7 @@ export const CodeWrapper = styled.div`
   width: 100%;
   height: 100%;
   flex-grow: 1;
+  background-color: #2f3336;
 `;
 
 export const CodeTop = styled.div`
