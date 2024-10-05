@@ -10,6 +10,7 @@ import { useParams } from 'react-router-dom';
 import CodeState from '../../../recoil/Code/atoms';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
+import Empty from './Empty';
 
 const Code = () => {
   const [File, setFile] = useRecoilState(FileState);
@@ -19,6 +20,7 @@ const Code = () => {
   const code = useRecoilValue(CodeState);
   const codeId = Number(code.id);
   const id = Number(projectId);
+  const is = File.length === 0 ? false : true;
 
   const onSaveClickHandler = async () => {
     try {
@@ -62,9 +64,7 @@ const Code = () => {
         </CodeButtons>
       </CodeTop>
 
-      <Edit>
-        <CodeEditor />
-      </Edit>
+      <Edit>{is ? <CodeEditor /> : <Empty />}</Edit>
     </CodeWrapper>
   );
 };

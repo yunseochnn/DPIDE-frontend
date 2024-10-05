@@ -1,13 +1,16 @@
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { messagesState, inputState } from '../recoil/Chat/atoms';
 import profile from '../assets/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
 import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
 import { useCookies } from 'react-cookie';
+import CodeState from '../recoil/Code/atoms';
+import { useDebounce } from '../hooks/useDebounce';
+import ReceiveContent from '../recoil/ReceiveContent/atom';
 
 interface ChatProps {
   userName: string;
@@ -43,6 +46,10 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const userId = Number(cookies['userId']);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [isComposing, setIsComposing] = useState(false);
+  const Code = useRecoilValue(CodeState);
+  const setReceiveCode = useSetRecoilState(ReceiveContent);
+  const sendCode = useDebounce(Code.content, 1000);
+
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -50,11 +57,9 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
 
       if (response.data && response.data.chatInfoList) {
         const { chatInfoList } = response.data;
-
         const formattedMessages = Array.isArray(chatInfoList)
           ? chatInfoList.map((message: ChatMessage) => ({
               text: message.content,
@@ -64,15 +69,12 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
             }))
           : [];
 
-        console.log(formattedMessages);
         setMessages(formattedMessages);
-      } else {
-        console.error('Invalid response format: ', response.data);
       }
     } catch (error) {
       console.error('Failed to fetch chat history:', error);
     }
-  }, [projectId, setMessages, token]);
+  }, [projectId, token, setMessages]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,9 +97,76 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, [projectId, setMessages]);
 
-  useEffect(() => {
-    fetchChatHistory();
+  const codeSubscribe = useCallback(() => {
+    if (client.current) {
+      client.current.subscribe(`/topic/project/${projectId}`, response => {
+        const codeResponse = JSON.parse(response.body);
+        setReceiveCode({
+          sender: codeResponse.sender,
+          content: codeResponse.content,
+        });
+      });
+    }
+  }, [projectId, setReceiveCode]);
 
+  const sendCodeContent = useCallback(() => {
+    if (client.current && client.current.connected && sendCode) {
+      const Code = {
+        sender: userName,
+        content: sendCode,
+        projectId: projectId,
+        userId: userId,
+      };
+
+      client.current.publish({
+        destination: `/app/code`,
+        body: JSON.stringify(Code),
+      });
+    } else {
+      console.error('STOMP connection is not established or input is empty.');
+    }
+  }, [sendCode, userName, projectId, userId]);
+
+  // 초대한 사용자가 코드 요청을 받고 코드를 전송
+  const requestSubscribe = useCallback(() => {
+    if (client.current) {
+      client.current.subscribe(`/topic/request/${projectId}`, message => {
+        const receiveMessage = JSON.parse(message.body);
+
+        if (receiveMessage.userId !== userId) {
+          // 코드 요청을 받은 경우 현재 코드를 전송
+          const currentCodeMessage = {
+            sender: userName,
+            content: Code.content, // 현재 작성 중인 코드
+            projectId: projectId,
+            userId: userId,
+          };
+          client.current?.publish({
+            destination: `/app/code`, // 응답 경로
+            body: JSON.stringify(currentCodeMessage),
+          });
+        }
+      });
+    }
+  }, [Code.content, projectId, userId, userName]);
+
+  useEffect(() => {
+    const requestCode = {
+      sender: userName,
+      projectId: projectId,
+      userId: userId,
+    };
+    client.current?.publish({
+      destination: '/app/request', // 요청 경로
+      body: JSON.stringify(requestCode),
+    });
+  }, [projectId, userId, userName]);
+
+  useEffect(() => {
+    sendCodeContent();
+  }, [sendCode, sendCodeContent]);
+
+  useEffect(() => {
     const wsUrl = `${socketUrl}`;
 
     client.current = new Client({
@@ -107,6 +176,18 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       onConnect: () => {
         console.log('Connected to WebSocket');
         subscribe();
+        codeSubscribe();
+        requestSubscribe();
+
+        const requestCode = {
+          sender: userName,
+          projectId: projectId,
+          userId: userId,
+        };
+        client.current?.publish({
+          destination: `/app/request`,
+          body: JSON.stringify(requestCode),
+        });
       },
       onStompError: frame => {
         console.error('Broker reported error: ' + frame.headers['message']);
@@ -122,7 +203,11 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     return () => {
       client.current?.deactivate();
     };
-  }, [projectId, subscribe, fetchChatHistory]);
+  }, [projectId, subscribe, fetchChatHistory, codeSubscribe, requestSubscribe, userName, userId]);
+
+  useEffect(() => {
+    fetchChatHistory();
+  }, [fetchChatHistory]);
 
   useEffect(() => {
     scrollToBottom();
