@@ -55,6 +55,8 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [appliedKeyword, setAppliedKeyword] = useState<string>('');
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false); // 스크롤 버튼 상태 추가
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const location = useLocation().pathname;
+
   // 검색어 처리 함수
   const handleSearch = (keyword: string) => setAppliedKeyword(keyword);
 
@@ -88,8 +90,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, []);
 
-  // 채팅 기록을 서버에서 불러오기  const location = useLocation();
-
+  // 채팅 기록을 서버에서 불러오기
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -140,6 +141,29 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     });
   }, [projectId, setReceiveCode]);
 
+  // 초대한 사용자가 코드 요청을 받고 코드를 전송
+  const subscribeToRequest = useCallback(() => {
+    if (client.current) {
+      client.current.subscribe(`/topic/request/${projectId}`, message => {
+        const receiveMessage = JSON.parse(message.body);
+
+        if (receiveMessage.userId !== userId && !location.includes('invite')) {
+          // 코드 요청을 받은 경우 현재 코드를 전송
+          const currentCodeMessage = {
+            sender: userName,
+            content: Code.content, // 현재 작성 중인 코드
+            projectId: projectId,
+            userId: userId,
+          };
+          client.current?.publish({
+            destination: `/app/code`, // 응답 경로
+            body: JSON.stringify(currentCodeMessage),
+          });
+        }
+      });
+    }
+  }, [Code.content, location.search, projectId, userId, userName]);
+
   const sendCodeContent = useCallback(() => {
     if (client.current && client.current.connected && sendCode) {
       const Code = {
@@ -158,41 +182,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, [sendCode, userName, projectId, userId]);
 
-  // 초대한 사용자가 코드 요청을 받고 코드를 전송
-  const requestSubscribe = useCallback(() => {
-    if (client.current) {
-      client.current.subscribe(`/topic/request/${projectId}`, message => {
-        const receiveMessage = JSON.parse(message.body);
-
-        if (receiveMessage.userId !== userId && location.search !== '') {
-          // 코드 요청을 받은 경우 현재 코드를 전송
-          const currentCodeMessage = {
-            sender: userName,
-            content: Code.content, // 현재 작성 중인 코드
-            projectId: projectId,
-            userId: userId,
-          };
-          client.current?.publish({
-            destination: `/app/code`, // 응답 경로
-            body: JSON.stringify(currentCodeMessage),
-          });
-        }
-      });
-    }
-  }, [Code.content, location.search, projectId, userId, userName]);
-
-  useEffect(() => {
-    const requestCode = {
-      sender: userName,
-      projectId: projectId,
-      userId: userId,
-    };
-    client.current?.publish({
-      destination: '/app/request', // 요청 경로
-      body: JSON.stringify(requestCode),
-    });
-  }, [projectId, userId, userName]);
-
   useEffect(() => {
     sendCodeContent();
   }, [sendCode, sendCodeContent]);
@@ -207,6 +196,17 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         console.log('Connected to WebSocket');
         subscribeToChat();
         subscribeToCode();
+        subscribeToRequest();
+
+        const requestCode = {
+          sender: userName,
+          projectId: projectId,
+          userId: userId,
+        };
+        client.current?.publish({
+          destination: `/app/request`,
+          body: JSON.stringify(requestCode),
+        });
       },
       onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
@@ -215,7 +215,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     return () => {
       client.current?.deactivate();
     };
-  }, [subscribeToChat, subscribeToCode]);
+  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, userId, userName]);
 
   useEffect(() => {
     scrollToBottom();
@@ -235,24 +235,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       setInput('');
     }
   };
-
-  const sendCodeContent = useCallback(() => {
-    if (client.current?.connected && sendCode) {
-      client.current.publish({
-        destination: '/app/code',
-        body: JSON.stringify({
-          sender: userName,
-          content: sendCode,
-          projectId: projectId,
-          userId: userId,
-        }),
-      });
-    }
-  }, [sendCode, userName, projectId, userId]);
-
-  useEffect(() => {
-    sendCodeContent();
-  }, [sendCodeContent]);
 
   return (
     <ChatContainer>

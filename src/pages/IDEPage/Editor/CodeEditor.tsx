@@ -12,7 +12,6 @@ const CodeEditor = () => {
   const handleCodeChange = (newCode: string) => {
     setCode({ ...code, content: newCode });
   };
-  console.log(code.content);
   return (
     <AceEditor
       mode={extension}

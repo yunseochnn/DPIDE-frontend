@@ -60,7 +60,7 @@ const Login = () => {
       }
       navigate('/main');
     }
-    if (status === 400) {
+    if (status === 401) {
       setError(true);
     }
   };

@@ -42,7 +42,7 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const extension = edit === '폴더' ? 'folder' : params.get('extension') === 'Java' ? 'java' : 'py';
   const id = Number(projectId);
   const parentId = Number(selectedNode ? selectedNode.data.id : '-1');
-  const path = selectedNode ? selectedNode.data.path : '/';
+  const path = selectedNode ? selectedNode.data.path : '';
 
   console.log(edit);
   console.log(extension);

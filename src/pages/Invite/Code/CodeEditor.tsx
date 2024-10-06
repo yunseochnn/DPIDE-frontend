@@ -6,9 +6,11 @@ import ReceiveContent from '../../../recoil/ReceiveContent/atom';
 
 const CodeEditor = () => {
   const receiveCode = useRecoilValue(ReceiveContent);
+  const params = new URLSearchParams(window.location.search);
+  const extension = params.get('extension') === 'Java' ? 'java' : 'python';
   return (
     <AceEditor
-      mode="java"
+      mode={extension}
       theme="tomorrow_night"
       style={{ width: '100%', height: '100%' }}
       value={receiveCode.content}
