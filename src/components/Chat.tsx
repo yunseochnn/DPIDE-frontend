@@ -55,7 +55,8 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [appliedKeyword, setAppliedKeyword] = useState<string>('');
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false); // 스크롤 버튼 상태 추가
   const chatMessagesRef = useRef<HTMLDivElement>(null);
-  const location = useLocation().pathname;
+  const location = useLocation();
+  const [hasJoined, setHasJoined] = useState(false); // 참가 여부 추적
 
   // 검색어 처리 함수
   const handleSearch = (keyword: string) => setAppliedKeyword(keyword);
@@ -131,6 +132,23 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     });
   }, [projectId, setMessages]);
 
+  const subscribeToJoin = useCallback(() => {
+    client.current?.subscribe(`/topic/join/${projectId}`, message => {
+      const joinMessage = JSON.parse(message.body);
+      console.log('조인 message received:', joinMessage);
+
+      setMessages(prevMessages => [
+        ...prevMessages,
+        {
+          text: `${joinMessage.sender}님이 참가하였습니다.`,
+          sender: '시스템',
+          profile: profile, // 시스템 메시지에 이미지가 필요 없다면 제거 가능
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+    });
+  }, [projectId, setMessages]);
+
   const subscribeToCode = useCallback(() => {
     client.current?.subscribe(`/topic/project/${projectId}`, response => {
       const codeResponse = JSON.parse(response.body);
@@ -147,7 +165,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       client.current.subscribe(`/topic/request/${projectId}`, message => {
         const receiveMessage = JSON.parse(message.body);
 
-        if (receiveMessage.userId !== userId && !location.includes('invite')) {
+        if (receiveMessage.userId !== userId && location.search !== '') {
           // 코드 요청을 받은 경우 현재 코드를 전송
           const currentCodeMessage = {
             sender: userName,
@@ -186,18 +204,62 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     sendCodeContent();
   }, [sendCode, sendCodeContent]);
 
+  useEffect(() => {
+    if (client.current?.connected && !hasJoined) {
+      // WebSocket 연결이 되었고, 참가 메시지를 아직 보내지 않은 경우
+      const joinMessage = {
+        sender: userName,
+        content: 'joined the chat', // 참가 시 메시지 내용
+        projectId: projectId,
+        userId: userId,
+      };
+
+      client.current?.publish({
+        destination: '/app/join',
+        body: JSON.stringify(joinMessage),
+      });
+
+      console.log('Join message sent:', joinMessage);
+
+      // 참가 메시지를 보냈으므로 상태를 업데이트
+      setHasJoined(true); // 이 상태가 true로 업데이트되어야 재전송이 막힘
+    }
+  }, [client.current?.connected, hasJoined, userName, projectId, userId]);
+
   // WebSocket 연결 설정 및 구독
   useEffect(() => {
     client.current = new Client({
       brokerURL: socketUrl,
-      debug: console.log,
-      reconnectDelay: 50000,
+      debug: console.log, // 디버깅을 위해 WebSocket 이벤트 로깅
+      reconnectDelay: 50000, // 재연결 딜레이 설정
       onConnect: () => {
-        console.log('Connected to WebSocket');
+        console.log('Connected to WebSocket'); // 연결 성공 시 로그 출력
+
+        // 채팅, 코드, 요청 구독 추가
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
+        subscribeToJoin();
 
+        if (!hasJoined) {
+          const joinMessage = {
+            sender: userName,
+            content: 'joined the chat', // 참가 시 메시지 내용
+            projectId: projectId,
+            userId: userId,
+          };
+
+          client.current?.publish({
+            destination: '/app/join',
+            body: JSON.stringify(joinMessage),
+          });
+
+          console.log('Join message sent:', joinMessage);
+
+          setHasJoined(true); // 참가 상태로 업데이트
+        }
+
+        // 코드 요청 메시지 전송 (기존 코드 유지)
         const requestCode = {
           sender: userName,
           projectId: projectId,
@@ -208,15 +270,16 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           body: JSON.stringify(requestCode),
         });
       },
-      onDisconnect: () => console.log('Disconnected from WebSocket'),
+      onDisconnect: () => console.log('Disconnected from WebSocket'), // 연결 끊김 시 로그 출력
     });
-    client.current.activate();
+
+    client.current.activate(); // WebSocket 연결 활성화
 
     return () => {
       client.current?.deactivate();
+      client.current = null; // 컴포넌트 언마운트 시 WebSocket 연결 비활성화
     };
-  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, userId, userName]);
-
+  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, subscribeToJoin, userId, userName]);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
@@ -253,7 +316,12 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
       <ChatMessages ref={chatMessagesRef}>
         {messages.map((message, index) => (
-          <ChatMessage key={index} id={`message-${index}`} isOwnMessage={message.sender === userName}>
+          <ChatMessage
+            key={index}
+            id={`message-${index}`}
+            isOwnMessage={message.sender === userName} // 기존의 isOwnMessage 처리
+            sender={message.sender} // sender prop 추가
+          >
             {message.sender !== userName && <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />}
             <MessageContent isOwnMessage={message.sender === userName}>
               {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
@@ -334,8 +402,10 @@ const ProfileImage = styled.img`
 `;
 
 const ChatMessage = styled.div.withConfig({
-  shouldForwardProp: prop => prop !== 'isOwnMessage',
-})<ChatMessageProps>`
+  shouldForwardProp: prop => prop !== 'isOwnMessage' && prop !== 'sender',
+})<ChatMessageProps & { sender: string }>`
+  color: ${({ sender }) => (sender === '시스템' ? '#999999' : 'inherit')};
+  font-style: ${({ sender }) => (sender === '시스템' ? 'italic' : 'normal')};
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
@@ -343,11 +413,11 @@ const ChatMessage = styled.div.withConfig({
     isOwnMessage
       ? `
     justify-content: flex-end;
-    margin-left: auto; 
+    margin-left: auto;
   `
       : `
     justify-content: flex-start;
-    margin-right: auto; 
+    margin-right: auto;
   `}
 `;
 
