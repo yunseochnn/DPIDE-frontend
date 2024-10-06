@@ -41,7 +41,7 @@ const XtermComponent: React.FC = () => {
             inputBuffer = '';
           } else if (inputBuffer.trim()) {
             // 입력이 있을 때만 상태 업데이트
-            setInput(prevInput => prevInput + '\n' + inputBuffer); // Recoil 상태로 inputBuffer 업데이트
+            setInput(prevInput => prevInput + inputBuffer + '\n'); // Recoil 상태로 inputBuffer 업데이트
             // eslint-disable-next-line react-hooks/exhaustive-deps
             inputBuffer = '';
             console.log(input);

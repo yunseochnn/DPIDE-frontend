@@ -15,8 +15,15 @@ import PlayRequest from '../../../apis/IDE/File/PlayRequest';
 import Output from '../../../recoil/Output/atom';
 import axios from 'axios';
 import Input from '../../../recoil/Input/atom';
+import { NodeApi } from 'react-arborist';
+import { IFolder } from '../../../recoil/Folder/types';
+import { SetStateAction } from 'react';
 
-const Code = () => {
+interface Prop {
+  setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
+}
+
+const Code = ({ setSelectedNode }: Prop) => {
   const [File, setFile] = useRecoilState(FileState);
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
@@ -82,7 +89,7 @@ const Code = () => {
       <CodeTop>
         <Files>
           {File.map(file => (
-            <FileList file={file} key={file.id} />
+            <FileList file={file} key={file.id} setSelectedNode={setSelectedNode} />
           ))}
         </Files>
         <CodeButtons>

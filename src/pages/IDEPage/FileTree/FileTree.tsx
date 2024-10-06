@@ -61,7 +61,7 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [setSelectedNode]);
 
   return (
     <IdeExplorer ref={ExplorerRef}>

@@ -52,7 +52,7 @@ const Ide = React.memo(() => {
           </File>
         )}
         <Section>
-          <Code />
+          <Code setSelectedNode={setSelectedNode} />
           {terminal && <Terminal />}
         </Section>
         {chat && (

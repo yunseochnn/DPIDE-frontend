@@ -2,7 +2,7 @@ import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-import { SetStateAction } from 'react';
+import { SetStateAction, useEffect } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -19,6 +19,7 @@ import axios from 'axios';
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
 import FolderState from '../../../../recoil/Folder/atoms';
 import { IFile } from '../../../../recoil/File/type';
+import Select from '../../../../recoil/Select/atom';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
@@ -46,8 +47,9 @@ const NodeContainer = styled.div`
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
   const setFolder = useSetRecoilState(FolderState);
-  const setCode = useSetRecoilState(CodeState);
-  const isSelected = selectedNode?.id === node.id;
+  const [code, setCode] = useRecoilState(CodeState);
+  const [select, setSelect] = useRecoilState(Select);
+  let isSelected = selectedNode?.id === node.id || select === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
@@ -55,6 +57,10 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const fileId = Number(node.data.id);
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
+
+  if (!selectedNode?.children) {
+    isSelected = code.id === node.id;
+  }
 
   const fetchStreamAsString = async () => {
     const response = await fetch(`${baseURL}/projects/${id}/files/${fileId}`, {
@@ -98,6 +104,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
   const onClickNode = async () => {
     setSelectedNode(node);
+    setSelect('');
     console.log(node);
 
     // node.data.id와 동일한 파일이 있는지 찾기
@@ -108,7 +115,30 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       fetchStreamAsString()
         .then(result => {
           console.log('파일 내용: ', result);
-          setFiles([...Files, { id: node.data.id, content: result, name: node.data.name, modifyContent: result }]);
+          const newFile = {
+            id: node.data.id,
+            content: result,
+            name: node.data.name,
+            modifyContent: result,
+          };
+
+          // 이전 상태를 기반으로 새로운 상태 업데이트
+          setFiles(prevFiles => {
+            // 현재 코드 상태를 저장
+            const currentCode = code;
+
+            // Files 상태 업데이트
+            const updatedFiles = prevFiles.map(f => {
+              if (f.id === currentCode.id) {
+                return { ...f, modifyContent: currentCode.content }; // 현재 코드의 modifyContent 업데이트
+              }
+              return f;
+            });
+
+            // 새로운 파일 추가
+            return [...updatedFiles, newFile]; // 이전 파일 배열에 새로운 파일 추가
+          });
+
           setCode({ id: node.data.id, content: result });
         })
         .catch(error => console.error('Error fetching stream data: ', error));
@@ -122,7 +152,16 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
 
   // 파일을 클릭할 때 실행할 함수
   const handleFileClick = (file: IFile) => {
+    const currentCode = code;
     // FileList에서의 onClick 로직을 실행
+    const newFile = Files.map(f => {
+      if (f.id === currentCode.id) {
+        return { ...f, modifyContent: currentCode.content };
+      }
+      return f;
+    });
+
+    setFiles(newFile);
     setCode({ id: file.id, content: file.modifyContent });
   };
 
@@ -184,16 +223,12 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
     });
   };
 
+  useEffect(() => {}, []);
+
   return (
     <NodeContainer style={style} onClick={onClickNode} className={isSelected ? 'selected' : ''}>
       <div className="node-content" onClick={() => node.isInternal && node.toggle()} style={{ display: 'flex' }}>
-        {node.children ? (
-          node.isOpen ? (
-            <FaAngleDown color={isSelected ? 'black' : 'white'} />
-          ) : (
-            <FaAngleRight color={isSelected ? 'black' : 'white'} />
-          )
-        ) : null}
+        {node.children ? node.isOpen ? <FaAngleDown color={'white'} /> : <FaAngleRight color={'white'} /> : null}
 
         {node.children ? (
           <BsFolder color={isSelected ? 'black' : 'white'} />
@@ -206,7 +241,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
           </span>
           {isSelected && (
             <div style={{ paddingRight: '8px' }} onClick={onDeleteClickHandler}>
-              <MdDeleteOutline />
+              <MdDeleteOutline color={isSelected ? 'black' : 'white'} />
             </div>
           )}
         </div>

@@ -2,18 +2,23 @@ import { FaFile } from 'react-icons/fa';
 import { IFile } from '../../recoil/File/type';
 import { Content, FileClose, FileIcon, FileListContainer, FileName } from './FileList.style';
 import { IoCloseSharp } from 'react-icons/io5';
-import { useRecoilState } from 'recoil';
+import { useRecoilState, useSetRecoilState } from 'recoil';
 import FileState from '../../recoil/File/atoms';
 import CodeState from '../../recoil/Code/atoms';
 import { confirmAlert } from 'react-confirm-alert';
 import FileSaveRequest from '../../apis/IDE/File/FileSaveRequest';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
+import Select from '../../recoil/Select/atom';
+import { NodeApi } from 'react-arborist';
+import { IFolder } from '../../recoil/Folder/types';
+import { SetStateAction } from 'react';
 
 interface Props {
   file: IFile;
+  setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
-const FileList = ({ file }: Props) => {
+const FileList = ({ file, setSelectedNode }: Props) => {
   const [File, setFile] = useRecoilState(FileState);
   const [code, setCode] = useRecoilState(CodeState);
   const [cookies] = useCookies(['Authorization']);
@@ -21,6 +26,7 @@ const FileList = ({ file }: Props) => {
   const { projectId } = useParams();
   const id = Number(projectId);
   const fileId = Number(file.id);
+  const SetSelect = useSetRecoilState(Select);
 
   const FileSaveResponse = async () => {
     try {
@@ -48,6 +54,8 @@ const FileList = ({ file }: Props) => {
 
   const onCloseClickHandler = (event: React.MouseEvent) => {
     event.stopPropagation(); // 파일 닫기 버튼 클릭 시 클릭 이벤트 버블링 방지
+    setSelectedNode(null);
+    SetSelect('');
     //저장하지 않을거면 저장할건지 물어보고 저장하는 로직
     if (file.content !== code.content) {
       confirmAlert({
@@ -64,7 +72,9 @@ const FileList = ({ file }: Props) => {
           },
           {
             label: '아니오',
-            onClick: () => {},
+            onClick: () => {
+              handleFileClose();
+            },
           },
         ],
       });
@@ -76,6 +86,8 @@ const FileList = ({ file }: Props) => {
   const isSelect = file.id === code.id;
 
   const onClick = () => {
+    setSelectedNode(null);
+    SetSelect(file.id);
     if (File.length > 0) {
       const newFile = File.map(file => {
         if (file.id === code.id) {
