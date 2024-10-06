@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { FaCheckCircle } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
+import useClickOutside from '../../hooks/useClickOutside';
 
 interface SuccessModalProps {
   closeModal: () => void;
@@ -13,13 +14,16 @@ interface SuccessModalProps {
 const SuccessModal: React.FC<SuccessModalProps> = ({ closeModal, projectId, language }) => {
   const navigate = useNavigate();
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(modalRef, closeModal);
+
   const handleRunClick = () => {
     navigate(`/ide/${projectId}?extension=${language}`);
   };
 
   return (
     <ModalOverlay>
-      <ModalContent>
+      <ModalContent ref={modalRef}>
         <CloseIcon onClick={closeModal} />
         <SuccessIcon />
         <Message>프로젝트가 생성되었습니다</Message>

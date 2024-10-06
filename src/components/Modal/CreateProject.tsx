@@ -1,8 +1,9 @@
 import axios from 'axios';
 import styled from 'styled-components';
 import { IoMdClose } from 'react-icons/io';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
+import useClickOutside from '../../hooks/useClickOutside';
 
 interface ModalProps {
   closeProjectModal: () => void;
@@ -18,6 +19,9 @@ const CreateProject: React.FC<ModalProps> = ({ closeProjectModal, refreshProject
   const [projectDescription, setProjectDescription] = useState('');
   const [language, setLanguage] = useState('Java');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(modalRef, closeProjectModal);
 
   const handleCreateProject = async () => {
     if (!projectName || !language) {
@@ -69,7 +73,7 @@ const CreateProject: React.FC<ModalProps> = ({ closeProjectModal, refreshProject
   return (
     <>
       <ModalOverlay>
-        <ModalContent>
+        <ModalContent ref={modalRef}>
           <CloseIcon onClick={closeProjectModal} />
           <Title>프로젝트 생성하기</Title>
           {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
