@@ -16,13 +16,12 @@ import { IFolder } from '../../../recoil/Folder/types.ts';
 import { FaSearch } from 'react-icons/fa';
 
 interface Prop {
-  edit: string;
   setEdit: React.Dispatch<SetStateAction<string>>;
   selectedNode: NodeApi<IFolder> | null;
   setSelectedNode: React.Dispatch<SetStateAction<NodeApi<IFolder> | null>>;
 }
 
-const FileTree: React.FC<Prop> = ({ edit, setEdit, selectedNode, setSelectedNode }) => {
+const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) => {
   const [plusModal, setPlusModal] = useState(false);
   const [search, setSearch] = useState(false);
   const treeRef = useRef<TreeApi<IFolder> | null>(null);
@@ -62,7 +61,7 @@ const FileTree: React.FC<Prop> = ({ edit, setEdit, selectedNode, setSelectedNode
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, []);
+  }, [setSelectedNode]);
 
   return (
     <IdeExplorer ref={ExplorerRef}>
