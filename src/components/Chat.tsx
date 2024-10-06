@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { messagesState, inputState } from '../recoil/Chat/atoms';
-import profile from '../assets/images/default-profile-image.png'; // 프로필 이미지 경로
+import profile from '../assets/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
 import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
@@ -11,7 +11,7 @@ import CodeState from '../recoil/Code/atoms';
 import { useDebounce } from '../hooks/useDebounce';
 import ReceiveContent from '../recoil/ReceiveContent/atom';
 import ChatSearch from './ChatSearch';
-import { FaArrowCircleDown } from 'react-icons/fa'; // 아이콘 사용
+import { FaArrowCircleDown } from 'react-icons/fa';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
@@ -53,15 +53,13 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const setReceiveCode = useSetRecoilState(ReceiveContent);
   const sendCode = useDebounce(Code.content, 1000);
   const [appliedKeyword, setAppliedKeyword] = useState<string>('');
-  const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false); // 스크롤 버튼 상태 추가
+  const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const [hasJoined, setHasJoined] = useState(false); // 참가 여부 추적
+  const [hasJoined, setHasJoined] = useState(false);
 
-  // 검색어 처리 함수
   const handleSearch = (keyword: string) => setAppliedKeyword(keyword);
 
-  // 스크롤 처리 함수
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -71,16 +69,15 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     messageElement?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
-  // 스크롤 이벤트 처리 함수
   const handleScroll = () => {
     if (chatMessagesRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 700; // 하단에 거의 근접한지 확인
-      setIsScrollButtonVisible(!isAtBottom); // 하단에 있으면 버튼 숨기기
+      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 700;
+      setIsScrollButtonVisible(!isAtBottom);
       console.log(`Scroll position: ${scrollTop}, Scroll height: ${scrollHeight}, Client height: ${clientHeight}`);
     }
   };
-  // 스크롤 이벤트 연결
+
   useEffect(() => {
     const chatMessagesElement = chatMessagesRef.current;
     if (chatMessagesElement) {
@@ -91,7 +88,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, []);
 
-  // 채팅 기록을 서버에서 불러오기
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -142,7 +138,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         {
           text: `${joinMessage.sender}님이 참가하였습니다.`,
           sender: '시스템',
-          profile: profile, // 시스템 메시지에 이미지가 필요 없다면 제거 가능
+          profile: profile,
           createdAt: new Date().toISOString(),
         },
       ]);
@@ -159,22 +155,20 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     });
   }, [projectId, setReceiveCode]);
 
-  // 초대한 사용자가 코드 요청을 받고 코드를 전송
   const subscribeToRequest = useCallback(() => {
     if (client.current) {
       client.current.subscribe(`/topic/request/${projectId}`, message => {
         const receiveMessage = JSON.parse(message.body);
 
         if (receiveMessage.userId !== userId && location.search !== '') {
-          // 코드 요청을 받은 경우 현재 코드를 전송
           const currentCodeMessage = {
             sender: userName,
-            content: Code.content, // 현재 작성 중인 코드
+            content: Code.content,
             projectId: projectId,
             userId: userId,
           };
           client.current?.publish({
-            destination: `/app/code`, // 응답 경로
+            destination: `/app/code`,
             body: JSON.stringify(currentCodeMessage),
           });
         }
@@ -206,10 +200,9 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
   useEffect(() => {
     if (client.current?.connected && !hasJoined) {
-      // WebSocket 연결이 되었고, 참가 메시지를 아직 보내지 않은 경우
       const joinMessage = {
         sender: userName,
-        content: 'joined the chat', // 참가 시 메시지 내용
+        content: 'joined the chat',
         projectId: projectId,
         userId: userId,
       };
@@ -221,21 +214,18 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
       console.log('Join message sent:', joinMessage);
 
-      // 참가 메시지를 보냈으므로 상태를 업데이트
-      setHasJoined(true); // 이 상태가 true로 업데이트되어야 재전송이 막힘
+      setHasJoined(true);
     }
   }, [client.current?.connected, hasJoined, userName, projectId, userId]);
 
-  // WebSocket 연결 설정 및 구독
   useEffect(() => {
     client.current = new Client({
       brokerURL: socketUrl,
-      debug: console.log, // 디버깅을 위해 WebSocket 이벤트 로깅
-      reconnectDelay: 50000, // 재연결 딜레이 설정
+      debug: console.log,
+      reconnectDelay: 50000,
       onConnect: () => {
-        console.log('Connected to WebSocket'); // 연결 성공 시 로그 출력
+        console.log('Connected to WebSocket');
 
-        // 채팅, 코드, 요청 구독 추가
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
@@ -244,7 +234,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         if (!hasJoined) {
           const joinMessage = {
             sender: userName,
-            content: 'joined the chat', // 참가 시 메시지 내용
+            content: 'joined the chat',
             projectId: projectId,
             userId: userId,
           };
@@ -256,10 +246,9 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
           console.log('Join message sent:', joinMessage);
 
-          setHasJoined(true); // 참가 상태로 업데이트
+          setHasJoined(true);
         }
 
-        // 코드 요청 메시지 전송 (기존 코드 유지)
         const requestCode = {
           sender: userName,
           projectId: projectId,
@@ -270,16 +259,16 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           body: JSON.stringify(requestCode),
         });
       },
-      onDisconnect: () => console.log('Disconnected from WebSocket'), // 연결 끊김 시 로그 출력
+      onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
 
-    client.current.activate(); // WebSocket 연결 활성화
+    client.current.activate();
 
     return () => {
       client.current?.deactivate();
-      client.current = null; // 컴포넌트 언마운트 시 WebSocket 연결 비활성화
+      client.current = null;
     };
-  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, subscribeToJoin, userId, userName]);
+  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, subscribeToJoin, userId, userName, hasJoined]);
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
