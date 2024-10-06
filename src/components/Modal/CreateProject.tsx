@@ -1,28 +1,23 @@
 import axios from 'axios';
 import styled from 'styled-components';
 import { IoMdClose } from 'react-icons/io';
-import SuccessModal from './SuccessModal.tsx';
-import { isSuccessModalOpenState } from '../../recoil/Main/atoms.ts';
-import { useRecoilState } from 'recoil';
 import { useState } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
-import { useNavigate } from 'react-router-dom';
 
 interface ModalProps {
-  closeModal: () => void;
+  closeProjectModal: () => void;
   refreshProjects: () => void;
   token: string;
+  openSuccessModal: (projectId: string) => void;
 }
 
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, token }) => {
-  const [isSuccessModalOpen, setSuccessModalOpen] = useRecoilState(isSuccessModalOpenState);
+const CreateProject: React.FC<ModalProps> = ({ closeProjectModal, refreshProjects, token, openSuccessModal }) => {
   const [projectName, setProjectName] = useState('');
   const [projectDescription, setProjectDescription] = useState('');
   const [language, setLanguage] = useState('Java');
   const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
   const handleCreateProject = async () => {
     if (!projectName || !language) {
@@ -47,16 +42,17 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
       );
 
       if (response.status === 200) {
-        const { id, createdAt, updatedAt } = response.data;
-        setSuccessModalOpen(true);
+        const { id } = response.data;
         refreshProjects();
-        closeModal();
-        console.log(`프로젝트 생성됨: ID: ${id}, 생성일: ${createdAt}, 수정일: ${updatedAt}`);
-        navigate(`/ide/${id}?extension=${language}`);
+
+        openSuccessModal(id);
+
+        closeProjectModal();
+
+        console.log(`프로젝트 생성됨: ID: ${id}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        console.error('Response data:', error.response?.data);
         if (error.response?.status === 400) {
           setErrorMessage('프로젝트 이름은 필수입니다.');
         } else if (error.response?.status === 401 || error.response?.status === 403) {
@@ -65,7 +61,6 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
           setErrorMessage('프로젝트 생성에 실패했습니다.');
         }
       } else {
-        console.error('서버 오류:', error);
         setErrorMessage('서버 오류가 발생했습니다.');
       }
     }
@@ -75,7 +70,7 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
     <>
       <ModalOverlay>
         <ModalContent>
-          <CloseIcon onClick={closeModal} />
+          <CloseIcon onClick={closeProjectModal} />
           <Title>프로젝트 생성하기</Title>
           {errorMessage && <ErrorText>{errorMessage}</ErrorText>}
           <ContentWrapper>
@@ -104,7 +99,6 @@ const CreateProject: React.FC<ModalProps> = ({ closeModal, refreshProjects, toke
           </ContentWrapper>
         </ModalContent>
       </ModalOverlay>
-      {isSuccessModalOpen && <SuccessModal closeModal={() => setSuccessModalOpen(false)} />}
     </>
   );
 };
@@ -207,9 +201,11 @@ const CreateButton = styled.button`
   box-sizing: border-box;
   margin-top: 25px;
 `;
+
 const SelectWrapper = styled.div`
   position: relative;
 `;
+
 const ArrowIcon = styled(IoIosArrowDown)`
   position: absolute;
   right: 10px;

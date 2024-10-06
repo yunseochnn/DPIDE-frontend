@@ -308,8 +308,8 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           <ChatMessage
             key={index}
             id={`message-${index}`}
-            isOwnMessage={message.sender === userName} // 기존의 isOwnMessage 처리
-            sender={message.sender} // sender prop 추가
+            isOwnMessage={message.sender === userName}
+            sender={message.sender}
           >
             {message.sender !== userName && <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />}
             <MessageContent isOwnMessage={message.sender === userName}>
@@ -355,7 +355,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         <SendButton onClick={sendMessage}>전송</SendButton>
       </ChatInputContainer>
 
-      {isScrollButtonVisible && ( // 스크롤 버튼 표시
+      {isScrollButtonVisible && (
         <ScrollToBottomButton onClick={scrollToBottom}>
           <FaArrowCircleDown />
         </ScrollToBottomButton>
@@ -366,7 +366,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
 export default Chat;
 
-// 스타일 정의
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;

@@ -1,12 +1,12 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
 import { MdEdit } from 'react-icons/md';
 import { ProjectType } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EditProjectModal from './Modal/EditProjectModal';
-
+import useClickOutside from '../hooks/useClickOutside';
 interface ProjectProps {
   projects: ProjectType[] | undefined;
   token: string;
@@ -20,7 +20,8 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useClickOutside(dropdownRef, () => setActiveDropdown(null));
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const toggleDropdown = (projectId: number) => {
@@ -57,6 +58,34 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
     }
   };
 
+  const handleLeaveProject = async (projectId: number) => {
+    try {
+      const response = await axios.post(
+        `${baseURL}/projects/${projectId}/leave`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        console.log(`프로젝트 나가기 성공: ${projectId}`);
+        refreshProjects(); // 프로젝트 리스트를 새로 고침
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        setErrorMessage('프로젝트를 찾을 수 없습니다.');
+      } else {
+        setErrorMessage('프로젝트 나가기에 실패했습니다.');
+      }
+      console.error(error);
+    } finally {
+      setActiveDropdown(null);
+    }
+  };
+
   const closeEditModal = () => {
     setModalOpen(false);
     setSelectedProject(null);
@@ -72,9 +101,15 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
         <ProjectBox key={project.id}>
           <MenuIcon onClick={() => toggleDropdown(project.id)} />
           {activeDropdown === project.id && (
-            <DropdownMenu>
-              <DropdownItem onClick={() => openEditModal(project)}>수정</DropdownItem>
-              <DropdownItem onClick={() => handleDelete(project.id)}>삭제</DropdownItem>
+            <DropdownMenu ref={dropdownRef} $isMyProjects={selectedButton === 'myProjects'}>
+              {selectedButton === 'myProjects' ? (
+                <>
+                  <DropdownItem onClick={() => openEditModal(project)}>수정</DropdownItem>
+                  <DropdownItem onClick={() => handleDelete(project.id)}>삭제</DropdownItem>
+                </>
+              ) : (
+                <DropdownItem onClick={() => handleLeaveProject(project.id)}>프로젝트 나가기</DropdownItem>
+              )}
             </DropdownMenu>
           )}
           <ProjectTitle>{project.name}</ProjectTitle>
@@ -175,7 +210,7 @@ const EditButton = styled.button`
   gap: 8px;
 `;
 
-const DropdownMenu = styled.div`
+const DropdownMenu = styled.div<{ $isMyProjects: boolean }>`
   position: absolute;
   top: 50px;
   right: 10px;
@@ -183,13 +218,14 @@ const DropdownMenu = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  width: 120px;
+  width: ${({ $isMyProjects }) => ($isMyProjects ? '60px' : '140px')};
   z-index: 100;
 `;
 
 const DropdownItem = styled.div`
   padding: 10px;
   cursor: pointer;
+  text-align: center;
   &:hover {
     background-color: #f1f1f1;
   }

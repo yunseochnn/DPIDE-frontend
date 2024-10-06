@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -6,14 +6,14 @@ interface AlarmInfo {
   id: number;
   senderName: string;
   projectName: string;
-  isRead: boolean;
+  read: boolean;
 }
 
 interface Notification {
   id: number;
   profileImg: string;
   message: string;
-  time: string;
+  isRead: boolean;
 }
 
 interface NotificationListProps {
@@ -26,33 +26,36 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/alarm`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const fetchNotifications = useCallback(async () => {
+    console.log('fetchNotifications 호출됨');
+    try {
+      const response = await axios.get(`${baseURL}/alarm`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);
+      const alarmInfoList = response.data.alarmInfoList.map((alarm: AlarmInfo) => ({
+        id: alarm.id,
+        profileImg: '',
+        message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
+        isRead: alarm.read,
+      }));
 
-        const alarmInfoList: AlarmInfo[] = response.data.alarmInfoList;
-
-        const formattedNotifications = alarmInfoList.map((alarm: AlarmInfo) => ({
-          id: alarm.id,
-          profileImg: '',
-          message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
-          time: alarm.isRead ? '읽음' : '안 읽음',
-        }));
-
-        setNotifications(formattedNotifications);
-      } catch (error) {
-        setError('알림을 불러오지 못했습니다.');
-        console.error(error);
-      }
-    };
-
-    fetchNotifications();
+      setNotifications(alarmInfoList.reverse());
+    } catch (error) {
+      setError('알림을 불러오지 못했습니다.');
+      console.error(error);
+    }
   }, [token, baseURL]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    console.log('최종 알림 상태:', notifications);
+  }, [notifications]);
 
   const acceptInvitation = async (alarmId: number) => {
     try {
@@ -65,7 +68,10 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
           },
         },
       );
+
       alert('초대를 수락했습니다.');
+
+      await fetchNotifications();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const errorCode = error.response?.data?.errorCode;
@@ -92,6 +98,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
         },
       );
       alert('초대를 거절했습니다.');
+      fetchNotifications();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const errorCode = error.response?.data?.errorCode;
@@ -105,23 +112,29 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
       }
     }
   };
+
   return (
     <NotificationContainer>
       <NotificationHeader>알림</NotificationHeader>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {notifications.map(notification => (
-        <NotificationItem key={notification.id}>
-          <ProfileImage src={notification.profileImg} alt="Profile" />
-          <NotificationText>
-            <Message>{notification.message}</Message>
-            <Time>{notification.time}</Time>
-            <ButtonContainer>
-              <ActionButton onClick={() => acceptInvitation(notification.id)}>수락</ActionButton>
-              <ActionButton onClick={() => denyInvitation(notification.id)}>거절</ActionButton>
-            </ButtonContainer>
-          </NotificationText>
-        </NotificationItem>
-      ))}
+      {notifications.map(notification => {
+        console.log('렌더링 중 알림 데이터:', notification);
+        return (
+          <NotificationItem key={notification.id} $isRead={notification.isRead}>
+            <ProfileImage src={notification.profileImg} alt="Profile" />
+            <NotificationText>
+              <Message>{notification.message}</Message>
+              <ReadStatus>{notification.isRead ? '읽음' : '안 읽음'}</ReadStatus>
+              {!notification.isRead && (
+                <ButtonContainer>
+                  <ActionButton onClick={() => acceptInvitation(notification.id)}>수락</ActionButton>
+                  <ActionButton onClick={() => denyInvitation(notification.id)}>거절</ActionButton>
+                </ButtonContainer>
+              )}
+            </NotificationText>
+          </NotificationItem>
+        );
+      })}
     </NotificationContainer>
   );
 };
@@ -147,11 +160,13 @@ const NotificationHeader = styled.h3`
   padding-bottom: 8px;
 `;
 
-const NotificationItem = styled.div`
+const NotificationItem = styled.div<{ $isRead: boolean }>`
   display: flex;
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid #e1e1e8;
+  background-color: ${({ $isRead }) => ($isRead ? '#f9f9f9' : '#ffffff')};
+
   &:last-child {
     border-bottom: none;
   }
@@ -182,7 +197,7 @@ const Message = styled.span`
   max-width: 200px;
 `;
 
-const Time = styled.span`
+const ReadStatus = styled.span`
   font-size: 12px;
   color: #868899;
 `;

@@ -3,19 +3,20 @@ import CreateProject from '../../components/Modal/CreateProject.tsx';
 import MainHeader from '../../components/Header/MainHeader.tsx';
 import { FaPlus } from 'react-icons/fa6';
 import Project from '../../components/Project.tsx';
-import { useRecoilState } from 'recoil';
-import { isModalOpenState, selectedButtonState } from '../../recoil/Main/atoms.ts';
 import { MainContainer, NewProjectButton, ContentWrapper, Sidebar, ProjectButton } from './Main.style.ts';
 import axios from 'axios';
 import { ProjectType } from '../../types';
 import { useCookies } from 'react-cookie';
 import RefreshToken from '../../apis/RefrshToken.ts';
+import SuccessModal from '../../components/Modal/SuccessModal.tsx';
 
 const Main = () => {
-  const [isModalOpen, setModalOpen] = useRecoilState(isModalOpenState);
-  const [selectedButton, setSelectedButton] = useRecoilState(selectedButtonState);
-
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<'myProjects' | 'sharedProjects'>('myProjects'); // 선택된 버튼 상태 관리
   const [projects, setProjects] = useState<ProjectType[] | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+
   const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token']);
 
   const token = cookies['Authorization'];
@@ -23,7 +24,6 @@ const Main = () => {
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  // 프로젝트 목록 불러오기
   const fetchProjects = useCallback(
     async (url: string) => {
       let isRetry = false;
@@ -69,7 +69,19 @@ const Main = () => {
   }, [selectedButton, token, fetchProjects, refreshProjects]);
 
   const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+
+  const closeProjectModal = useCallback(() => {
+    setModalOpen(false);
+  }, []);
+
+  const openSuccessModal = useCallback((newProjectId: string) => {
+    setProjectId(newProjectId);
+    setSuccessModalOpen(true);
+  }, []);
+
+  const closeSuccessModal = useCallback(() => {
+    setSuccessModalOpen(false);
+  }, []);
 
   const handleButtonClick = (buttonType: 'myProjects' | 'sharedProjects') => {
     setSelectedButton(buttonType);
@@ -108,7 +120,19 @@ const Main = () => {
           )}
         </ContentWrapper>
       </MainContainer>
-      {isModalOpen && <CreateProject closeModal={closeModal} refreshProjects={refreshProjects} token={token} />}{' '}
+
+      {isModalOpen && (
+        <CreateProject
+          closeProjectModal={closeProjectModal}
+          refreshProjects={refreshProjects}
+          token={token}
+          openSuccessModal={openSuccessModal}
+        />
+      )}
+
+      {isSuccessModalOpen && projectId && (
+        <SuccessModal closeModal={closeSuccessModal} projectId={projectId} language="Java" />
+      )}
     </>
   );
 };
