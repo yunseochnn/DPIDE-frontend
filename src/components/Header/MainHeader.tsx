@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import logo2 from '../../assets/images/logo2.png';
 import profile from '../../assets/images/default-profile-image.png';
@@ -8,12 +8,16 @@ import NotificationList from '../NotificationList';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
 import { useCookies } from 'react-cookie';
+import useClickOutside from '../../hooks/useClickOutside';
 
 const MainHeader = () => {
   const [isNotifyOpen, setNotifyOpen] = useRecoilState(isNotifyOpenState);
   const [isProfileMenuOpen, setProfileMenuOpen] = useRecoilState(isProfileMenuOpenState);
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleNotify = () => {
     setNotifyOpen((prev: boolean) => {
@@ -33,25 +37,8 @@ const MainHeader = () => {
     });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      if (isNotifyOpen && !target.closest('.notify-button') && !target.closest('.notify-list')) {
-        setNotifyOpen(false);
-      }
-
-      if (isProfileMenuOpen && !target.closest('.profile-button') && !target.closest('.profile-dropdown')) {
-        setProfileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('click', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isNotifyOpen, isProfileMenuOpen, setNotifyOpen, setProfileMenuOpen]);
+  useClickOutside(notificationRef, () => setNotifyOpen(false));
+  useClickOutside(profileMenuRef, () => setProfileMenuOpen(false));
 
   return (
     <HeaderContainer>
@@ -68,9 +55,15 @@ const MainHeader = () => {
           </ProfileCircle>
         </ProfileButton>
       </HeaderWrapper>
-      {isNotifyOpen && <NotificationList token={Authorization} />}
+
+      {isNotifyOpen && (
+        <NotificationListWrapper ref={notificationRef} className="notify-list">
+          <NotificationList token={Authorization} />
+        </NotificationListWrapper>
+      )}
+
       {isProfileMenuOpen && (
-        <ProfileDropdown>
+        <ProfileDropdown ref={profileMenuRef}>
           <DropdownItem to="/mypage">마이페이지</DropdownItem>
           <DropdownItem to="/logout">로그아웃</DropdownItem>
         </ProfileDropdown>
@@ -80,7 +73,7 @@ const MainHeader = () => {
 };
 
 export default MainHeader;
-
+const NotificationListWrapper = styled.div``;
 const HeaderContainer = styled.div`
   width: 100%;
   border-bottom: 2px solid #f4f4f4;
