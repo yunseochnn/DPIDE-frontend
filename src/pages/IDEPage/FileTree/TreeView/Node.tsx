@@ -2,7 +2,7 @@ import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-import { SetStateAction, useEffect } from 'react';
+import { SetStateAction } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -45,8 +45,8 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
-  const [Folder, setFolder] = useRecoilState(FolderState);
-  const [code, setCode] = useRecoilState(CodeState);
+  const setFolder = useSetRecoilState(FolderState);
+  const setCode = useSetRecoilState(CodeState);
   const isSelected = selectedNode?.id === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
@@ -140,6 +140,11 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
         const response = await FolderRequest(id, Authorization);
         const { files } = response.data;
         setFolder(files);
+        const newFile = Files.filter(file => file.id !== node.data.id);
+        setFiles(newFile);
+        if (newFile.length !== 0) {
+          setCode({ id: newFile[0].id, content: newFile[0].content });
+        }
         toast.dark('파일이 삭제되었습니다.', {
           pauseOnHover: false,
           autoClose: 2000,
