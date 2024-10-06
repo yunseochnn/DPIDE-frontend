@@ -20,7 +20,7 @@ import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form'; // react-hook-form 추가
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
-import { useRecoilState, useSetRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Prop {
@@ -39,10 +39,10 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
   const params = new URLSearchParams(window.location.search);
-  const extension = edit === '폴더' ? 'folder' : params.get('extension')?.toLowerCase() || '';
+  const extension = edit === '폴더' ? 'folder' : params.get('extension') === 'Java' ? 'java' : 'py';
   const id = Number(projectId);
   const parentId = Number(selectedNode ? selectedNode.data.id : '-1');
-  const path = selectedNode ? selectedNode.data.path : '/';
+  const path = selectedNode ? selectedNode.data.path : '';
 
   console.log(edit);
   console.log(extension);
@@ -50,7 +50,6 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
     register,
     handleSubmit,
     formState: { errors },
-    setError,
     reset,
   } = useForm<FormValues>();
 
@@ -88,7 +87,7 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
         console.log(error);
       }
     },
-    [extension, path, parentId, Authorization, id, setEdit, reset, edit, setError],
+    [id, extension, path, parentId, Authorization, setEdit, setFolder, reset, Folder],
   );
 
   return (

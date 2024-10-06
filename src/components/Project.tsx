@@ -84,7 +84,7 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
               if (selectedButton === 'myProjects') {
                 navigate(`/ide/${project.id}?extension=${project.language}`);
               } else {
-                navigate(`/ide/invite/${project.id}`);
+                navigate(`/ide/invite/${project.id}?extension=${project.language}`);
               }
             }}
           >
