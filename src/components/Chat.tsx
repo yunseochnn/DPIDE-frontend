@@ -320,7 +320,7 @@ const ChatTitle = styled.div`
   font-size: 16px;
   color: white;
   font-weight: 700;
-  margin-right: 15px;
+
   width: 50px;
   height: 25px;
   display: flex;
