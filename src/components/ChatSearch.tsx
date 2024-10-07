@@ -138,7 +138,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 export default ChatSearch;
 
 const StyledFaSearch = styled(FaSearch)`
-  margin-left: 260px;
+  margin-left: 235px;
   font-size: 15px;
 `;
 
@@ -154,7 +154,7 @@ const SearchInput = styled.input`
   border: none;
   flex-grow: 1;
   font-size: 12px;
-  margin-left: 33px;
+  margin-left: 8px;
 `;
 
 const SearchButton = styled.button`
