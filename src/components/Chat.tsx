@@ -55,7 +55,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const [hasJoined, setHasJoined] = useState(false);
 
   const handleSearch = (keyword: string) => setAppliedKeyword(keyword);
 
@@ -73,7 +72,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 700;
       setIsScrollButtonVisible(!isAtBottom);
-      console.log(`Scroll position: ${scrollTop}, Scroll height: ${scrollHeight}, Client height: ${clientHeight}`);
     }
   };
 
@@ -87,6 +85,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, []);
 
+  //채팅 기록
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -112,6 +111,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     fetchChatHistory();
   }, [fetchChatHistory]);
 
+  //채팅 send
   const subscribeToChat = useCallback(() => {
     client.current?.subscribe(`/topic/chatroom/${projectId}`, message => {
       const receivedMessage = JSON.parse(message.body);
@@ -127,23 +127,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     });
   }, [projectId, setMessages]);
 
-  const subscribeToJoin = useCallback(() => {
-    client.current?.subscribe(`/topic/join/${projectId}`, message => {
-      const joinMessage = JSON.parse(message.body);
-      console.log('조인 message received:', joinMessage);
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          text: `${joinMessage.sender}님이 참가하였습니다`,
-          sender: '시스템',
-          profile: profile,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    });
-  }, [projectId, setMessages]);
-
+  //코드 공유
   const subscribeToCode = useCallback(() => {
     client.current?.subscribe(`/topic/project/${projectId}`, response => {
       const codeResponse = JSON.parse(response.body);
@@ -198,26 +182,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   }, [sendCode, sendCodeContent]);
 
   useEffect(() => {
-    if (client.current?.connected && !hasJoined) {
-      const joinMessage = {
-        sender: userName,
-        content: 'joined the chat',
-        projectId: projectId,
-        userId: userId,
-      };
-
-      client.current?.publish({
-        destination: '/app/join',
-        body: JSON.stringify(joinMessage),
-      });
-
-      console.log('Join message sent:', joinMessage);
-
-      setHasJoined(true);
-    }
-  }, [client.current?.connected, hasJoined, userName, projectId, userId]);
-
-  useEffect(() => {
     client.current = new Client({
       brokerURL: socketUrl,
       debug: console.log,
@@ -228,35 +192,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
-        subscribeToJoin();
-
-        if (!hasJoined) {
-          const joinMessage = {
-            sender: userName,
-            content: 'joined the chat',
-            projectId: projectId,
-            userId: userId,
-          };
-
-          client.current?.publish({
-            destination: '/app/join',
-            body: JSON.stringify(joinMessage),
-          });
-
-          console.log('Join message sent:', joinMessage);
-
-          setHasJoined(true);
-        }
-
-        const requestCode = {
-          sender: userName,
-          projectId: projectId,
-          userId: userId,
-        };
-        client.current?.publish({
-          destination: `/app/request`,
-          body: JSON.stringify(requestCode),
-        });
       },
       onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
@@ -267,10 +202,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       client.current?.deactivate();
       client.current = null;
     };
-  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, subscribeToJoin, userId, userName, hasJoined]);
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, userId, userName]);
 
   const sendMessage = () => {
     if (client.current?.connected && input) {
@@ -309,38 +241,29 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
             id={`message-${index}`}
             isOwnMessage={message.sender === userName}
             sender={message.sender}
-            isSystemMessage={message.sender === '시스템'}
           >
-            {message.sender !== '시스템' && message.sender !== userName && (
-              <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />
-            )}
+            {message.sender !== userName && <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />}
 
             <MessageContent isOwnMessage={message.sender === userName}>
-              {message.sender === '시스템' ? (
-                <MessageText isOwnMessage={false}>{message.text}</MessageText>
-              ) : (
-                <>
-                  {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
-                  <MessageText isOwnMessage={message.sender === userName}>
-                    {appliedKeyword && message.text.includes(appliedKeyword) ? (
-                      <>
-                        {message.text
-                          .split(new RegExp(`(${appliedKeyword})`, 'gi'))
-                          .map((part, index) =>
-                            part.toLowerCase() === appliedKeyword.toLowerCase() ? (
-                              <HighlightedText key={index}>{part}</HighlightedText>
-                            ) : (
-                              part
-                            ),
-                          )}
-                      </>
-                    ) : (
-                      message.text
-                    )}
-                  </MessageText>
-                  <MessageTime>{dayjs(message.createdAt).format('HH:mm')}</MessageTime>
-                </>
-              )}
+              {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
+              <MessageText isOwnMessage={message.sender === userName}>
+                {appliedKeyword && message.text.includes(appliedKeyword) ? (
+                  <>
+                    {message.text
+                      .split(new RegExp(`(${appliedKeyword})`, 'gi'))
+                      .map((part, index) =>
+                        part.toLowerCase() === appliedKeyword.toLowerCase() ? (
+                          <HighlightedText key={index}>{part}</HighlightedText>
+                        ) : (
+                          part
+                        ),
+                      )}
+                  </>
+                ) : (
+                  message.text
+                )}
+              </MessageText>
+              <MessageTime>{dayjs(message.createdAt).format('HH:mm')}</MessageTime>
             </MessageContent>
           </ChatMessage>
         ))}
@@ -414,30 +337,14 @@ const ProfileImage = styled.img`
 `;
 
 const ChatMessage = styled.div.withConfig({
-  shouldForwardProp: prop => prop !== 'isOwnMessage' && prop !== 'isSystemMessage',
-})<ChatMessageProps & { sender: string; isSystemMessage: boolean }>`
-  color: ${({ sender }) => (sender === '시스템' ? '#999999' : 'inherit')};
-  font-style: ${({ sender }) => (sender === '시스템' ? 'italic' : 'normal')};
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
+})<ChatMessageProps & { sender: string }>`
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
-
-  ${({ isSystemMessage, isOwnMessage }) =>
-    isSystemMessage
-      ? `
-    justify-content: center;
-    margin-left: auto;
-    margin-right: auto;
-  `
-      : isOwnMessage
-        ? `
-    justify-content: flex-end;
-    margin-left: auto;
-  `
-        : `
-    justify-content: flex-start;
-    margin-right: auto;
-  `}
+  justify-content: ${({ isOwnMessage }) => (isOwnMessage ? 'flex-end' : 'flex-start')};
+  margin-left: ${({ isOwnMessage }) => (isOwnMessage ? 'auto' : '0')};
+  margin-right: ${({ isOwnMessage }) => (isOwnMessage ? '0' : 'auto')};
 `;
 
 const SenderName = styled.div`
