@@ -207,6 +207,7 @@ const ProjectDescription = styled.p`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
+  height: 40px;
 `;
 
 const EditButton = styled.button`
