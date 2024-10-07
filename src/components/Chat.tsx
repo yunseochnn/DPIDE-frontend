@@ -314,13 +314,19 @@ const IdeChat_Top = styled.div`
   border-bottom: 1px solid black;
   display: flex;
   align-items: center;
-  padding-left: 23px;
 `;
 
 const ChatTitle = styled.div`
   font-size: 16px;
   color: white;
   font-weight: 700;
+  margin-right: 15px;
+  width: 50px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
 `;
 
 const ChatContainer = styled.div`
