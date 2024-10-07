@@ -1,7 +1,7 @@
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/mode-python';
-import 'ace-builds/src-noconflict/theme-tomorrow_night'; // Monokai 테마
+import 'ace-builds/src-noconflict/theme-tomorrow_night';
 import { useRecoilState } from 'recoil';
 import CodeState from '../../../recoil/Code/atoms';
 

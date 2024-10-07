@@ -26,6 +26,12 @@ export const IdeExplorer_ProjectName = styled.div`
 `;
 export const IdeExplorer_Plus = styled.div`
   position: relative;
+
+  @media screen and (max-width: 1080px) {
+    .Search {
+      display: none;
+    }
+  }
 `;
 export const IdeExplorer_PlusModal = styled.div`
   position: absolute;

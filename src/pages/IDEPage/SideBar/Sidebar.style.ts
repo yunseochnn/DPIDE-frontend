@@ -19,4 +19,11 @@ export const IdeSideBarIcon = styled.div`
       color: gray;
     }
   }
+
+  @media screen and (max-width: 1080px) {
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
 `;

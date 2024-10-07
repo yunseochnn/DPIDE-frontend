@@ -39,7 +39,6 @@ const TreeView: React.FC<Props> = ({ treeRef, selectedNode, setSelectedNode, ter
 
       if (status === 200) {
         setInitalFolder(files);
-        console.log('폴더 불러오기 완료');
       }
     } catch (error) {
       console.log(error);

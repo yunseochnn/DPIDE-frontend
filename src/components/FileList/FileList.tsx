@@ -26,7 +26,7 @@ const FileList = ({ file, setSelectedNode }: Props) => {
   const { projectId } = useParams();
   const id = Number(projectId);
   const fileId = Number(file.id);
-  const SetSelect = useSetRecoilState(Select);
+  const setSelect = useSetRecoilState(Select);
 
   const FileSaveResponse = async () => {
     try {
@@ -45,6 +45,7 @@ const FileList = ({ file, setSelectedNode }: Props) => {
   const handleFileClose = async () => {
     const updateFile = File.filter(f => f.id !== file.id);
     setFile(updateFile);
+    setSelect(updateFile[updateFile.length - 1].id);
     if (updateFile.length !== 0) {
       setCode({ id: updateFile[updateFile.length - 1].id, content: updateFile[updateFile.length - 1].modifyContent });
     } else {
@@ -55,8 +56,7 @@ const FileList = ({ file, setSelectedNode }: Props) => {
   const onCloseClickHandler = (event: React.MouseEvent) => {
     event.stopPropagation(); // 파일 닫기 버튼 클릭 시 클릭 이벤트 버블링 방지
     setSelectedNode(null);
-    SetSelect('');
-    //저장하지 않을거면 저장할건지 물어보고 저장하는 로직
+
     if (file.content !== code.content) {
       confirmAlert({
         message: '파일을 저장하시겠습니까?',
@@ -87,7 +87,7 @@ const FileList = ({ file, setSelectedNode }: Props) => {
 
   const onClick = () => {
     setSelectedNode(null);
-    SetSelect(file.id);
+    setSelect(file.id);
     if (File.length > 0) {
       const newFile = File.map(file => {
         if (file.id === code.id) {

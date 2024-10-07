@@ -14,6 +14,8 @@ import TreeView from './TreeView/TreeView.tsx';
 import { NodeApi, TreeApi } from 'react-arborist';
 import { IFolder } from '../../../recoil/Folder/types.ts';
 import { FaSearch } from 'react-icons/fa';
+import { useSetRecoilState } from 'recoil';
+import Select from '../../../recoil/Select/atom.ts';
 
 interface Prop {
   setEdit: React.Dispatch<SetStateAction<string>>;
@@ -28,7 +30,7 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
   const ExplorerRef = useRef<HTMLDivElement | null>(null);
   const PlusRef = useRef<HTMLDivElement | null>(null);
   const [term, setTerm] = useState('');
-  console.log(selectedNode);
+  const setSelect = useSetRecoilState(Select);
 
   const onClickFolder = () => {
     treeRef.current?.createInternal();
@@ -52,16 +54,16 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
       }
       if (ExplorerRef.current && ExplorerRef.current.contains(event.target as Node)) {
         setSelectedNode(null);
+        setSelect('');
       }
     };
 
-    //document에 클릭 이벤트 리스너 추가
     document.addEventListener('click', handleClick);
-    //컴포넌트 언마운트 시 이벤트 리스너 제거
+
     return () => {
       document.removeEventListener('click', handleClick);
     };
-  }, [setSelectedNode]);
+  }, [setSelect, setSelectedNode]);
 
   return (
     <IdeExplorer ref={ExplorerRef}>
@@ -73,6 +75,7 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
             color="white"
             style={{ paddingRight: '5px', cursor: 'pointer' }}
             onClick={() => setSearch(!search)}
+            className="Search"
           />
           <FaPlus size="20" color="white" style={{ cursor: 'pointer' }} onClick={() => setPlusModal(!plusModal)} />
           {plusModal && (

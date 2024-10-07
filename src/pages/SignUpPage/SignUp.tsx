@@ -49,7 +49,6 @@ const SignUp = () => {
     }
     const { status, statusText, data } = responseBody;
     if (status === 200) {
-      //toast message로 회원가입 완료 메시지
       toast.success('회원가입 완료!', {
         autoClose: 2000,
         pauseOnHover: false,
