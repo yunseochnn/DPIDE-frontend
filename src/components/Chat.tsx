@@ -192,6 +192,16 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
+
+        const requestCode = {
+          sender: userName,
+          projectId: projectId,
+          userId: userId,
+        };
+        client.current?.publish({
+          destination: `/app/request`,
+          body: JSON.stringify(requestCode),
+        });
       },
       onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
