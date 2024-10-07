@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ErrorMessage, Inputbox, InputContent, InputWrapper } from './Input.style';
 import { FieldError, UseFormRegister } from 'react-hook-form';
+import eyeOn from '../../../../public/images/eye-light-on.png';
+import eyeOff from '../../../../public/images/eye-light-off.png';
 
 interface FormInput {
   email: string;
@@ -53,12 +55,7 @@ const Input = ({ placeholder, name, register, errors }: Props) => {
           type={placeholder === '이메일' ? 'text' : passwordState ? 'text' : 'password'}
           {...register(name, { required: required, pattern: pattern })}
         />
-        {placeholder === '비밀번호' && (
-          <img
-            src={passwordState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
-            onClick={onEyeClickHandler}
-          />
-        )}
+        {placeholder === '비밀번호' && <img src={passwordState ? eyeOn : eyeOff} onClick={onEyeClickHandler} />}
       </Inputbox>
       {errors && <ErrorMessage>{renderErrorMessage()}</ErrorMessage>}
     </InputWrapper>
