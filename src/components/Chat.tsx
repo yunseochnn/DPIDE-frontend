@@ -61,6 +61,9 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleHighlightChange = (index: number) => {
     const messageElement = document.getElementById(`message-${index}`);
@@ -221,6 +224,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         }),
       });
       setInput('');
+      scrollToBottom();
     }
   };
 
