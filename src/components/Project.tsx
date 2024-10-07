@@ -110,6 +110,7 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
             </DropdownMenu>
           )}
           <ProjectTitle>{project.name}</ProjectTitle>
+          <ProjectLanguage>{project.language}</ProjectLanguage>
           <ProjectDescription>{project.description}</ProjectDescription>
           <EditButton
             onClick={() => {
@@ -141,6 +142,14 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
 };
 
 export default Project;
+
+const ProjectLanguage = styled.p`
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #868899;
+  margin-bottom: 10px;
+`;
 
 const ProjectContainer = styled.div`
   margin-left: 10px;
@@ -178,7 +187,7 @@ const MenuIcon = styled(CiMenuBurger)`
 `;
 
 const ProjectTitle = styled.h3`
-  margin-bottom: 13px;
+  margin-bottom: 10px;
   font-size: 20px;
   font-weight: 800;
   color: #333;
@@ -193,6 +202,11 @@ const ProjectDescription = styled.p`
   font-size: 14px;
   color: #868899;
   flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const EditButton = styled.button`
@@ -207,7 +221,7 @@ const EditButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 90px;
+  margin-top: 73px;
   gap: 8px;
 `;
 
