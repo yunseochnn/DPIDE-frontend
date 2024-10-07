@@ -205,6 +205,8 @@ const Message = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 270px;
+  display: inline-block;
 `;
 
 const ReadStatus = styled.span`
