@@ -11,7 +11,6 @@ interface AlarmInfo {
 
 interface Notification {
   id: number;
-  profileImg: string;
   message: string;
   isRead: boolean;
 }
@@ -37,7 +36,6 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
       console.log(response.data);
       const alarmInfoList = response.data.alarmInfoList.map((alarm: AlarmInfo) => ({
         id: alarm.id,
-        profileImg: '',
         message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
         isRead: alarm.read,
       }));
@@ -121,14 +119,13 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
         console.log('렌더링 중 알림 데이터:', notification);
         return (
           <NotificationItem key={notification.id} $isRead={notification.isRead}>
-            <ProfileImage src={notification.profileImg} alt="Profile" />
             <NotificationText>
               <Message>{notification.message}</Message>
               <ReadStatus>{notification.isRead ? '읽음' : '안 읽음'}</ReadStatus>
               {!notification.isRead && (
                 <ButtonContainer>
-                  <ActionButton onClick={() => acceptInvitation(notification.id)}>수락</ActionButton>
-                  <ActionButton onClick={() => denyInvitation(notification.id)}>거절</ActionButton>
+                  <AcceptButton onClick={() => acceptInvitation(notification.id)}>수락</AcceptButton>
+                  <DenyButton onClick={() => denyInvitation(notification.id)}>거절</DenyButton>
                 </ButtonContainer>
               )}
             </NotificationText>
@@ -141,16 +138,36 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
 
 export default NotificationList;
 
+const AcceptButton = styled.button`
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #000000;
+  background-color: #dcdcdc; /* 밝은 청록색 (수락 버튼) */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
+const DenyButton = styled.button`
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #000000;
+  background-color: #dcdcdc; /* 어두운 청록색 (거절 버튼) */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+`;
+
 const NotificationContainer = styled.div`
   position: absolute;
   top: 79px;
-  right: 10px;
+  right: 190px;
   width: 300px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1;
 `;
 
 const NotificationHeader = styled.h3`
@@ -175,13 +192,6 @@ const NotificationItem = styled.div<{ $isRead: boolean }>`
   }
 `;
 
-const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 12px;
-`;
-
 const NotificationText = styled.div`
   display: flex;
   flex-direction: column;
@@ -194,7 +204,6 @@ const Message = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
 `;
 
 const ReadStatus = styled.span`
@@ -211,18 +220,4 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 8px;
   margin-top: 10px;
-`;
-
-const ActionButton = styled.button`
-  padding: 6px 12px;
-  font-size: 12px;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
 `;

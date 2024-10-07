@@ -8,7 +8,6 @@ import NotificationList from '../NotificationList';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
 import { useCookies } from 'react-cookie';
-import useClickOutside from '../../hooks/useClickOutside';
 
 const MainHeader = () => {
   const [isNotifyOpen, setNotifyOpen] = useRecoilState(isNotifyOpenState);
@@ -36,9 +35,6 @@ const MainHeader = () => {
       return !prev;
     });
   };
-
-  useClickOutside(notificationRef, () => setNotifyOpen(false));
-  useClickOutside(profileMenuRef, () => setProfileMenuOpen(false));
 
   return (
     <HeaderContainer>
@@ -73,6 +69,7 @@ const MainHeader = () => {
 };
 
 export default MainHeader;
+
 const NotificationListWrapper = styled.div``;
 const HeaderContainer = styled.div`
   width: 100%;
@@ -153,8 +150,8 @@ const ProfileCircle = styled.div`
 const ProfileDropdown = styled.div`
   position: absolute;
   top: 79px;
-  right: 10px;
-  width: 150px;
+  right: 55px;
+  width: 100px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;

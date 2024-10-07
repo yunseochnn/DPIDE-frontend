@@ -6,7 +6,7 @@ import { MdEdit } from 'react-icons/md';
 import { ProjectType } from '../types';
 import { useNavigate } from 'react-router-dom';
 import EditProjectModal from './Modal/EditProjectModal';
-import useClickOutside from '../hooks/useClickOutside';
+
 interface ProjectProps {
   projects: ProjectType[] | undefined;
   token: string;
@@ -21,7 +21,6 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  useClickOutside(dropdownRef, () => setActiveDropdown(null));
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const toggleDropdown = (projectId: number) => {
@@ -72,7 +71,7 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
 
       if (response.status === 200) {
         console.log(`프로젝트 나가기 성공: ${projectId}`);
-        refreshProjects(); // 프로젝트 리스트를 새로 고침
+        refreshProjects();
       }
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -185,6 +184,10 @@ const ProjectTitle = styled.h3`
   font-size: 20px;
   font-weight: 800;
   color: #333;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ProjectDescription = styled.p`

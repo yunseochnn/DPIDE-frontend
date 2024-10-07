@@ -5,15 +5,14 @@ import { messagesState, inputState } from '../recoil/Chat/atoms';
 import profile from '../assets/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
-import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
 import { useCookies } from 'react-cookie';
 import CodeState from '../recoil/Code/atoms';
 import { useDebounce } from '../hooks/useDebounce';
 import ReceiveContent from '../recoil/ReceiveContent/atom';
-import ChatSearch from './ChatSearch';
 import { FaArrowCircleDown } from 'react-icons/fa';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import ChatSearch from './ChatSearch';
 
 interface ChatProps {
   userName: string;
@@ -291,7 +290,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   return (
     <ChatContainer>
       <IdeChat_Top>
-        <div>채팅</div>
+        <ChatTitle>채팅</ChatTitle>
         <ChatSearch
           messages={messages.map(msg => ({
             senderName: msg.sender,
@@ -365,6 +364,21 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 };
 
 export default Chat;
+
+const IdeChat_Top = styled.div`
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid black;
+  display: flex;
+  align-items: center;
+  padding-left: 23px;
+`;
+
+const ChatTitle = styled.div`
+  font-size: 16px;
+  color: white;
+  font-weight: 700;
+`;
 
 const ChatContainer = styled.div`
   display: flex;
