@@ -67,8 +67,6 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
         },
       );
 
-      alert('초대를 수락했습니다.');
-
       await fetchNotifications();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {

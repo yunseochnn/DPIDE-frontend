@@ -124,8 +124,22 @@ const MainHeader = () => {
 
       {isProfileMenuOpen && (
         <ProfileDropdown ref={profileMenuRef}>
-          <DropdownItem onClick={() => navigate('/mypage')}>마이페이지</DropdownItem>
-          <DropdownItem onClick={onClickLogoutHandler}>로그아웃</DropdownItem>
+          <DropdownItem
+            onClick={() => {
+              navigate('/mypage');
+              setProfileMenuOpen(false);
+            }}
+          >
+            마이페이지
+          </DropdownItem>
+          <DropdownItem
+            onClick={() => {
+              onClickLogoutHandler();
+              setProfileMenuOpen(false);
+            }}
+          >
+            로그아웃
+          </DropdownItem>
         </ProfileDropdown>
       )}
     </HeaderContainer>
