@@ -26,14 +26,12 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const fetchNotifications = useCallback(async () => {
-    console.log('fetchNotifications 호출됨');
     try {
       const response = await axios.get(`${baseURL}/alarm`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(response.data);
       const alarmInfoList = response.data.alarmInfoList.map((alarm: AlarmInfo) => ({
         id: alarm.id,
         message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
@@ -41,9 +39,8 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
       }));
 
       setNotifications(alarmInfoList.reverse());
-    } catch (error) {
+    } catch {
       setError('알림을 불러오지 못했습니다.');
-      console.error(error);
     }
   }, [token, baseURL]);
 
@@ -51,9 +48,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  useEffect(() => {
-    console.log('최종 알림 상태:', notifications);
-  }, [notifications]);
+  useEffect(() => {}, [notifications]);
 
   const acceptInvitation = async (alarmId: number) => {
     try {

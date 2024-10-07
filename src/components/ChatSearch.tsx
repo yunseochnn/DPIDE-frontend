@@ -55,7 +55,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
   const scrollToMessage = (index: number) => {
     const targetMessage = messageRefs.current[index];
     if (targetMessage) {
-      targetMessage.scrollIntoView({ behavior: 'smooth', block: 'center' }); // 부드러운 스크롤
+      targetMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
 

@@ -102,8 +102,8 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         }));
         setMessages(formattedMessages);
       }
-    } catch (error) {
-      console.error('Failed to fetch chat history:', error);
+    } catch {
+      // 오류 무시
     }
   }, [projectId, token, setMessages]);
 
@@ -172,8 +172,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         destination: `/app/code`,
         body: JSON.stringify(Code),
       });
-    } else {
-      console.error('STOMP connection is not established or input is empty.');
     }
   }, [sendCode, userName, projectId, userId]);
 
@@ -184,11 +182,9 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   useEffect(() => {
     client.current = new Client({
       brokerURL: socketUrl,
-      debug: console.log,
+
       reconnectDelay: 50000,
       onConnect: () => {
-        console.log('Connected to WebSocket');
-
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
@@ -203,7 +199,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           body: JSON.stringify(requestCode),
         });
       },
-      onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
 
     client.current.activate();

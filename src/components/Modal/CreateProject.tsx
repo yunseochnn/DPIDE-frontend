@@ -48,12 +48,8 @@ const CreateProject: React.FC<ModalProps> = ({ closeProjectModal, refreshProject
       if (response.status === 200) {
         const { id } = response.data;
         refreshProjects();
-
         openSuccessModal(id);
-
         closeProjectModal();
-
-        console.log(`프로젝트 생성됨: ID: ${id}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {

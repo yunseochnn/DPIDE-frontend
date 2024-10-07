@@ -50,15 +50,11 @@ const MainHeader = () => {
         removeCookie('Authorization', { path: '/' });
         removeCookie('Refresh-Token', { path: '/' });
         removeCookie('nickname', { path: '/' });
-
         navigate('/');
       }
     } catch (error) {
-      console.log(error);
       if (axios.isAxiosError(error)) {
         if (error.response && error.response.status === 401) {
-          console.log('유효하지 않은 토큰입니다.');
-
           try {
             await RefreshToken(refreshToken, setCookie);
 
@@ -71,13 +67,12 @@ const MainHeader = () => {
 
               navigate('/');
             }
-          } catch (refreshError) {
-            console.log('토큰 발급 실패:', refreshError);
+          } catch {
             alert('새로운 토큰을 발급받지 못했습니다.');
           }
         }
         if (error.response && error.response.status === 500) {
-          console.log('데이터베이스 오류입니다.');
+          alert('데이터베이스 오류가 발생했습니다.');
         }
         alert('로그아웃을 실패하였습니다.');
       }
