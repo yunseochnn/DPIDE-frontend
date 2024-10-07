@@ -93,11 +93,12 @@ export const EmptyStateContainer = styled.div`
 export const EmptyStateIcon = styled.div`
   font-size: 50px;
   margin-bottom: 16px;
+  color: #868899;
 `;
 
 export const EmptyStateText = styled.h2`
   font-size: 22px;
   font-weight: 300;
-  color: #333;
+  color: #868899;
   margin-bottom: 12px;
 `;
