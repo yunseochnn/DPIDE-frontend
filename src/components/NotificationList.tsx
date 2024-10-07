@@ -142,20 +142,26 @@ const AcceptButton = styled.button`
   padding: 6px 12px;
   font-size: 12px;
   color: #000000;
-  background-color: #dcdcdc; /* 밝은 청록색 (수락 버튼) */
+  background-color: #dcdcdc;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  &:hover {
+    background-color: #bdbdbd;
+  }
 `;
 
 const DenyButton = styled.button`
   padding: 6px 12px;
   font-size: 12px;
   color: #000000;
-  background-color: #dcdcdc; /* 어두운 청록색 (거절 버튼) */
+  background-color: #dcdcdc;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  &:hover {
+    background-color: #bdbdbd;
+  }
 `;
 
 const NotificationContainer = styled.div`
@@ -172,9 +178,9 @@ const NotificationContainer = styled.div`
 
 const NotificationHeader = styled.h3`
   margin: 18px;
+  font-weight: 500;
   font-size: 18px;
   color: #333;
-  padding-bottom: 8px;
 `;
 
 const NotificationItem = styled.div<{ $isRead: boolean }>`
@@ -186,9 +192,6 @@ const NotificationItem = styled.div<{ $isRead: boolean }>`
 
   &:last-child {
     border-bottom: none;
-  }
-  &:hover {
-    background-color: #f4f4f4;
   }
 `;
 

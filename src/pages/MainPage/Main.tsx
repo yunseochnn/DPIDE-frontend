@@ -1,9 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import CreateProject from '../../components/Modal/CreateProject.tsx';
 import MainHeader from '../../components/Header/MainHeader.tsx';
-import { FaPlus } from 'react-icons/fa6';
 import Project from '../../components/Project.tsx';
-import { MainContainer, NewProjectButton, ContentWrapper, Sidebar, ProjectButton } from './Main.style.ts';
+import { ImFileEmpty } from 'react-icons/im';
+import {
+  MainContainer,
+  NewProjectButton,
+  ContentWrapper,
+  Sidebar,
+  ProjectButton,
+  EmptyStateContainer,
+  EmptyStateIcon,
+  EmptyStateText,
+  PlusIcon,
+} from './Main.style.ts';
 import axios from 'axios';
 import { ProjectType } from '../../types';
 import { useCookies } from 'react-cookie';
@@ -93,7 +103,7 @@ const Main = () => {
       <MainContainer>
         <ContentWrapper>
           <NewProjectButton onClick={openModal}>
-            <FaPlus /> 새 프로젝트
+            <PlusIcon /> 새 프로젝트
           </NewProjectButton>
 
           <Sidebar>
@@ -116,7 +126,12 @@ const Main = () => {
               selectedButton={selectedButton}
             />
           ) : (
-            <div>프로젝트가 없습니다.</div>
+            <EmptyStateContainer>
+              <EmptyStateIcon>
+                <ImFileEmpty />
+              </EmptyStateIcon>
+              <EmptyStateText>프로젝트가 없습니다.</EmptyStateText>
+            </EmptyStateContainer>
           )}
         </ContentWrapper>
       </MainContainer>
