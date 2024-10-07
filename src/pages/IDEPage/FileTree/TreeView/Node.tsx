@@ -2,7 +2,7 @@ import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-import { SetStateAction, useEffect } from 'react';
+import { SetStateAction } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -81,36 +81,30 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
     }
 
     const decoder = new TextDecoder('utf-8');
-    let result = ''; //최종적으로 받을 문자열을 저장하는 변수
+    let result = '';
 
-    //스트림 데이터 반복해서 읽기
     while (true) {
-      const { done, value } = await reader.read(); //청크 데이터를 읽음
+      const { done, value } = await reader.read();
 
       if (done) {
-        console.log('Stream complete');
         break;
       }
 
-      const text = decoder.decode(value, { stream: true }); //바이너리 데이터를 문자열로 변환
-      result += text; //읽은 문자열을 result에 추가
+      const text = decoder.decode(value, { stream: true });
+      result += text;
     }
-    return result; //전체 데이터를 합친 문자열 반환
+    return result;
   };
 
   const onClickNode = async () => {
     setSelectedNode(node);
     setSelect('');
-    console.log(node);
 
-    // node.data.id와 동일한 파일이 있는지 찾기
     const foundFile = Files.find(file => file.id === node.data.id);
 
-    // 파일이 이미 열려있지 않으면 새로 열고, 파일 내용 로드
     if (!node.children && !foundFile) {
       fetchStreamAsString()
         .then(result => {
-          console.log('파일 내용: ', result);
           const newFile = {
             id: node.data.id,
             content: result,
@@ -118,21 +112,17 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
             modifyContent: result,
           };
 
-          // 이전 상태를 기반으로 새로운 상태 업데이트
           setFiles(prevFiles => {
-            // 현재 코드 상태를 저장
             const currentCode = code;
 
-            // Files 상태 업데이트
             const updatedFiles = prevFiles.map(f => {
               if (f.id === currentCode.id) {
-                return { ...f, modifyContent: currentCode.content }; // 현재 코드의 modifyContent 업데이트
+                return { ...f, modifyContent: currentCode.content };
               }
               return f;
             });
 
-            // 새로운 파일 추가
-            return [...updatedFiles, newFile]; // 이전 파일 배열에 새로운 파일 추가
+            return [...updatedFiles, newFile];
           });
 
           setCode({ id: node.data.id, content: result });
@@ -140,16 +130,14 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
         .catch(error => console.error('Error fetching stream data: ', error));
     }
 
-    // 파일이 이미 열려있는 경우 해당 파일의 onClick 함수 실행
     if (foundFile) {
-      handleFileClick(foundFile); // 파일 목록에서 onClick과 동일한 로직을 실행
+      handleFileClick(foundFile);
     }
   };
 
-  // 파일을 클릭할 때 실행할 함수
   const handleFileClick = (file: IFile) => {
     const currentCode = code;
-    // FileList에서의 onClick 로직을 실행
+
     const newFile = Files.map(f => {
       if (f.id === currentCode.id) {
         return { ...f, modifyContent: currentCode.content };
@@ -218,8 +206,6 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
       ],
     });
   };
-
-  useEffect(() => {}, []);
 
   return (
     <NodeContainer style={style} onClick={onClickNode} className={isSelected ? 'selected' : ''}>

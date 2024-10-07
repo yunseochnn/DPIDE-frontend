@@ -8,7 +8,6 @@ const LeaveRequest = async (Authorization: string, RefreshToken: string) => {
         'Refresh-Token': RefreshToken,
       },
     });
-    console.log(result);
     return result;
   } catch (error) {
     console.log(error);

@@ -12,7 +12,6 @@ const LogoutRequest = async (RefreshToken: string, Authorization: string) => {
         },
       },
     );
-    console.log(result);
     return result;
   } catch (error: unknown) {
     console.log(error);

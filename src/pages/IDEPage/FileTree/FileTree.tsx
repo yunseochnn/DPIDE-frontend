@@ -31,7 +31,6 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
   const PlusRef = useRef<HTMLDivElement | null>(null);
   const [term, setTerm] = useState('');
   const setSelect = useSetRecoilState(Select);
-  console.log(selectedNode);
 
   const onClickFolder = () => {
     treeRef.current?.createInternal();
@@ -59,9 +58,8 @@ const FileTree: React.FC<Prop> = ({ setEdit, selectedNode, setSelectedNode }) =>
       }
     };
 
-    //document에 클릭 이벤트 리스너 추가
     document.addEventListener('click', handleClick);
-    //컴포넌트 언마운트 시 이벤트 리스너 제거
+
     return () => {
       document.removeEventListener('click', handleClick);
     };

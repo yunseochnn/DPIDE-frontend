@@ -32,7 +32,7 @@ const Nickname = () => {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      nic: Nic, // 기본 닉네임 값 설정
+      nic: Nic,
     },
   });
 
@@ -40,7 +40,6 @@ const Nickname = () => {
     setEditNickname(!editNickname);
   };
 
-  //닉네임 변경
   const onSubmitNicknameHandler = async (data: FormData) => {
     const { nic } = data;
     try {

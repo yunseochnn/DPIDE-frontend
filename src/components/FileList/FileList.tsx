@@ -56,7 +56,7 @@ const FileList = ({ file, setSelectedNode }: Props) => {
   const onCloseClickHandler = (event: React.MouseEvent) => {
     event.stopPropagation(); // 파일 닫기 버튼 클릭 시 클릭 이벤트 버블링 방지
     setSelectedNode(null);
-    //저장하지 않을거면 저장할건지 물어보고 저장하는 로직
+
     if (file.content !== code.content) {
       confirmAlert({
         message: '파일을 저장하시겠습니까?',
