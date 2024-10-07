@@ -1,10 +1,19 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { MyPageHeader, MyPageHeader_Logo, MyPageHeader_Logout, MyPageHeader_Title } from './Header.style';
+import {
+  HeaderWrapper,
+  Logo,
+  MyPageHeader,
+  MyPageHeader_Logo,
+  MyPageHeader_Logout,
+  ServiceName,
+  Spacer,
+} from './Header.style';
 import { confirmAlert } from 'react-confirm-alert';
 import LogoutRequest from '../../../apis/Auth/Logout/LogoutRequest';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import RefreshToken from '../../../apis/RefrshToken';
+import logo2 from '../../../assets/images/logo2.png';
 
 const Header = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
@@ -74,8 +83,11 @@ const Header = () => {
       <MyPageHeader>
         <MyPageHeader_Logo>
           <Link to={'/main'}>
-            <img src="/src/assets/images/logo2.png" />
-            <MyPageHeader_Title>D P I D E</MyPageHeader_Title>
+            <HeaderWrapper>
+              <Logo src={logo2} alt="Logo" />
+              <ServiceName>DPIDE</ServiceName>
+              <Spacer />
+            </HeaderWrapper>
           </Link>
         </MyPageHeader_Logo>
         <MyPageHeader_Logout onClick={onClickLogoutHandler}>로그아웃</MyPageHeader_Logout>

@@ -171,7 +171,7 @@ const ServiceName = styled.span`
   font-weight: bold;
   color: #474747;
   margin-left: 8px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.2em;
 `;
 
 const Spacer = styled.div`
