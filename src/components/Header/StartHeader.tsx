@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import styled from 'styled-components';
-import logo2 from '../../assets/images/logo2.png';
+import logo2 from '../../../public/images/logo2.png';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
 

@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import styled from 'styled-components';
-import logo2 from '../../assets/images/logo2.png';
-import profile from '../../assets/images/default-profile-image.png';
+import logo2 from '../../../public/images/logo2.png';
+import profile from '../../../public/images/default-profile-image.png';
 import { FaRegBell } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import NotificationList from '../NotificationList';

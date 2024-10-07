@@ -72,7 +72,7 @@ const Header = () => {
   return (
     <IdeTop>
       <IdeTop_Logo>
-        <img src="/src/assets/images/logo2.png" />
+        <img src="/public/images/logo2.png" />
         <span>D P I D E</span>
       </IdeTop_Logo>
       <IdeTop_Close onClick={onCloseClickHandler}>

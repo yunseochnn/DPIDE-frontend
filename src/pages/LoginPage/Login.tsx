@@ -78,7 +78,7 @@ const Login = () => {
     <LoginContainer>
       <LoginWrapper>
         <LoginLogo>
-          <img src="/src/assets/images/logo2.png" />
+          <img src="/public/images/logo2.png" />
           <span>D P I D E</span>
         </LoginLogo>
         <LoginForm onSubmit={handleSubmit(onSubmit)}>

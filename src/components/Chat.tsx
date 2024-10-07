@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
 import { messagesState, inputState } from '../recoil/Chat/atoms';
-import profile from '../assets/images/default-profile-image.png';
+import profile from '../../public/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
 import { useCookies } from 'react-cookie';

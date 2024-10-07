@@ -55,7 +55,7 @@ const Input = ({ placeholder, name, register, errors }: Props) => {
         />
         {placeholder === '비밀번호' && (
           <img
-            src={passwordState ? '/src/assets/images/eye-light-on.png' : '/src/assets/images/eye-light-off.png'}
+            src={passwordState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
             onClick={onEyeClickHandler}
           />
         )}
