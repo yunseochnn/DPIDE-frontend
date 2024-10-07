@@ -84,7 +84,7 @@ const SignUp = () => {
     <SignUpContainer>
       <SignUpWrapper>
         <SignUp_logo>
-          <img src="/src/assets/images/logo2.png" />
+          <img src="/public/images/logo2.png" />
           <span>D P I D E</span>
         </SignUp_logo>
 
@@ -109,7 +109,7 @@ const SignUp = () => {
                 {...register('password', { required: true, pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/ })}
               />
               <img
-                src={pwState ? '/src/assets/images/eye-light-on.png' : '/src/assets/images/eye-light-off.png'}
+                src={pwState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
                 onClick={onPasswordHandler}
               />
             </SignUp_InputBox>
@@ -130,7 +130,7 @@ const SignUp = () => {
                 })}
               />
               <img
-                src={pwConfirmState ? '/src/assets/images/eye-light-on.png' : '/src/assets/images/eye-light-off.png'}
+                src={pwConfirmState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
                 onClick={onPasswordConfirmHandler}
               />
             </SignUp_InputBox>

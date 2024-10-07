@@ -40,7 +40,7 @@ const StartPage = () => {
           </StartWrapper_Bottom_Buttons>
         </Start>
         <StartWraper_Bottom_Image>
-          <img src="/src/assets/images/startPage.png" />
+          <img src="/public/images/startPage.png" />
         </StartWraper_Bottom_Image>
       </StartWrapper_Bottom>
     </StartContainer>

@@ -13,7 +13,7 @@ import LogoutRequest from '../../../apis/Auth/Logout/LogoutRequest';
 import { useCookies } from 'react-cookie';
 import axios from 'axios';
 import RefreshToken from '../../../apis/RefrshToken';
-import logo2 from '../../../assets/images/logo2.png';
+import logo2 from '../../../../public/images/logo2.png';
 
 const Header = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'userId', 'nickname']);
