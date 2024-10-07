@@ -135,7 +135,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       setMessages(prevMessages => [
         ...prevMessages,
         {
-          text: `${joinMessage.sender}님이 참가하였습니다.`,
+          text: `${joinMessage.sender}님이 참가하였습니다`,
           sender: '시스템',
           profile: profile,
           createdAt: new Date().toISOString(),
@@ -309,28 +309,38 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
             id={`message-${index}`}
             isOwnMessage={message.sender === userName}
             sender={message.sender}
+            isSystemMessage={message.sender === '시스템'}
           >
-            {message.sender !== userName && <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />}
+            {message.sender !== '시스템' && message.sender !== userName && (
+              <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />
+            )}
+
             <MessageContent isOwnMessage={message.sender === userName}>
-              {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
-              <MessageText isOwnMessage={message.sender === userName}>
-                {appliedKeyword && message.text.includes(appliedKeyword) ? (
-                  <>
-                    {message.text
-                      .split(new RegExp(`(${appliedKeyword})`, 'gi'))
-                      .map((part, index) =>
-                        part.toLowerCase() === appliedKeyword.toLowerCase() ? (
-                          <HighlightedText key={index}>{part}</HighlightedText>
-                        ) : (
-                          part
-                        ),
-                      )}
-                  </>
-                ) : (
-                  message.text
-                )}
-              </MessageText>
-              <MessageTime>{dayjs(message.createdAt).format('HH:mm')}</MessageTime>
+              {message.sender === '시스템' ? (
+                <MessageText isOwnMessage={false}>{message.text}</MessageText>
+              ) : (
+                <>
+                  {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
+                  <MessageText isOwnMessage={message.sender === userName}>
+                    {appliedKeyword && message.text.includes(appliedKeyword) ? (
+                      <>
+                        {message.text
+                          .split(new RegExp(`(${appliedKeyword})`, 'gi'))
+                          .map((part, index) =>
+                            part.toLowerCase() === appliedKeyword.toLowerCase() ? (
+                              <HighlightedText key={index}>{part}</HighlightedText>
+                            ) : (
+                              part
+                            ),
+                          )}
+                      </>
+                    ) : (
+                      message.text
+                    )}
+                  </MessageText>
+                  <MessageTime>{dayjs(message.createdAt).format('HH:mm')}</MessageTime>
+                </>
+              )}
             </MessageContent>
           </ChatMessage>
         ))}
@@ -404,20 +414,27 @@ const ProfileImage = styled.img`
 `;
 
 const ChatMessage = styled.div.withConfig({
-  shouldForwardProp: prop => prop !== 'isOwnMessage' && prop !== 'sender',
-})<ChatMessageProps & { sender: string }>`
+  shouldForwardProp: prop => prop !== 'isOwnMessage' && prop !== 'isSystemMessage',
+})<ChatMessageProps & { sender: string; isSystemMessage: boolean }>`
   color: ${({ sender }) => (sender === '시스템' ? '#999999' : 'inherit')};
   font-style: ${({ sender }) => (sender === '시스템' ? 'italic' : 'normal')};
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
-  ${({ isOwnMessage }) =>
-    isOwnMessage
+
+  ${({ isSystemMessage, isOwnMessage }) =>
+    isSystemMessage
       ? `
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+  `
+      : isOwnMessage
+        ? `
     justify-content: flex-end;
     margin-left: auto;
   `
-      : `
+        : `
     justify-content: flex-start;
     margin-right: auto;
   `}

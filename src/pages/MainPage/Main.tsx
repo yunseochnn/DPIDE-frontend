@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import CreateProject from '../../components/Modal/CreateProject.tsx';
 import MainHeader from '../../components/Header/MainHeader.tsx';
 import Project from '../../components/Project.tsx';
-import { ImFileEmpty } from 'react-icons/im';
+import { CiFileOff } from 'react-icons/ci';
 import {
   MainContainer,
   NewProjectButton,
@@ -128,7 +128,7 @@ const Main = () => {
           ) : (
             <EmptyStateContainer>
               <EmptyStateIcon>
-                <ImFileEmpty />
+                <CiFileOff />
               </EmptyStateIcon>
               <EmptyStateText>프로젝트가 없습니다.</EmptyStateText>
             </EmptyStateContainer>
