@@ -42,7 +42,15 @@ const Main = () => {
         const response = await axios.get(`${baseURL}${url}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setProjects(response.data.projects);
+        const sortedProjects = response.data.projects.sort(
+          (a: { createdAt: string; updatedAt: string }, b: { createdAt: string; updatedAt: string }) => {
+            const aDate = new Date(a.updatedAt > a.createdAt ? a.updatedAt : a.createdAt);
+            const bDate = new Date(b.updatedAt > b.createdAt ? b.updatedAt : b.createdAt);
+            return bDate.getTime() - aDate.getTime();
+          },
+        );
+
+        setProjects(sortedProjects);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           if (error.response && error.response.status === 400 && !isRetry) {

@@ -167,8 +167,9 @@ const NotificationContainer = styled.div`
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 1;
+  max-height: 400px;
+  overflow-y: auto;
 `;
-
 const NotificationHeader = styled.h3`
   margin: 18px;
   font-weight: 500;
