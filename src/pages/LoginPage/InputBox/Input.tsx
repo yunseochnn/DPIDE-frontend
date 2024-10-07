@@ -17,12 +17,10 @@ interface Props {
 const Input = ({ placeholder, name, register, errors }: Props) => {
   const [passwordState, setPasswordState] = useState(false);
 
-  //비밀번호 상태 변경
   const onEyeClickHandler = () => {
     setPasswordState(!passwordState);
   };
 
-  // 이메일과 비밀번호에 따라 다른 패턴 설정
   const pattern =
     name === 'email'
       ? {

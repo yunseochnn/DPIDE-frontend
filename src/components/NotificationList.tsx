@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 
@@ -6,14 +6,13 @@ interface AlarmInfo {
   id: number;
   senderName: string;
   projectName: string;
-  isRead: boolean;
+  read: boolean;
 }
 
 interface Notification {
   id: number;
-  profileImg: string;
   message: string;
-  time: string;
+  isRead: boolean;
 }
 
 interface NotificationListProps {
@@ -26,33 +25,30 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/alarm`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const response = await axios.get(`${baseURL}/alarm`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const alarmInfoList = response.data.alarmInfoList.map((alarm: AlarmInfo) => ({
+        id: alarm.id,
+        message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
+        isRead: alarm.read,
+      }));
 
-        const alarmInfoList: AlarmInfo[] = response.data.alarmInfoList;
-
-        const formattedNotifications = alarmInfoList.map((alarm: AlarmInfo) => ({
-          id: alarm.id,
-          profileImg: '',
-          message: `${alarm.senderName}님이 ${alarm.projectName} 프로젝트에 초대했습니다.`,
-          time: alarm.isRead ? '읽음' : '안 읽음',
-        }));
-
-        setNotifications(formattedNotifications);
-      } catch (error) {
-        setError('알림을 불러오지 못했습니다.');
-        console.error(error);
-      }
-    };
-
-    fetchNotifications();
+      setNotifications(alarmInfoList.reverse());
+    } catch {
+      setError('알림을 불러오지 못했습니다.');
+    }
   }, [token, baseURL]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  useEffect(() => {}, [notifications]);
 
   const acceptInvitation = async (alarmId: number) => {
     try {
@@ -65,7 +61,8 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
           },
         },
       );
-      alert('초대를 수락했습니다.');
+
+      await fetchNotifications();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const errorCode = error.response?.data?.errorCode;
@@ -92,6 +89,7 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
         },
       );
       alert('초대를 거절했습니다.');
+      fetchNotifications();
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const errorCode = error.response?.data?.errorCode;
@@ -105,66 +103,90 @@ const NotificationList: React.FC<NotificationListProps> = ({ token }) => {
       }
     }
   };
+
   return (
     <NotificationContainer>
       <NotificationHeader>알림</NotificationHeader>
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      {notifications.map(notification => (
-        <NotificationItem key={notification.id}>
-          <ProfileImage src={notification.profileImg} alt="Profile" />
-          <NotificationText>
-            <Message>{notification.message}</Message>
-            <Time>{notification.time}</Time>
-            <ButtonContainer>
-              <ActionButton onClick={() => acceptInvitation(notification.id)}>수락</ActionButton>
-              <ActionButton onClick={() => denyInvitation(notification.id)}>거절</ActionButton>
-            </ButtonContainer>
-          </NotificationText>
-        </NotificationItem>
-      ))}
+      {notifications.map(notification => {
+        console.log('렌더링 중 알림 데이터:', notification);
+        return (
+          <NotificationItem key={notification.id} $isRead={notification.isRead}>
+            <NotificationText>
+              <Message>{notification.message}</Message>
+              <ReadStatus>{notification.isRead ? '읽음' : '안 읽음'}</ReadStatus>
+              {!notification.isRead && (
+                <ButtonContainer>
+                  <AcceptButton onClick={() => acceptInvitation(notification.id)}>수락</AcceptButton>
+                  <DenyButton onClick={() => denyInvitation(notification.id)}>거절</DenyButton>
+                </ButtonContainer>
+              )}
+            </NotificationText>
+          </NotificationItem>
+        );
+      })}
     </NotificationContainer>
   );
 };
 
 export default NotificationList;
 
+const AcceptButton = styled.button`
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #000000;
+  background-color: #dcdcdc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #bdbdbd;
+  }
+`;
+
+const DenyButton = styled.button`
+  padding: 6px 12px;
+  font-size: 12px;
+  color: #000000;
+  background-color: #dcdcdc;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  &:hover {
+    background-color: #bdbdbd;
+  }
+`;
+
 const NotificationContainer = styled.div`
   position: absolute;
   top: 79px;
-  right: 10px;
+  right: 190px;
   width: 300px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1;
+  max-height: 400px;
+  overflow-y: auto;
 `;
-
 const NotificationHeader = styled.h3`
   margin: 18px;
+  font-weight: 500;
   font-size: 18px;
   color: #333;
-  padding-bottom: 8px;
 `;
 
-const NotificationItem = styled.div`
+const NotificationItem = styled.div<{ $isRead: boolean }>`
   display: flex;
   align-items: center;
   padding: 12px 16px;
   border-bottom: 1px solid #e1e1e8;
+  background-color: ${({ $isRead }) => ($isRead ? '#f9f9f9' : '#ffffff')};
+
   &:last-child {
     border-bottom: none;
   }
-  &:hover {
-    background-color: #f4f4f4;
-  }
-`;
-
-const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  margin-right: 12px;
 `;
 
 const NotificationText = styled.div`
@@ -179,10 +201,11 @@ const Message = styled.span`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  max-width: 270px;
+  display: inline-block;
 `;
 
-const Time = styled.span`
+const ReadStatus = styled.span`
   font-size: 12px;
   color: #868899;
 `;
@@ -196,18 +219,4 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 8px;
   margin-top: 10px;
-`;
-
-const ActionButton = styled.button`
-  padding: 6px 12px;
-  font-size: 12px;
-  color: white;
-  background-color: #007bff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #0056b3;
-  }
 `;

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import styled from 'styled-components';
 import { CiMenuBurger } from 'react-icons/ci';
 import { MdEdit } from 'react-icons/md';
@@ -20,7 +20,7 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const [selectedProject, setSelectedProject] = useState<ProjectType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
   const toggleDropdown = (projectId: number) => {
@@ -42,7 +42,6 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
       });
 
       if (response.status === 200) {
-        console.log(`프로젝트 삭제 성공: ${projectId}`);
         refreshProjects();
       }
     } catch (error) {
@@ -57,13 +56,40 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
     }
   };
 
+  const handleLeaveProject = async (projectId: number) => {
+    try {
+      const response = await axios.post(
+        `${baseURL}/projects/${projectId}/leave`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
+      if (response.status === 200) {
+        refreshProjects();
+      }
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        setErrorMessage('프로젝트를 찾을 수 없습니다.');
+      } else {
+        setErrorMessage('프로젝트 나가기에 실패했습니다.');
+      }
+      console.error(error);
+    } finally {
+      setActiveDropdown(null);
+    }
+  };
+
   const closeEditModal = () => {
     setModalOpen(false);
     setSelectedProject(null);
   };
 
   if (!projects || projects.length === 0) {
-    return <div>프로젝트가 없습니다.</div>;
+    return;
   }
 
   return (
@@ -72,12 +98,19 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
         <ProjectBox key={project.id}>
           <MenuIcon onClick={() => toggleDropdown(project.id)} />
           {activeDropdown === project.id && (
-            <DropdownMenu>
-              <DropdownItem onClick={() => openEditModal(project)}>수정</DropdownItem>
-              <DropdownItem onClick={() => handleDelete(project.id)}>삭제</DropdownItem>
+            <DropdownMenu ref={dropdownRef} $isMyProjects={selectedButton === 'myProjects'}>
+              {selectedButton === 'myProjects' ? (
+                <>
+                  <DropdownItem onClick={() => openEditModal(project)}>수정</DropdownItem>
+                  <DropdownItem onClick={() => handleDelete(project.id)}>삭제</DropdownItem>
+                </>
+              ) : (
+                <DropdownItem onClick={() => handleLeaveProject(project.id)}>프로젝트 나가기</DropdownItem>
+              )}
             </DropdownMenu>
           )}
           <ProjectTitle>{project.name}</ProjectTitle>
+          <ProjectLanguage>{project.language}</ProjectLanguage>
           <ProjectDescription>{project.description}</ProjectDescription>
           <EditButton
             onClick={() => {
@@ -109,6 +142,14 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
 };
 
 export default Project;
+
+const ProjectLanguage = styled.p`
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: bold;
+  color: #868899;
+  margin-bottom: 10px;
+`;
 
 const ProjectContainer = styled.div`
   margin-left: 10px;
@@ -146,10 +187,14 @@ const MenuIcon = styled(CiMenuBurger)`
 `;
 
 const ProjectTitle = styled.h3`
-  margin-bottom: 13px;
+  margin-bottom: 10px;
   font-size: 20px;
   font-weight: 800;
   color: #333;
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
 const ProjectDescription = styled.p`
@@ -157,6 +202,12 @@ const ProjectDescription = styled.p`
   font-size: 14px;
   color: #868899;
   flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 40px;
 `;
 
 const EditButton = styled.button`
@@ -171,11 +222,11 @@ const EditButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 90px;
+  margin-top: 73px;
   gap: 8px;
 `;
 
-const DropdownMenu = styled.div`
+const DropdownMenu = styled.div<{ $isMyProjects: boolean }>`
   position: absolute;
   top: 50px;
   right: 10px;
@@ -183,13 +234,14 @@ const DropdownMenu = styled.div`
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  width: 120px;
+  width: ${({ $isMyProjects }) => ($isMyProjects ? '60px' : '140px')};
   z-index: 100;
 `;
 
 const DropdownItem = styled.div`
   padding: 10px;
   cursor: pointer;
+  text-align: center;
   &:hover {
     background-color: #f1f1f1;
   }

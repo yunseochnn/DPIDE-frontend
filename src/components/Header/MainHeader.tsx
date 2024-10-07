@@ -1,19 +1,28 @@
-import { useEffect } from 'react';
+import { useRef } from 'react';
 import styled from 'styled-components';
 import logo2 from '../../assets/images/logo2.png';
 import profile from '../../assets/images/default-profile-image.png';
 import { FaRegBell } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NotificationList from '../NotificationList';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
 import { useCookies } from 'react-cookie';
+import LogoutRequest from '../../apis/Auth/Logout/LogoutRequest';
+import axios from 'axios';
+import RefreshToken from '../../apis/RefrshToken';
+import { confirmAlert } from 'react-confirm-alert';
 
 const MainHeader = () => {
   const [isNotifyOpen, setNotifyOpen] = useRecoilState(isNotifyOpenState);
   const [isProfileMenuOpen, setProfileMenuOpen] = useRecoilState(isProfileMenuOpenState);
-  const [cookies] = useCookies(['Authorization']);
+  const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'nickname', 'userId']);
   const Authorization = cookies['Authorization'];
+  const refreshToken = cookies['Refresh-Token'];
+  const navigate = useNavigate();
+
+  const notificationRef = useRef<HTMLDivElement>(null);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
 
   const toggleNotify = () => {
     setNotifyOpen((prev: boolean) => {
@@ -33,25 +42,58 @@ const MainHeader = () => {
     });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-
-      if (isNotifyOpen && !target.closest('.notify-button') && !target.closest('.notify-list')) {
-        setNotifyOpen(false);
+  const LogoutResponse = async () => {
+    try {
+      const response = await LogoutRequest(refreshToken, Authorization);
+      const { status } = response;
+      if (status === 200) {
+        removeCookie('Authorization', { path: '/' });
+        removeCookie('Refresh-Token', { path: '/' });
+        removeCookie('nickname', { path: '/' });
+        navigate('/');
       }
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.status === 401) {
+          try {
+            await RefreshToken(refreshToken, setCookie);
 
-      if (isProfileMenuOpen && !target.closest('.profile-button') && !target.closest('.profile-dropdown')) {
-        setProfileMenuOpen(false);
+            const result = await LogoutRequest(refreshToken, Authorization);
+            const { status } = result;
+            if (status === 200) {
+              removeCookie('Authorization', { path: '/' });
+              removeCookie('Refresh-Token', { path: '/' });
+              removeCookie('nickname', { path: '/' });
+
+              navigate('/');
+            }
+          } catch {
+            alert('새로운 토큰을 발급받지 못했습니다.');
+          }
+        }
+        if (error.response && error.response.status === 500) {
+          alert('데이터베이스 오류가 발생했습니다.');
+        }
+        alert('로그아웃을 실패하였습니다.');
       }
-    };
+    }
+  };
 
-    document.addEventListener('click', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside);
-    };
-  }, [isNotifyOpen, isProfileMenuOpen, setNotifyOpen, setProfileMenuOpen]);
+  const onClickLogoutHandler = () => {
+    confirmAlert({
+      message: '로그아웃을 하시겠습니까?',
+      buttons: [
+        {
+          label: '네',
+          onClick: () => LogoutResponse(),
+        },
+        {
+          label: '아니오',
+          onClick: () => {},
+        },
+      ],
+    });
+  };
 
   return (
     <HeaderContainer>
@@ -68,11 +110,31 @@ const MainHeader = () => {
           </ProfileCircle>
         </ProfileButton>
       </HeaderWrapper>
-      {isNotifyOpen && <NotificationList token={Authorization} />}
+
+      {isNotifyOpen && (
+        <NotificationListWrapper ref={notificationRef} className="notify-list">
+          <NotificationList token={Authorization} />
+        </NotificationListWrapper>
+      )}
+
       {isProfileMenuOpen && (
-        <ProfileDropdown>
-          <DropdownItem to="/mypage">마이페이지</DropdownItem>
-          <DropdownItem to="/logout">로그아웃</DropdownItem>
+        <ProfileDropdown ref={profileMenuRef}>
+          <DropdownItem
+            onClick={() => {
+              navigate('/mypage');
+              setProfileMenuOpen(false);
+            }}
+          >
+            마이페이지
+          </DropdownItem>
+          <DropdownItem
+            onClick={() => {
+              onClickLogoutHandler();
+              setProfileMenuOpen(false);
+            }}
+          >
+            로그아웃
+          </DropdownItem>
         </ProfileDropdown>
       )}
     </HeaderContainer>
@@ -81,6 +143,7 @@ const MainHeader = () => {
 
 export default MainHeader;
 
+const NotificationListWrapper = styled.div``;
 const HeaderContainer = styled.div`
   width: 100%;
   border-bottom: 2px solid #f4f4f4;
@@ -108,7 +171,7 @@ const ServiceName = styled.span`
   font-weight: bold;
   color: #474747;
   margin-left: 8px;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.2em;
 `;
 
 const Spacer = styled.div`
@@ -160,8 +223,8 @@ const ProfileCircle = styled.div`
 const ProfileDropdown = styled.div`
   position: absolute;
   top: 79px;
-  right: 10px;
-  width: 150px;
+  right: 55px;
+  width: 100px;
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -171,7 +234,7 @@ const ProfileDropdown = styled.div`
   flex-direction: column;
 `;
 
-const DropdownItem = styled(Link)`
+const DropdownItem = styled.div`
   padding: 10px 16px;
   font-size: 14px;
   color: #333;

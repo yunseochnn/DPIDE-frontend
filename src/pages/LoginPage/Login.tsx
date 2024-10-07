@@ -43,7 +43,6 @@ const Login = () => {
     const { status } = responseBody;
     const { nickname, id } = responseData;
     if (status === 200) {
-      //토큰 userId 저장
       const authToken = responseBody.headers['authorization']?.replace('Bearer ', '').trim();
       const refreshToken = responseBody.headers['refresh-token'].trim();
       if (authToken) {

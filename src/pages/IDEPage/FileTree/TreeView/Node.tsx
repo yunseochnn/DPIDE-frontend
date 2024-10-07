@@ -2,7 +2,7 @@ import { NodeApi, NodeRendererProps } from 'react-arborist';
 import { BsFolder } from 'react-icons/bs';
 import { FaAngleDown, FaAngleRight, FaRegFile } from 'react-icons/fa6';
 
-import { SetStateAction, useEffect } from 'react';
+import { SetStateAction } from 'react';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { MdDeleteOutline } from 'react-icons/md';
 import { useRecoilState, useSetRecoilState } from 'recoil';
@@ -19,6 +19,7 @@ import axios from 'axios';
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
 import FolderState from '../../../../recoil/Folder/atoms';
 import { IFile } from '../../../../recoil/File/type';
+import Select from '../../../../recoil/Select/atom';
 
 interface NodeProps extends NodeRendererProps<IFolder> {
   selectedNode: NodeApi<IFolder> | null;
@@ -45,9 +46,10 @@ const NodeContainer = styled.div`
 
 function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const [Files, setFiles] = useRecoilState(FileState);
-  const [Folder, setFolder] = useRecoilState(FolderState);
+  const setFolder = useSetRecoilState(FolderState);
   const [code, setCode] = useRecoilState(CodeState);
-  const isSelected = selectedNode?.id === node.id;
+  const [select, setSelect] = useRecoilState(Select);
+  const isSelected = selectedNode?.id === node.id || select === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
@@ -79,50 +81,71 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
     }
 
     const decoder = new TextDecoder('utf-8');
-    let result = ''; //최종적으로 받을 문자열을 저장하는 변수
+    let result = '';
 
-    //스트림 데이터 반복해서 읽기
     while (true) {
-      const { done, value } = await reader.read(); //청크 데이터를 읽음
+      const { done, value } = await reader.read();
 
       if (done) {
-        console.log('Stream complete');
         break;
       }
 
-      const text = decoder.decode(value, { stream: true }); //바이너리 데이터를 문자열로 변환
-      result += text; //읽은 문자열을 result에 추가
+      const text = decoder.decode(value, { stream: true });
+      result += text;
     }
-    return result; //전체 데이터를 합친 문자열 반환
+    return result;
   };
 
   const onClickNode = async () => {
     setSelectedNode(node);
-    console.log(node);
+    setSelect('');
 
-    // node.data.id와 동일한 파일이 있는지 찾기
     const foundFile = Files.find(file => file.id === node.data.id);
 
-    // 파일이 이미 열려있지 않으면 새로 열고, 파일 내용 로드
     if (!node.children && !foundFile) {
       fetchStreamAsString()
         .then(result => {
-          console.log('파일 내용: ', result);
-          setFiles([...Files, { id: node.data.id, content: result, name: node.data.name, modifyContent: result }]);
+          const newFile = {
+            id: node.data.id,
+            content: result,
+            name: node.data.name,
+            modifyContent: result,
+          };
+
+          setFiles(prevFiles => {
+            const currentCode = code;
+
+            const updatedFiles = prevFiles.map(f => {
+              if (f.id === currentCode.id) {
+                return { ...f, modifyContent: currentCode.content };
+              }
+              return f;
+            });
+
+            return [...updatedFiles, newFile];
+          });
+
           setCode({ id: node.data.id, content: result });
         })
         .catch(error => console.error('Error fetching stream data: ', error));
     }
 
-    // 파일이 이미 열려있는 경우 해당 파일의 onClick 함수 실행
     if (foundFile) {
-      handleFileClick(foundFile); // 파일 목록에서 onClick과 동일한 로직을 실행
+      handleFileClick(foundFile);
     }
   };
 
-  // 파일을 클릭할 때 실행할 함수
   const handleFileClick = (file: IFile) => {
-    // FileList에서의 onClick 로직을 실행
+    const currentCode = code;
+
+    const newFile = Files.map(f => {
+      if (f.id === currentCode.id) {
+        return { ...f, modifyContent: currentCode.content };
+      }
+      return f;
+    });
+
+    setFiles(newFile);
     setCode({ id: file.id, content: file.modifyContent });
   };
 
@@ -140,6 +163,11 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
         const response = await FolderRequest(id, Authorization);
         const { files } = response.data;
         setFolder(files);
+        const newFile = Files.filter(file => file.id !== node.data.id);
+        setFiles(newFile);
+        if (newFile.length !== 0) {
+          setCode({ id: newFile[0].id, content: newFile[0].content });
+        }
         toast.dark('파일이 삭제되었습니다.', {
           pauseOnHover: false,
           autoClose: 2000,
@@ -182,13 +210,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   return (
     <NodeContainer style={style} onClick={onClickNode} className={isSelected ? 'selected' : ''}>
       <div className="node-content" onClick={() => node.isInternal && node.toggle()} style={{ display: 'flex' }}>
-        {node.children ? (
-          node.isOpen ? (
-            <FaAngleDown color={isSelected ? 'black' : 'white'} />
-          ) : (
-            <FaAngleRight color={isSelected ? 'black' : 'white'} />
-          )
-        ) : null}
+        {node.children ? node.isOpen ? <FaAngleDown color={'white'} /> : <FaAngleRight color={'white'} /> : null}
 
         {node.children ? (
           <BsFolder color={isSelected ? 'black' : 'white'} />
@@ -201,7 +223,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
           </span>
           {isSelected && (
             <div style={{ paddingRight: '8px' }} onClick={onDeleteClickHandler}>
-              <MdDeleteOutline />
+              <MdDeleteOutline color={isSelected ? 'black' : 'white'} />
             </div>
           )}
         </div>

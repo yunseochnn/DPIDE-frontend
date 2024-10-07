@@ -32,3 +32,28 @@ export const MyPageHeader_Logout = styled.div`
   color: #aaaaaa;
   cursor: pointer;
 `;
+export const HeaderWrapper = styled.div`
+  width: 100%;
+  max-width: 1280px;
+  display: flex;
+  align-items: center;
+  height: 78px;
+  margin: 0 auto;
+  padding-right: 10px;
+  padding-left: 10px;
+`;
+export const Logo = styled.img`
+  height: 32px;
+  width: 32px;
+`;
+
+export const ServiceName = styled.span`
+  font-size: 32px;
+  font-weight: bold;
+  color: #474747;
+  margin-left: 8px;
+  letter-spacing: 0.2em;
+`;
+export const Spacer = styled.div`
+  flex-grow: 1;
+`;

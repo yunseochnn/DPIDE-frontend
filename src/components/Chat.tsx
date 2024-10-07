@@ -5,15 +5,14 @@ import { messagesState, inputState } from '../recoil/Chat/atoms';
 import profile from '../assets/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
-import { IdeChat_Top } from '../pages/IDEPage/Ide.style';
 import { useCookies } from 'react-cookie';
 import CodeState from '../recoil/Code/atoms';
 import { useDebounce } from '../hooks/useDebounce';
 import ReceiveContent from '../recoil/ReceiveContent/atom';
-import ChatSearch from './ChatSearch';
 import { FaArrowCircleDown } from 'react-icons/fa';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+import ChatSearch from './ChatSearch';
 
 interface ChatProps {
   userName: string;
@@ -56,13 +55,15 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   const [isScrollButtonVisible, setIsScrollButtonVisible] = useState(false);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
-  const [hasJoined, setHasJoined] = useState(false);
 
   const handleSearch = (keyword: string) => setAppliedKeyword(keyword);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const handleHighlightChange = (index: number) => {
     const messageElement = document.getElementById(`message-${index}`);
@@ -74,7 +75,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       const { scrollTop, scrollHeight, clientHeight } = chatMessagesRef.current;
       const isAtBottom = scrollTop + clientHeight >= scrollHeight - 700;
       setIsScrollButtonVisible(!isAtBottom);
-      console.log(`Scroll position: ${scrollTop}, Scroll height: ${scrollHeight}, Client height: ${clientHeight}`);
     }
   };
 
@@ -88,6 +88,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     }
   }, []);
 
+  //채팅 기록
   const fetchChatHistory = useCallback(async () => {
     try {
       const response = await axios.get(`${baseURL}/chat/${projectId}`, {
@@ -104,8 +105,8 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         }));
         setMessages(formattedMessages);
       }
-    } catch (error) {
-      console.error('Failed to fetch chat history:', error);
+    } catch {
+      // 오류 무시
     }
   }, [projectId, token, setMessages]);
 
@@ -113,6 +114,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     fetchChatHistory();
   }, [fetchChatHistory]);
 
+  //채팅 send
   const subscribeToChat = useCallback(() => {
     client.current?.subscribe(`/topic/chatroom/${projectId}`, message => {
       const receivedMessage = JSON.parse(message.body);
@@ -128,23 +130,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
     });
   }, [projectId, setMessages]);
 
-  const subscribeToJoin = useCallback(() => {
-    client.current?.subscribe(`/topic/join/${projectId}`, message => {
-      const joinMessage = JSON.parse(message.body);
-      console.log('조인 message received:', joinMessage);
-
-      setMessages(prevMessages => [
-        ...prevMessages,
-        {
-          text: `${joinMessage.sender}님이 참가하였습니다.`,
-          sender: '시스템',
-          profile: profile,
-          createdAt: new Date().toISOString(),
-        },
-      ]);
-    });
-  }, [projectId, setMessages]);
-
+  //코드 공유
   const subscribeToCode = useCallback(() => {
     client.current?.subscribe(`/topic/project/${projectId}`, response => {
       const codeResponse = JSON.parse(response.body);
@@ -189,8 +175,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         destination: `/app/code`,
         body: JSON.stringify(Code),
       });
-    } else {
-      console.error('STOMP connection is not established or input is empty.');
     }
   }, [sendCode, userName, projectId, userId]);
 
@@ -199,55 +183,14 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
   }, [sendCode, sendCodeContent]);
 
   useEffect(() => {
-    if (client.current?.connected && !hasJoined) {
-      const joinMessage = {
-        sender: userName,
-        content: 'joined the chat',
-        projectId: projectId,
-        userId: userId,
-      };
-
-      client.current?.publish({
-        destination: '/app/join',
-        body: JSON.stringify(joinMessage),
-      });
-
-      console.log('Join message sent:', joinMessage);
-
-      setHasJoined(true);
-    }
-  }, [client.current?.connected, hasJoined, userName, projectId, userId]);
-
-  useEffect(() => {
     client.current = new Client({
       brokerURL: socketUrl,
-      debug: console.log,
+
       reconnectDelay: 50000,
       onConnect: () => {
-        console.log('Connected to WebSocket');
-
         subscribeToChat();
         subscribeToCode();
         subscribeToRequest();
-        subscribeToJoin();
-
-        if (!hasJoined) {
-          const joinMessage = {
-            sender: userName,
-            content: 'joined the chat',
-            projectId: projectId,
-            userId: userId,
-          };
-
-          client.current?.publish({
-            destination: '/app/join',
-            body: JSON.stringify(joinMessage),
-          });
-
-          console.log('Join message sent:', joinMessage);
-
-          setHasJoined(true);
-        }
 
         const requestCode = {
           sender: userName,
@@ -259,7 +202,6 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           body: JSON.stringify(requestCode),
         });
       },
-      onDisconnect: () => console.log('Disconnected from WebSocket'),
     });
 
     client.current.activate();
@@ -268,10 +210,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       client.current?.deactivate();
       client.current = null;
     };
-  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, subscribeToJoin, userId, userName, hasJoined]);
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  }, [projectId, subscribeToChat, subscribeToCode, subscribeToRequest, userId, userName]);
 
   const sendMessage = () => {
     if (client.current?.connected && input) {
@@ -285,13 +224,14 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         }),
       });
       setInput('');
+      scrollToBottom();
     }
   };
 
   return (
     <ChatContainer>
       <IdeChat_Top>
-        <div>채팅</div>
+        <ChatTitle>채팅</ChatTitle>
         <ChatSearch
           messages={messages.map(msg => ({
             senderName: msg.sender,
@@ -308,10 +248,11 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
           <ChatMessage
             key={index}
             id={`message-${index}`}
-            isOwnMessage={message.sender === userName} // 기존의 isOwnMessage 처리
-            sender={message.sender} // sender prop 추가
+            isOwnMessage={message.sender === userName}
+            sender={message.sender}
           >
             {message.sender !== userName && <ProfileImage src={message.profile} alt={`${message.sender}'s profile`} />}
+
             <MessageContent isOwnMessage={message.sender === userName}>
               {message.sender !== userName && <SenderName>{message.sender}</SenderName>}
               <MessageText isOwnMessage={message.sender === userName}>
@@ -355,7 +296,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
         <SendButton onClick={sendMessage}>전송</SendButton>
       </ChatInputContainer>
 
-      {isScrollButtonVisible && ( // 스크롤 버튼 표시
+      {isScrollButtonVisible && (
         <ScrollToBottomButton onClick={scrollToBottom}>
           <FaArrowCircleDown />
         </ScrollToBottomButton>
@@ -366,7 +307,27 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
 
 export default Chat;
 
-// 스타일 정의
+const IdeChat_Top = styled.div`
+  width: 100%;
+  height: 40px;
+  border-bottom: 1px solid black;
+  display: flex;
+  align-items: center;
+`;
+
+const ChatTitle = styled.div`
+  font-size: 16px;
+  color: white;
+  font-weight: 700;
+
+  width: 50px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+`;
+
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -391,23 +352,14 @@ const ProfileImage = styled.img`
 `;
 
 const ChatMessage = styled.div.withConfig({
-  shouldForwardProp: prop => prop !== 'isOwnMessage' && prop !== 'sender',
+  shouldForwardProp: prop => prop !== 'isOwnMessage',
 })<ChatMessageProps & { sender: string }>`
-  color: ${({ sender }) => (sender === '시스템' ? '#999999' : 'inherit')};
-  font-style: ${({ sender }) => (sender === '시스템' ? 'italic' : 'normal')};
   display: flex;
   align-items: flex-start;
   margin-bottom: 10px;
-  ${({ isOwnMessage }) =>
-    isOwnMessage
-      ? `
-    justify-content: flex-end;
-    margin-left: auto;
-  `
-      : `
-    justify-content: flex-start;
-    margin-right: auto;
-  `}
+  justify-content: ${({ isOwnMessage }) => (isOwnMessage ? 'flex-end' : 'flex-start')};
+  margin-left: ${({ isOwnMessage }) => (isOwnMessage ? 'auto' : '0')};
+  margin-right: ${({ isOwnMessage }) => (isOwnMessage ? '0' : 'auto')};
 `;
 
 const SenderName = styled.div`

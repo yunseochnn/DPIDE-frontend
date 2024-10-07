@@ -1,21 +1,32 @@
 import { useCallback, useEffect, useState } from 'react';
 import CreateProject from '../../components/Modal/CreateProject.tsx';
 import MainHeader from '../../components/Header/MainHeader.tsx';
-import { FaPlus } from 'react-icons/fa6';
 import Project from '../../components/Project.tsx';
-import { useRecoilState } from 'recoil';
-import { isModalOpenState, selectedButtonState } from '../../recoil/Main/atoms.ts';
-import { MainContainer, NewProjectButton, ContentWrapper, Sidebar, ProjectButton } from './Main.style.ts';
+import { CiFileOff } from 'react-icons/ci';
+import {
+  MainContainer,
+  NewProjectButton,
+  ContentWrapper,
+  Sidebar,
+  ProjectButton,
+  EmptyStateContainer,
+  EmptyStateIcon,
+  EmptyStateText,
+  PlusIcon,
+} from './Main.style.ts';
 import axios from 'axios';
 import { ProjectType } from '../../types';
 import { useCookies } from 'react-cookie';
 import RefreshToken from '../../apis/RefrshToken.ts';
+import SuccessModal from '../../components/Modal/SuccessModal.tsx';
 
 const Main = () => {
-  const [isModalOpen, setModalOpen] = useRecoilState(isModalOpenState);
-  const [selectedButton, setSelectedButton] = useRecoilState(selectedButtonState);
-
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [isSuccessModalOpen, setSuccessModalOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState<'myProjects' | 'sharedProjects'>('myProjects'); // 선택된 버튼 상태 관리
   const [projects, setProjects] = useState<ProjectType[] | null>(null);
+  const [projectId, setProjectId] = useState<string | null>(null);
+
   const [cookies, setCookie] = useCookies(['Authorization', 'Refresh-Token']);
 
   const token = cookies['Authorization'];
@@ -23,7 +34,6 @@ const Main = () => {
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-  // 프로젝트 목록 불러오기
   const fetchProjects = useCallback(
     async (url: string) => {
       let isRetry = false;
@@ -32,7 +42,15 @@ const Main = () => {
         const response = await axios.get(`${baseURL}${url}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setProjects(response.data.projects);
+        const sortedProjects = response.data.projects.sort(
+          (a: { createdAt: string; updatedAt: string }, b: { createdAt: string; updatedAt: string }) => {
+            const aDate = new Date(a.updatedAt > a.createdAt ? a.updatedAt : a.createdAt);
+            const bDate = new Date(b.updatedAt > b.createdAt ? b.updatedAt : b.createdAt);
+            return bDate.getTime() - aDate.getTime();
+          },
+        );
+
+        setProjects(sortedProjects);
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           if (error.response && error.response.status === 400 && !isRetry) {
@@ -69,7 +87,19 @@ const Main = () => {
   }, [selectedButton, token, fetchProjects, refreshProjects]);
 
   const openModal = () => setModalOpen(true);
-  const closeModal = () => setModalOpen(false);
+
+  const closeProjectModal = useCallback(() => {
+    setModalOpen(false);
+  }, []);
+
+  const openSuccessModal = useCallback((newProjectId: string) => {
+    setProjectId(newProjectId);
+    setSuccessModalOpen(true);
+  }, []);
+
+  const closeSuccessModal = useCallback(() => {
+    setSuccessModalOpen(false);
+  }, []);
 
   const handleButtonClick = (buttonType: 'myProjects' | 'sharedProjects') => {
     setSelectedButton(buttonType);
@@ -81,7 +111,7 @@ const Main = () => {
       <MainContainer>
         <ContentWrapper>
           <NewProjectButton onClick={openModal}>
-            <FaPlus /> 새 프로젝트
+            <PlusIcon /> 새 프로젝트
           </NewProjectButton>
 
           <Sidebar>
@@ -104,11 +134,28 @@ const Main = () => {
               selectedButton={selectedButton}
             />
           ) : (
-            <div>프로젝트가 없습니다.</div>
+            <EmptyStateContainer>
+              <EmptyStateIcon>
+                <CiFileOff />
+              </EmptyStateIcon>
+              <EmptyStateText>프로젝트가 없습니다.</EmptyStateText>
+            </EmptyStateContainer>
           )}
         </ContentWrapper>
       </MainContainer>
-      {isModalOpen && <CreateProject closeModal={closeModal} refreshProjects={refreshProjects} token={token} />}{' '}
+
+      {isModalOpen && (
+        <CreateProject
+          closeProjectModal={closeProjectModal}
+          refreshProjects={refreshProjects}
+          token={token}
+          openSuccessModal={openSuccessModal}
+        />
+      )}
+
+      {isSuccessModalOpen && projectId && (
+        <SuccessModal closeModal={closeSuccessModal} projectId={projectId} language="Java" />
+      )}
     </>
   );
 };

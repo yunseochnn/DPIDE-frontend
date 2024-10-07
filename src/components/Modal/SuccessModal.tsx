@@ -1,20 +1,33 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import styled from 'styled-components';
 import { FaCheckCircle } from 'react-icons/fa';
 import { IoMdClose } from 'react-icons/io';
+import { useNavigate } from 'react-router-dom';
+import useClickOutside from '../../hooks/useClickOutside';
 
 interface SuccessModalProps {
   closeModal: () => void;
+  projectId: string;
+  language: string;
 }
 
-const SuccessModal: React.FC<SuccessModalProps> = ({ closeModal }) => {
+const SuccessModal: React.FC<SuccessModalProps> = ({ closeModal, projectId, language }) => {
+  const navigate = useNavigate();
+
+  const modalRef = useRef<HTMLDivElement>(null);
+  useClickOutside(modalRef, closeModal);
+
+  const handleRunClick = () => {
+    navigate(`/ide/${projectId}?extension=${language}`);
+  };
+
   return (
     <ModalOverlay>
-      <ModalContent>
+      <ModalContent ref={modalRef}>
         <CloseIcon onClick={closeModal} />
         <SuccessIcon />
         <Message>프로젝트가 생성되었습니다</Message>
-        <RunButton onClick={closeModal}>실행하기</RunButton>
+        <RunButton onClick={handleRunClick}>실행하기</RunButton>
       </ModalContent>
     </ModalOverlay>
   );
@@ -32,6 +45,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 `;
 
 const ModalContent = styled.div`

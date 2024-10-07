@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { FaSearch, FaTimes } from 'react-icons/fa';
+import { FaAngleUp } from 'react-icons/fa6';
+import { FaAngleDown } from 'react-icons/fa6';
 
 interface ChatMessage {
   senderName: string;
@@ -14,14 +16,14 @@ interface ChatSearchProps {
   onHighlightChange: (index: number) => void;
 }
 
-const THRESHOLD = 7; // 인덱스 차이가 8 이상인 경우만 이동
+const THRESHOLD = 7;
 
 const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [highlightIndexes, setHighlightIndexes] = useState<number[]>([]);
   const [currentHighlightIndex, setCurrentHighlightIndex] = useState<number>(0);
-
+  const messageRefs = useRef<(HTMLDivElement | null)[]>([]);
   const searchChat = useCallback(() => {
     if (!searchKeyword) {
       return;
@@ -37,6 +39,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
       const lastIndex = indexes.length - 1;
       setCurrentHighlightIndex(lastIndex);
       onHighlightChange(indexes[lastIndex]);
+      scrollToMessage(indexes[lastIndex]);
     }
 
     onSearch(searchKeyword);
@@ -45,8 +48,16 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
   useEffect(() => {
     if (highlightIndexes.length > 0) {
       onHighlightChange(highlightIndexes[currentHighlightIndex]);
+      scrollToMessage(highlightIndexes[currentHighlightIndex]);
     }
   }, [currentHighlightIndex, highlightIndexes, onHighlightChange]);
+
+  const scrollToMessage = (index: number) => {
+    const targetMessage = messageRefs.current[index];
+    if (targetMessage) {
+      targetMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
 
   const goToPreviousMessage = () => {
     let newIndex = currentHighlightIndex - 1;
@@ -60,6 +71,12 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 
     if (newIndex >= 0) {
       setCurrentHighlightIndex(newIndex);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      searchChat();
     }
   };
 
@@ -80,9 +97,9 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 
   const handleCloseSearch = () => {
     setIsSearchOpen(false);
-    setSearchKeyword(''); // 검색어 초기화
-    setHighlightIndexes([]); // 하이라이트 인덱스 초기화
-    onSearch(''); // 검색 상태 초기화
+    setSearchKeyword('');
+    setHighlightIndexes([]);
+    onSearch('');
   };
 
   return (
@@ -93,11 +110,16 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
             type="text"
             value={searchKeyword}
             onChange={e => setSearchKeyword(e.target.value)}
-            placeholder="검색할 키워드를 입력하세요..."
+            placeholder="키워드를 입력하세요..."
+            onKeyDown={handleKeyDown}
           />
           <SearchButton onClick={searchChat}>검색</SearchButton>
-          <NavButton onClick={goToPreviousMessage}>&uarr;</NavButton>
-          <NavButton onClick={goToNextMessage}>&darr;</NavButton>
+          <NavButton onClick={goToPreviousMessage}>
+            <FaAngleUp />
+          </NavButton>
+          <NavButton onClick={goToNextMessage}>
+            <FaAngleDown />
+          </NavButton>
           <CloseButton onClick={handleCloseSearch}>
             <FaTimes />
           </CloseButton>
@@ -105,7 +127,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
       ) : (
         <>
           <OpenSearchButton onClick={() => setIsSearchOpen(true)}>
-            <FaSearch />
+            <StyledFaSearch />
           </OpenSearchButton>
         </>
       )}
@@ -114,6 +136,11 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 };
 
 export default ChatSearch;
+
+const StyledFaSearch = styled(FaSearch)`
+  margin-left: 225px;
+  font-size: 15px;
+`;
 
 const SearchContainer = styled.div`
   display: flex;
@@ -139,9 +166,8 @@ const SearchButton = styled.button`
 `;
 
 const NavButton = styled.button`
-  background-color: ${({ theme }) => theme.colors.green1};
   color: white;
-  padding: 4px 8px;
+  padding: 4px 5px;
   border: none;
   cursor: pointer;
   font-size: 12px;

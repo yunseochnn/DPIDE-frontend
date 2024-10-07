@@ -1,5 +1,5 @@
 import { IoClose } from 'react-icons/io5';
-import React, { SetStateAction, useCallback, useEffect } from 'react';
+import React, { SetStateAction, useCallback } from 'react';
 import {
   EditModalButton,
   EditModalContainer,
@@ -18,9 +18,9 @@ import { NodeApi } from 'react-arborist';
 import { IFolder } from '../../../../recoil/Folder/types';
 import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
-import { useForm } from 'react-hook-form'; // react-hook-form 추가
+import { useForm } from 'react-hook-form';
 import FolderRequest from '../../../../apis/IDE/File/FolderReqeust';
-import { useRecoilState } from 'recoil';
+import { useSetRecoilState } from 'recoil';
 import FolderState from '../../../../recoil/Folder/atoms';
 
 interface Prop {
@@ -35,7 +35,7 @@ interface FormValues {
 
 const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const [cookies] = useCookies(['Authorization']);
-  const [Folder, setFolder] = useRecoilState(FolderState);
+  const setFolder = useSetRecoilState(FolderState);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
   const params = new URLSearchParams(window.location.search);
@@ -44,18 +44,12 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
   const parentId = Number(selectedNode ? selectedNode.data.id : '-1');
   const path = selectedNode ? selectedNode.data.path : '';
 
-  console.log(edit);
-  console.log(extension);
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
   } = useForm<FormValues>();
-
-  useEffect(() => {
-    console.log(Folder);
-  }, [Folder]);
 
   const onSubmit = useCallback(
     async (data: FormValues) => {
@@ -80,14 +74,13 @@ const Modal = React.memo(({ edit, setEdit, selectedNode }: Prop) => {
             pauseOnHover: false,
             autoClose: 2000,
           });
-          reset(); // 폼 리셋
-          console.log(Folder);
+          reset();
         }
       } catch (error) {
         console.log(error);
       }
     },
-    [id, extension, path, parentId, Authorization, setEdit, setFolder, reset, Folder],
+    [id, extension, path, parentId, Authorization, setEdit, setFolder, reset],
   );
 
   return (

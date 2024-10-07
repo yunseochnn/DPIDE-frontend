@@ -7,8 +7,6 @@ const LoginRequest = async (email: string, password: string) => {
       password: password,
     })
     .then(response => {
-      console.log(response);
-
       return response;
     })
     .catch(error => {

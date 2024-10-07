@@ -48,11 +48,11 @@ const Ide = React.memo(() => {
         </Side>
         {files && (
           <File>
-            <FileTree edit={edit} setEdit={setEdit} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
+            <FileTree setEdit={setEdit} selectedNode={selectedNode} setSelectedNode={setSelectedNode} />
           </File>
         )}
         <Section>
-          <Code />
+          <Code setSelectedNode={setSelectedNode} />
           {terminal && <Terminal />}
         </Section>
         {chat && (

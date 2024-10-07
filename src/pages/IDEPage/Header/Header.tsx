@@ -23,12 +23,14 @@ const Header = () => {
       const response = await FileSaveRequest(id, fileId, file.modifyContent, Authorization);
 
       if (response.ok) {
-        console.log('파일 저장 성공');
+        return true;
       } else {
         console.log('파일 저장 실패');
+        return false;
       }
     } catch (error) {
       console.log('파일 저장 중 오류:', error);
+      return false;
     }
   };
 
@@ -45,11 +47,12 @@ const Header = () => {
           label: '네',
           onClick: async () => {
             try {
-              // 모든 파일이 저장될 때까지 기다림
-              await Promise.all(Files.map(file => FileSaveResponse(file)));
+              const save = await Promise.all(Files.map(file => FileSaveResponse(file)));
               console.log('모든 파일 저장 완료');
-              setFiles([]); // 모든 파일 저장 후 setFiles([]) 호출
-              navigate('/main'); // 파일 저장 후 페이지 이동
+              if (save) {
+                setFiles([]);
+                navigate('/main');
+              }
             } catch (error) {
               console.error('파일 저장 중 오류 발생:', error);
             }
@@ -58,7 +61,7 @@ const Header = () => {
         {
           label: '아니오',
           onClick: () => {
-            setFiles([]); // 저장하지 않고 바로 닫기
+            setFiles([]);
             navigate('/main');
           },
         },
