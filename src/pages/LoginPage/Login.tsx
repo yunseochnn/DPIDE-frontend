@@ -18,6 +18,7 @@ import LoginRequest from '../../apis/Auth/Login/LoginRequest';
 import { useCookies } from 'react-cookie';
 import { AxiosResponse } from 'axios';
 import { useEffect, useState } from 'react';
+import logo from '../../../public/images/logo2.png';
 
 interface FormInput {
   email: string;
@@ -78,7 +79,7 @@ const Login = () => {
     <LoginContainer>
       <LoginWrapper>
         <LoginLogo>
-          <img src="/public/images/logo2.png" />
+          <img src={logo} />
           <span>D P I D E</span>
         </LoginLogo>
         <LoginForm onSubmit={handleSubmit(onSubmit)}>

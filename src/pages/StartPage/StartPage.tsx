@@ -14,6 +14,7 @@ import {
 import StartHeader from '../../components/Header/StartHeader';
 import { useEffect } from 'react';
 import { useCookies } from 'react-cookie';
+import startPage from '../../../public/images/startPage.png';
 
 const StartPage = () => {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ const StartPage = () => {
           </StartWrapper_Bottom_Buttons>
         </Start>
         <StartWraper_Bottom_Image>
-          <img src="/public/images/startPage.png" />
+          <img src={startPage} />
         </StartWraper_Bottom_Image>
       </StartWrapper_Bottom>
     </StartContainer>

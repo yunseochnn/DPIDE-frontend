@@ -20,6 +20,9 @@ import { useCookies } from 'react-cookie';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AxiosResponse } from 'axios';
+import eyeOn from '../../../public/images/eye-light-on.png';
+import eyeOff from '../../../public/images/eye-light-off.png';
+import logo from '../../../public/images/logo2.png';
 
 interface FormIF {
   email: string;
@@ -84,7 +87,7 @@ const SignUp = () => {
     <SignUpContainer>
       <SignUpWrapper>
         <SignUp_logo>
-          <img src="/public/images/logo2.png" />
+          <img src={logo} />
           <span>D P I D E</span>
         </SignUp_logo>
 
@@ -108,10 +111,7 @@ const SignUp = () => {
                 type={pwState ? 'text' : 'password'}
                 {...register('password', { required: true, pattern: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/ })}
               />
-              <img
-                src={pwState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
-                onClick={onPasswordHandler}
-              />
+              <img src={pwState ? eyeOn : eyeOff} onClick={onPasswordHandler} />
             </SignUp_InputBox>
             {errors.password && errors.password?.type === 'required' && (
               <ErrorMessage>비밀번호를 입력해주세요.</ErrorMessage>
@@ -129,10 +129,7 @@ const SignUp = () => {
                   required: true,
                 })}
               />
-              <img
-                src={pwConfirmState ? '/public/images/eye-light-on.png' : '/public/images/eye-light-off.png'}
-                onClick={onPasswordConfirmHandler}
-              />
+              <img src={pwConfirmState ? eyeOn : eyeOff} onClick={onPasswordConfirmHandler} />
             </SignUp_InputBox>
             {errors.passwordConfirm && errors.passwordConfirm?.type === 'required' && (
               <ErrorMessage>비밀번호 확인을 입력해주세요.</ErrorMessage>

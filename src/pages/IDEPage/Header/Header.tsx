@@ -7,6 +7,7 @@ import { IFile } from '../../../recoil/File/type';
 import { confirmAlert } from 'react-confirm-alert';
 import { useRecoilState } from 'recoil';
 import FileState from '../../../recoil/File/atoms';
+import logo from '../../../../public/images/logo2.png';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -72,7 +73,7 @@ const Header = () => {
   return (
     <IdeTop>
       <IdeTop_Logo>
-        <img src="/public/images/logo2.png" />
+        <img src={logo} />
         <span>D P I D E</span>
       </IdeTop_Logo>
       <IdeTop_Close onClick={onCloseClickHandler}>
