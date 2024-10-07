@@ -42,7 +42,6 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
       });
 
       if (response.status === 200) {
-        console.log(`프로젝트 삭제 성공: ${projectId}`);
         refreshProjects();
       }
     } catch (error) {
@@ -70,7 +69,6 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
       );
 
       if (response.status === 200) {
-        console.log(`프로젝트 나가기 성공: ${projectId}`);
         refreshProjects();
       }
     } catch (error) {
@@ -91,7 +89,7 @@ const Project = ({ projects, token, refreshProjects, selectedButton }: ProjectPr
   };
 
   if (!projects || projects.length === 0) {
-    return <div>프로젝트가 없습니다.</div>;
+    return;
   }
 
   return (

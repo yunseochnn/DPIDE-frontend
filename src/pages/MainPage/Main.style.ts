@@ -1,11 +1,15 @@
 import styled from 'styled-components';
-
+import { FaPlus } from 'react-icons/fa6';
 export const MainContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
-
+export const PlusIcon = styled(FaPlus)`
+  color: #fff;
+  margin-top: 2px;
+`;
 export const NewProjectButton = styled.button`
+  font-weight: 500;
   width: 160px;
   height: 55px;
   font-size: 20px;
@@ -54,7 +58,7 @@ export const ProjectButton = styled.button.withConfig({
   shouldForwardProp: prop => prop !== 'isSelected',
 })<ProjectButtonProps>`
   font-size: 20px;
-
+  font-weight: 400;
   background-color: #ffffff;
   color: #000000;
   padding: 15px 30px;
@@ -68,4 +72,32 @@ export const ProjectButton = styled.button.withConfig({
   &:hover {
     box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
   }
+`;
+
+export const EmptyStateContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-top: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+`;
+
+export const EmptyStateIcon = styled.div`
+  font-size: 50px;
+  margin-bottom: 16px;
+`;
+
+export const EmptyStateText = styled.h2`
+  font-size: 22px;
+  font-weight: 300;
+  color: #333;
+  margin-bottom: 12px;
 `;
