@@ -97,7 +97,7 @@ const Code = ({ setSelectedNode }: Prop) => {
             <PiFloppyDisk size="25" color="white" />
           </CodeButton>
           <CodeButton onClick={onPlayClickHandler}>
-            <FaPlay size="25" color="white" />
+            <FaPlay size="22" color="white" />
           </CodeButton>
         </CodeButtons>
       </CodeTop>

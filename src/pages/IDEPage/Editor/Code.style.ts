@@ -30,7 +30,7 @@ export const CodeButtons = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 10px;
   margin-right: 8px;
 `;
 export const CodeButton = styled.div`

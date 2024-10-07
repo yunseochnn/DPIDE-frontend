@@ -3,17 +3,23 @@ import styled from 'styled-components';
 import logo2 from '../../assets/images/logo2.png';
 import profile from '../../assets/images/default-profile-image.png';
 import { FaRegBell } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NotificationList from '../NotificationList';
 import { useRecoilState } from 'recoil';
 import { isNotifyOpenState, isProfileMenuOpenState } from '../../recoil/MainHeader/atoms';
 import { useCookies } from 'react-cookie';
+import LogoutRequest from '../../apis/Auth/Logout/LogoutRequest';
+import axios from 'axios';
+import RefreshToken from '../../apis/RefrshToken';
+import { confirmAlert } from 'react-confirm-alert';
 
 const MainHeader = () => {
   const [isNotifyOpen, setNotifyOpen] = useRecoilState(isNotifyOpenState);
   const [isProfileMenuOpen, setProfileMenuOpen] = useRecoilState(isProfileMenuOpenState);
-  const [cookies] = useCookies(['Authorization']);
+  const [cookies, setCookie, removeCookie] = useCookies(['Authorization', 'Refresh-Token', 'nickname', 'userId']);
   const Authorization = cookies['Authorization'];
+  const refreshToken = cookies['Refresh-Token'];
+  const navigate = useNavigate();
 
   const notificationRef = useRef<HTMLDivElement>(null);
   const profileMenuRef = useRef<HTMLDivElement>(null);
@@ -33,6 +39,64 @@ const MainHeader = () => {
         setTimeout(() => setNotifyOpen(false), 0);
       }
       return !prev;
+    });
+  };
+
+  const LogoutResponse = async () => {
+    try {
+      const response = await LogoutRequest(refreshToken, Authorization);
+      const { status } = response;
+      if (status === 200) {
+        removeCookie('Authorization', { path: '/' });
+        removeCookie('Refresh-Token', { path: '/' });
+        removeCookie('nickname', { path: '/' });
+
+        navigate('/');
+      }
+    } catch (error) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        if (error.response && error.response.status === 401) {
+          console.log('유효하지 않은 토큰입니다.');
+
+          try {
+            await RefreshToken(refreshToken, setCookie);
+
+            const result = await LogoutRequest(refreshToken, Authorization);
+            const { status } = result;
+            if (status === 200) {
+              removeCookie('Authorization', { path: '/' });
+              removeCookie('Refresh-Token', { path: '/' });
+              removeCookie('nickname', { path: '/' });
+
+              navigate('/');
+            }
+          } catch (refreshError) {
+            console.log('토큰 발급 실패:', refreshError);
+            alert('새로운 토큰을 발급받지 못했습니다.');
+          }
+        }
+        if (error.response && error.response.status === 500) {
+          console.log('데이터베이스 오류입니다.');
+        }
+        alert('로그아웃을 실패하였습니다.');
+      }
+    }
+  };
+
+  const onClickLogoutHandler = () => {
+    confirmAlert({
+      message: '로그아웃을 하시겠습니까?',
+      buttons: [
+        {
+          label: '네',
+          onClick: () => LogoutResponse(),
+        },
+        {
+          label: '아니오',
+          onClick: () => {},
+        },
+      ],
     });
   };
 
@@ -60,8 +124,8 @@ const MainHeader = () => {
 
       {isProfileMenuOpen && (
         <ProfileDropdown ref={profileMenuRef}>
-          <DropdownItem to="/mypage">마이페이지</DropdownItem>
-          <DropdownItem to="/logout">로그아웃</DropdownItem>
+          <DropdownItem onClick={() => navigate('/mypage')}>마이페이지</DropdownItem>
+          <DropdownItem onClick={onClickLogoutHandler}>로그아웃</DropdownItem>
         </ProfileDropdown>
       )}
     </HeaderContainer>
@@ -161,7 +225,7 @@ const ProfileDropdown = styled.div`
   flex-direction: column;
 `;
 
-const DropdownItem = styled(Link)`
+const DropdownItem = styled.div`
   padding: 10px 16px;
   font-size: 14px;
   color: #333;
