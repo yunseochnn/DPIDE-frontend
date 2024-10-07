@@ -110,7 +110,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
             type="text"
             value={searchKeyword}
             onChange={e => setSearchKeyword(e.target.value)}
-            placeholder="검색할 키워드를 입력하세요..."
+            placeholder="키워드를 입력하세요..."
             onKeyDown={handleKeyDown}
           />
           <SearchButton onClick={searchChat}>검색</SearchButton>
@@ -138,7 +138,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 export default ChatSearch;
 
 const StyledFaSearch = styled(FaSearch)`
-  margin-left: 235px;
+  margin-left: 260px;
   font-size: 15px;
 `;
 
@@ -154,7 +154,7 @@ const SearchInput = styled.input`
   border: none;
   flex-grow: 1;
   font-size: 12px;
-  margin-left: 8px;
+  margin-left: 33px;
 `;
 
 const SearchButton = styled.button`
