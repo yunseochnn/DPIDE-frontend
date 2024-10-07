@@ -124,6 +124,7 @@ const ModalOverlay = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 `;
 
 const ModalContent = styled.div`
@@ -186,7 +187,7 @@ const TextArea = styled.textarea`
   padding: 15px;
   font-size: 16px;
   border-radius: 4px;
-  border: 1px solid #d7d2d2;
+  border: 1px solid #e1e1e8;
   width: 100%;
   box-sizing: border-box;
   resize: none;
