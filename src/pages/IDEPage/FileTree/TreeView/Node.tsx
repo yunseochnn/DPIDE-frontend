@@ -49,7 +49,7 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const setFolder = useSetRecoilState(FolderState);
   const [code, setCode] = useRecoilState(CodeState);
   const [select, setSelect] = useRecoilState(Select);
-  let isSelected = selectedNode?.id === node.id || select === node.id;
+  const isSelected = selectedNode?.id === node.id || select === node.id;
   const [cookies] = useCookies(['Authorization']);
   const Authorization = cookies['Authorization'];
   const { projectId } = useParams();
@@ -57,10 +57,6 @@ function Node({ node, style, selectedNode, setSelectedNode }: NodeProps) {
   const fileId = Number(node.data.id);
 
   const baseURL = import.meta.env.VITE_API_BASE_URL;
-
-  if (!selectedNode?.children) {
-    isSelected = code.id === node.id;
-  }
 
   const fetchStreamAsString = async () => {
     const response = await fetch(`${baseURL}/projects/${id}/files/${fileId}`, {
