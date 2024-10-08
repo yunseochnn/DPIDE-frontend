@@ -71,6 +71,7 @@ export const ProjectButton = styled.button.withConfig({
 
   &:hover {
     box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #f4f4f4;
   }
 `;
 
