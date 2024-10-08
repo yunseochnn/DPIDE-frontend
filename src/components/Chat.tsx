@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil';
-import { messagesState, inputState } from '../recoil/Chat/atoms';
+import { messagesState, inputState, wideState } from '../recoil/Chat/atoms';
 import profile from '../../public/images/default-profile-image.png';
 import { Client } from '@stomp/stompjs';
 import dayjs from 'dayjs';
@@ -41,6 +41,7 @@ const socketUrl = `${import.meta.env.VITE_API_BASE_URL.replace('http', 'ws')}/ws
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const Chat = ({ userName, projectId, token }: ChatProps) => {
+  const wide = useRecoilValue(wideState);
   const [messages, setMessages] = useRecoilState<RecoilMessage[]>(messagesState);
   const [input, setInput] = useRecoilState<string>(inputState);
   const client = useRef<Client | null>(null);
@@ -233,6 +234,7 @@ const Chat = ({ userName, projectId, token }: ChatProps) => {
       <IdeChat_Top>
         <ChatTitle>채팅</ChatTitle>
         <ChatSearch
+          wide={wide}
           messages={messages.map(msg => ({
             senderName: msg.sender,
             content: msg.text,
