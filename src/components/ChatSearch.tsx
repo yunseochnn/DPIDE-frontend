@@ -146,6 +146,13 @@ export default ChatSearch;
 const StyledFaSearch = styled(FaSearch)<StyledFaSearchProps>`
   margin-left: ${props => (props.wide ? '252px' : '226px')};
   font-size: 15px;
+  @media screen and (max-width: 1280px) {
+    margin-left: ${props => (props.wide ? '160px' : '160px')};
+  }
+
+  @media screen and (max-width: 768px) {
+    margin-left: ${props => (props.wide ? '120px' : '100px')};
+  }
 `;
 const SearchContainer = styled.div`
   display: flex;

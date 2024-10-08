@@ -17,9 +17,9 @@ export const MyPageContent = styled.div`
 `;
 
 export const MyPageContent_UserImage = styled.div`
-  svg {
-    width: 120px;
-    height: 120px;
+  img {
+    width: 100px;
+    height: 100px;
   }
 `;
 
