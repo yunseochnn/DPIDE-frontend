@@ -16,3 +16,8 @@ export const inputState = atom({
   key: 'inputState',
   default: '',
 });
+
+export const wideState = atom({
+  key: 'wideState',
+  default: false,
+});

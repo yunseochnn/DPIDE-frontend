@@ -11,14 +11,19 @@ interface ChatMessage {
 }
 
 interface ChatSearchProps {
+  wide: boolean;
   messages: ChatMessage[];
   onSearch: (searchKeyword: string) => void;
   onHighlightChange: (index: number) => void;
 }
 
+interface StyledFaSearchProps {
+  wide: boolean;
+}
+
 const THRESHOLD = 7;
 
-const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) => {
+const ChatSearch = ({ wide, messages, onSearch, onHighlightChange }: ChatSearchProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [highlightIndexes, setHighlightIndexes] = useState<number[]>([]);
@@ -107,6 +112,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
       {isSearchOpen ? (
         <SearchContainer>
           <SearchInput
+            wide={wide}
             type="text"
             value={searchKeyword}
             onChange={e => setSearchKeyword(e.target.value)}
@@ -127,7 +133,7 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
       ) : (
         <>
           <OpenSearchButton onClick={() => setIsSearchOpen(true)}>
-            <StyledFaSearch />
+            <StyledFaSearch wide={wide} />
           </OpenSearchButton>
         </>
       )}
@@ -137,23 +143,22 @@ const ChatSearch = ({ messages, onSearch, onHighlightChange }: ChatSearchProps) 
 
 export default ChatSearch;
 
-const StyledFaSearch = styled(FaSearch)`
-  margin-left: 225px;
+const StyledFaSearch = styled(FaSearch)<StyledFaSearchProps>`
+  margin-left: ${props => (props.wide ? '252px' : '226px')};
   font-size: 15px;
 `;
-
 const SearchContainer = styled.div`
   display: flex;
   gap: 4px;
 `;
 
-const SearchInput = styled.input`
-  padding: 4px;
+const SearchInput = styled.input<{ wide: boolean }>`
   background-color: #3a3d41;
   color: white;
   border: none;
   flex-grow: 1;
   font-size: 12px;
+  margin-left: ${props => (props.wide ? '28px' : '3px')};
 `;
 
 const SearchButton = styled.button`

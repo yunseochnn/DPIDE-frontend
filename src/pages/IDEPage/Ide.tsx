@@ -14,8 +14,11 @@ import { NodeApi } from 'react-arborist';
 import { IFolder } from '../../recoil/Folder/types';
 import { useParams } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
+import { wideState } from '../../recoil/Chat/atoms';
+import { useSetRecoilState } from 'recoil';
 
 const Ide = React.memo(() => {
+  const setWide = useSetRecoilState(wideState);
   const [files, setFiles] = useState(true);
   const [terminal, setTerminal] = useState(true);
   const [chat, setChat] = useState(true);
@@ -27,6 +30,10 @@ const Ide = React.memo(() => {
   const Authorization = cookies['Authorization'];
   const userName = cookies['nickname'];
   const [selectedNode, setSelectedNode] = useState<NodeApi<IFolder> | null>(null);
+
+  React.useEffect(() => {
+    setWide(false);
+  }, [setWide]);
 
   return (
     <IdeContainer>
