@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { MyPageContainer, MyPageContent, MyPageContent_Leave, MyPageContent_UserImage } from './MyPage.style';
-import { FaRegCircleUser } from 'react-icons/fa6';
+import profile from '../../../public/images/default-profile-image.png';
 import { confirmAlert } from 'react-confirm-alert';
 import { useCookies } from 'react-cookie';
 import RefreshToken from '../../apis/RefrshToken';
@@ -90,7 +90,7 @@ const MyPage = () => {
       <Header />
       <MyPageContent>
         <MyPageContent_UserImage>
-          <FaRegCircleUser />
+          <img src={profile} alt="Profile" />
         </MyPageContent_UserImage>
         <Nickname />
         <Password />

@@ -321,13 +321,13 @@ const ChatTitle = styled.div`
   font-size: 16px;
   color: white;
   font-weight: 700;
-
   width: 50px;
   height: 25px;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 10px;
+  white-space: nowrap;
 `;
 
 const ChatContainer = styled.div`
